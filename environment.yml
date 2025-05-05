@@ -1,0 +1,13 @@
+name: meshb
+channels:
+  - conda-forge
+dependencies:
+  - docopt
+  - matplotlib=3.9.2
+  - numpy=2.0.*
+  - pip
+  - poetry=1.8.5
+  - pybind=2.13.*
+  - python=3.12.*
+  - pyyaml=6.0.2
+  - vtk=9.3.1

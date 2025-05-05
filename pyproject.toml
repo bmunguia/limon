@@ -1,0 +1,81 @@
+[tool.poetry]
+name = "pymeshb"
+version = "0.1.0"
+description = "Python API to handle the *.meshb file format"
+license = "MIT"
+authors = [
+    "bmunguia <bmunguia@stanford.edu>",
+]
+readme = "README.md"
+repository = "https://github.com/bmunguia/pymeshb.git"
+keywords = [
+    "mesh adaptation",
+    "mesh generation",
+    "computational fluid dynamics",
+    "computational physics",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering"
+    "Topic :: Scientific/Engineering :: Physics",
+]
+
+[tool.poetry.dependencies]
+python = "~3.12"
+docopt = "0.6.2"
+matplotlib = "3.9.2"
+numpy = "~2.0"
+pybind = "~2.13"
+pyyaml = "6.0.2"
+vtk = "9.3.1"
+
+[tool.poetry.build]
+script = "build.py"
+generate-setup-file = true
+
+[build-system]
+requires = ["poetry-core>=1.9", "cmake>=3.12", "setuptools", "numpy"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.flake8]
+max-line-length = 80
+indent-size = 4
+per-file-ignores = [
+    "__init__.py:F401",
+]
+
+[tool.yapf]
+based_on_style = "pep8"
+split_before_named_assigns = false
+blank_line_before_nested_class_or_def = false
+
+[tool.ruff]
+src = ["su2gym"]
+line-length = 80
+indent-width = 4
+target-version = "py38"
+
+[tool.ruff.lint]
+select = [
+    "D",  # pydocstyle
+]
+ignore = [
+    "D100",  # Ignore "Missing docstring in public module"
+    "D101",  # Ignore "Missing docstring in public class"
+    "D102",  # Ignore "Missing docstring in public method"
+    "D103",  # Ignore "Missing docstring in public function"
+    "D104",  # Ignore "Missing docstring in public package"
+    "D105",  # Ignore "Missing docstring in magic method"
+    "D107",  # Ignore "Missing docstring in __init__"
+    "D205",  # Ignore "blank line required between summary line and description"
+]
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
