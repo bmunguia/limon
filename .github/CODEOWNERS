@@ -1,0 +1,6 @@
+# Default owners
+* @bmunguia
+
+# Owners of specific parts of repo
+/tests/ @bmunguia
+/.github/CODEOWNERS @bmunguia
