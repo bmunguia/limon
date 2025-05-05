@@ -1,2 +1,2 @@
 # pymeshb
-Python API to handle th *.meshb file format
+Python API to handle the *.meshb file format
