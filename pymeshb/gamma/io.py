@@ -3,47 +3,56 @@ from numpy.typing import NDArray
 
 import libmeshb
 
-def read_mesh(filepath: str) -> tuple[NDArray, NDArray]:
+def read_mesh(
+    filepath: str,
+    read_sol: bool = False
+) -> tuple[NDArray, NDArray]:
     r"""Read a mesh file and return nodes and coordinates as numpy arrays.
 
     This function uses the C++ binding read_mesh from libmeshb.
 
     Args:
         filepath (str): Path to the mesh file
+        read_sol (bool, optional): Whether to read solution fields. Defaults to False.
 
     Returns:
-        tuple: (nodes, coords) as numpy arrays
+        tuple: If read_sol=False, returns (coords,)
+               If read_sol=True, returns (coords, sol)
     """
     try:
-        nodes, coords = libmeshb.read_mesh(filepath)
-        return nodes, coords
+        msh = libmeshb.read_mesh(filepath, read_sol)
+        if len(msh) == 2:
+            coords, sol = msh
+            return coords, sol
+        else:
+            return msh[0], {}
     except Exception as e:
         print(f"Error reading mesh: {e}")
         return None, None
 
-def write_mesh(nodes: NDArray, coords: NDArray, filepath: str) -> bool:
+def write_mesh(
+    filepath: str,
+    coords: NDArray,
+    solution: dict[str, NDArray] | None= None,
+) -> bool:
     r"""Write nodes and coordinates to a mesh file.
 
     This function uses the C++ binding write_mesh from libmeshb.
 
     Args:
-        nodes (numpy.ndarray): Node IDs
+        filepath (str): Path to the mesh file
         coords (numpy.ndarray): Coordinates of each node
-        filepath (str): Path where to save the mesh
+        solution (dict, optional): Dictionary of solution fields. Keys are
+                                   field names, values are numpy arrays.
 
     Returns:
         bool: True if successful, False otherwise
     """
     try:
-        nodes_array = np.asarray(nodes, dtype=np.int32)
-        coords_array = np.asarray(coords, dtype=np.float64)
-        result = libmeshb.write_mesh(nodes_array, coords_array, filepath)
+        sol = solution if solution is not None else {}
+        out = libmeshb.write_mesh(filepath, coords, sol)
+        return out
 
-        if result:
-            return True
-        else:
-            print(f"Failed to write mesh to {filepath}")
-            return False
     except Exception as e:
         print(f"Error writing mesh: {e}")
         return False
