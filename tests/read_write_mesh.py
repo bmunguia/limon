@@ -3,19 +3,22 @@ import numpy as np
 import pymeshb
 
 # Reading a mesh with coordinates only
-input_filepath = "libMeshb/sample_meshes/quad.meshb"
-coords, solution = pymeshb.read_mesh(input_filepath, read_sol=True)
+meshpath_in = "libMeshb/sample_meshes/quad.meshb"
+coords, elements, solution = pymeshb.read_mesh(meshpath_in)
 print(f"Available solution fields: {list(solution.keys())}")
 
 # Write the mesh to a new file
-output_filepath = "output/quad.meshb"
-pymeshb.write_mesh(output_filepath, coords, solution)
+meshpath_out = "output/quad.meshb"
+pymeshb.write_mesh(meshpath_out, coords, elements,
+                   solution=solution)
 
 # Write the mesh with solution to a new file
-output_filepath = "output/quad_with_sol.meshb"
+meshpath_out = "output/quad_with_sol.meshb"
+solpath_out = "output/quad_with_sol.solb"
 solution = {
-    "Temperature": np.ones(coords.shape[0]),
+    "Temperature": coords[:, 0] + 10,
     "Velocity": np.zeros((coords.shape[0], coords.shape[1])),
 }
-solution["Velocity"][:, 1] = 2
-pymeshb.write_mesh(output_filepath, coords, solution)
+solution["Velocity"][:, 1] = coords[:, 1] * 2
+pymeshb.write_mesh(meshpath_out, coords, elements,
+                   solpath=solpath_out, solution=solution)
