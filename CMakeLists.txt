@@ -4,15 +4,14 @@ project(pymeshb LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(pybind11 REQUIRED)
-
-# Add the libMeshb subdirectory
-add_subdirectory(libMeshb/sources)
+# Add the libMeshb submodule
+add_subdirectory(${PROJECT_SOURCE_DIR}/external/libMeshb)
 target_compile_options(Meshb.7 PRIVATE -fPIC)
 
 # Add the pymeshb Python module
-pybind11_add_module(libmeshb pymeshb/libMeshb/libmeshb.cpp)
+find_package(pybind11 REQUIRED)
+pybind11_add_module(libmeshb MODULE ${PROJECT_SOURCE_DIR}/pymeshb/libMeshb/libmeshb.cpp)
 
 # Link the Meshb.7 library from libMeshb to the pymeshb module
 target_link_libraries(libmeshb PRIVATE Meshb.7)
-target_include_directories(pymeshb PRIVATE libMeshb/sources)
+target_include_directories(libmeshb PRIVATE ${PROJECT_SOURCE_DIR}/external/libMeshb/sources)
