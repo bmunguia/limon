@@ -3,7 +3,7 @@ __pycache__
 .vscode
 build
 CMakeFiles
-external
+libMeshb
 output
 *.csv
 *.egg-info

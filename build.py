@@ -29,13 +29,13 @@ def build_external(source_dir, build_dir):
         raise
 
 def build(setup_kwargs):
-    build_external("external/libMeshb", "build")
+    build_external("libMeshb", "build")
 
     ext_modules = [
         Pybind11Extension(
             "libmeshb",
-            ["pymeshb/libMeshb/libmeshb.cpp"],
-            include_dirs=["external/libMeshb/sources"],
+            ["pymeshb/gamma/libmeshb.cpp"],
+            include_dirs=["libMeshb/sources"],
             libraries=["Meshb.7"],
             library_dirs=["build/sources"],
         ),
