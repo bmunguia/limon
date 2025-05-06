@@ -1,13 +1,12 @@
-[tool.poetry]
+[project]
 name = "pymeshb"
 version = "0.1.0"
 description = "Python API to handle the *.meshb file format"
 license = "MIT"
 authors = [
-    "bmunguia <bmunguia@stanford.edu>",
+    {name = "bmunguia", email = "bmunguia@stanford.edu"},
 ]
 readme = "README.md"
-repository = "https://github.com/bmunguia/pymeshb.git"
 keywords = [
     "mesh adaptation",
     "mesh generation",
@@ -16,30 +15,36 @@ keywords = [
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.12",
-    "Topic :: Scientific/Engineering"
+    "Topic :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Physics",
 ]
+requires-python = "~=3.12"
+dependencies = [
+    "docopt==0.6.2",
+    "matplotlib==3.9.2",
+    "numpy~=2.0",
+    "pybind11==2.13.6",
+    "pyyaml==6.0.2",
+    "vtk==9.3.1",
+]
 
-[tool.poetry.dependencies]
-python = "~3.12"
-docopt = "0.6.2"
-matplotlib = "3.9.2"
-numpy = "~2.0"
-pybind = "~2.13"
-pyyaml = "6.0.2"
-vtk = "9.3.1"
+[build-system]
+requires = ["cmake>=4.0", "poetry-core>=2.1", "pybind11", "setuptools", "numpy"]
+build-backend = "poetry.core.masonry.api"
+
+[project.urls]
+repository = "https://github.com/bmunguia/pymeshb.git"
 
 [tool.poetry.build]
 script = "build.py"
 generate-setup-file = true
 
-[build-system]
-requires = ["poetry-core>=1.9", "cmake>=3.12", "setuptools", "numpy"]
-build-backend = "poetry.core.masonry.api"
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pymeshb"]
 
 [tool.flake8]
 max-line-length = 80
@@ -57,7 +62,7 @@ blank_line_before_nested_class_or_def = false
 src = ["su2gym"]
 line-length = 80
 indent-width = 4
-target-version = "py38"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = [
