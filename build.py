@@ -33,11 +33,18 @@ def build(setup_kwargs):
 
     ext_modules = [
         Pybind11Extension(
-            "libmeshb",
+            "pymeshb.gamma.libmeshb",
             ["pymeshb/gamma/libmeshb.cpp"],
             include_dirs=["libMeshb/sources"],
             libraries=["Meshb.7"],
             library_dirs=["build/sources"],
+            extra_compile_args=["-std=c++17"],
+        ),
+        Pybind11Extension(
+            "pymeshb.metric._metric",
+            ["pymeshb/metric/metric.cpp"],
+            include_dirs=[],
+            extra_compile_args=["-std=c++17"],
         ),
     ]
 

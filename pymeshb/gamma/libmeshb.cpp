@@ -1,3 +1,14 @@
+/** @file libmeshb.cpp
+ *  @brief Python bindings for libMeshb library.
+ *
+ *  Implementation of Python bindings for the libMeshb library, providing
+ *  functionality to read and write meshb files, including scalar, vector,
+ *  and tensor fields.
+ *
+ *  @author Brian Munguía
+ *  @bug No known bugs.
+ */
+
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
@@ -7,9 +18,20 @@ extern "C" {
 
 namespace py = pybind11;
 
+/**
+ * Python module definition for libMeshb bindings.
+ */
 PYBIND11_MODULE(libmeshb, m) {
     m.doc() = "Python bindings for libMeshb";
 
+    /**
+     * Read mesh data from a meshb file.
+     *
+     * @param meshpath Path to the mesh file
+     * @param solpath Path to the solution file (optional)
+     * @param read_sol Whether to read solution data (default: false)
+     * @return Tuple containing coordinates, elements, and optionally solution data
+     */
     m.def("read_mesh", [](const std::string& meshpath, const std::string& solpath = "",
                           bool read_sol = false) {
         int ver;
@@ -210,6 +232,16 @@ PYBIND11_MODULE(libmeshb, m) {
     }, py::arg("meshpath"), py::arg("solpath") = "", py::arg("read_sol") = false,
        "Read a meshb file and return nodes and coordinates as numpy arrays");
 
+       /**
+         * Write mesh data to a meshb file.
+         *
+         * @param meshpath Path to the mesh file
+         * @param coords Coordinates of each node
+         * @param elements Dictionary of mesh elements
+         * @param solpath Path to the solution file (optional)
+         * @param sol Dictionary of solution data (optional)
+         * @return Boolean indicating success
+         */
        m.def("write_mesh", [](const std::string& meshpath, py::array_t<double> coords,
                               py::dict elements, const std::string& solpath = "",
                               py::dict sol = py::dict()) {

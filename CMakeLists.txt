@@ -10,8 +10,15 @@ target_compile_options(Meshb.7 PRIVATE -fPIC)
 
 # Add the pymeshb Python module
 find_package(pybind11 REQUIRED)
-pybind11_add_module(libmeshb MODULE ${PROJECT_SOURCE_DIR}/pymeshb/gamma/libmeshb.cpp)
+pybind11_add_module(libmeshb MODULE
+    ${PROJECT_SOURCE_DIR}/pymeshb/gamma/libmeshb.cpp)
 
 # Link the Meshb.7 library from libMeshb to the pymeshb module
 target_link_libraries(libmeshb PRIVATE Meshb.7)
-target_include_directories(libmeshb PRIVATE ${PROJECT_SOURCE_DIR}/libMeshb/sources)
+target_include_directories(libmeshb PRIVATE
+    ${PROJECT_SOURCE_DIR}/libMeshb/sources)
+
+# Build metric module
+pybind11_add_module(_metric MODULE ${PROJECT_SOURCE_DIR}/pymeshb/metric/metric.cpp)
+set_target_properties(_metric PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/pymeshb/metric)

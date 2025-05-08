@@ -13,6 +13,7 @@ output
 *.prof
 *.pt
 *.pyc
+*.so
 *.su2
 *.vtk
 *.vtu
