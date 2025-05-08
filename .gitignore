@@ -5,6 +5,7 @@ build
 CMakeFiles
 libMeshb
 output
+setup.py
 *.csv
 *.egg-info
 *.lock

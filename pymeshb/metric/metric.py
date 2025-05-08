@@ -4,6 +4,7 @@ from numpy.typing import NDArray
 from pymeshb.metric._metric import diagonalize as _diagonalize
 from pymeshb.metric._metric import recombine as _recombine
 from pymeshb.metric._metric import perturb as _perturb
+from pymeshb.metric._metric import perturb_metric_field as _perturb_metric_field
 
 
 def diagonalize(lower_tri: NDArray) -> tuple[NDArray, NDArray]:
@@ -109,6 +110,58 @@ def perturb(
     return _perturb(
         np.asarray(eigenvalues, dtype=np.float64),
         np.asarray(eigenvectors, dtype=np.float64),
+        np.asarray(val_perturbations, dtype=np.float64),
+        np.asarray(vec_perturbations, dtype=np.float64)
+    )
+
+
+def perturb_metric_field(
+    metrics: NDArray,
+    val_perturbations: NDArray,
+    vec_perturbations: NDArray
+) -> NDArray:
+    r"""
+    Perturb a field of metric tensors.
+
+    For each tensor in the input array, this function:
+    1. Diagonalizes the tensor into eigenvalues and eigenvectors
+    2. Applies specified perturbations to the eigenvalues and eigenvectors
+    3. Recombines into a perturbed tensor
+
+    Args:
+        metrics (numpy.ndarray): Array of shape (num_point, num_met) where each row
+                                contains the lower triangular elements of a tensor.
+        val_perturbations (numpy.ndarray): Array of shape (num_point, dim) containing
+ *                                        eigenvalue perturbations for each point.
+                                          dim is 1, 2, or 3 for 1D, 2D, or 3D tensors.
+        vec_perturbations (numpy.ndarray): Array of shape (num_point, dim, dim) containing
+                                          eigenvector perturbations for each point.
+
+    Returns:
+        numpy.ndarray: Array of perturbed metric tensors in lower triangular form.
+
+    Raises:
+        RuntimeError: If input arrays have incompatible shapes
+        RuntimeError: If tensor size is not 1, 3, or 6 elements
+
+    Examples:
+        >>> # Process a field of 2D tensors with perturbations
+        >>> metrics = np.array([
+        ...     [2.0, 0.5, 1.0],  # First tensor: [a00, a10, a11]
+        ...     [3.0, 0.0, 1.0],  # Second tensor: [a00, a10, a11]
+        ... ])
+        >>> val_perturbations = np.array([
+        ...     [0.1, -0.1],  # Log-space perturbations for first tensor's eigenvalues
+        ...     [0.2, -0.05]  # Log-space perturbations for second tensor's eigenvalues
+        ... ])
+        >>> vec_perturbations = np.array([
+        ...     [[0.01, 0.02], [-0.01, 0.01]],  # For first tensor
+        ...     [[0.03, 0.01], [-0.02, 0.02]]   # For second tensor
+        ... ])
+        >>> perturbed_metrics = perturb_metric_field(metrics, val_perturbations, vec_perturbations)
+    """
+    return _perturb_metric_field(
+        np.asarray(metrics, dtype=np.float64),
         np.asarray(val_perturbations, dtype=np.float64),
         np.asarray(vec_perturbations, dtype=np.float64)
     )

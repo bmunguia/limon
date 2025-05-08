@@ -26,7 +26,7 @@ py::tuple diagonalize(py::array_t<double> lower_tri) {
     auto buf = lower_tri.request();
     double *ptr = static_cast<double *>(buf.ptr);
 
-    // Determine dimension from input size
+    // Determine dimension from lower triangle size
     int dim = 0;
     if (buf.size == 1) dim = 1;
     else if (buf.size == 3) dim = 2;
@@ -281,7 +281,7 @@ py::tuple perturb(py::array_t<double> eigenvalues,
                   py::array_t<double> vec_perturbations) {
     auto eig_vals = eigenvalues.unchecked<1>();
     auto eig_vecs = eigenvectors.unchecked<2>();
-    auto eig_pert = val_perturbations.unchecked<1>();
+    auto val_pert = val_perturbations.unchecked<1>();
     auto vec_pert = vec_perturbations.unchecked<2>();
 
     int dim = eig_vals.shape(0);
@@ -293,7 +293,7 @@ py::tuple perturb(py::array_t<double> eigenvalues,
     if (eig_vecs.shape(0) != dim || eig_vecs.shape(1) != dim) {
         throw std::runtime_error("Eigenvector dimensions must match eigenvalue count");
     }
-    if (eig_pert.shape(0) != dim) {
+    if (val_pert.shape(0) != dim) {
         throw std::runtime_error("Eigenvalue perturbations must match eigenvalue count");
     }
     if (vec_pert.shape(0) != dim || vec_pert.shape(1) != dim) {
@@ -308,7 +308,10 @@ py::tuple perturb(py::array_t<double> eigenvalues,
 
     // Perturb eigenvalues
     for (int i = 0; i < dim; i++) {
-        p_vals(i) = eig_vals(i) + eig_pert(i);
+        // Ensure eigenvalues are positive before taking log
+        double eigen_val = std::max(eig_vals(i), 1e-10);
+        // Take log, perturb, then exponentiate
+        p_vals(i) = std::exp(std::log(eigen_val) + val_pert(i));
     }
 
     // Perturb eigenvectors
@@ -348,6 +351,102 @@ py::tuple perturb(py::array_t<double> eigenvalues,
 }
 
 /**
+ * Perturb a field of metric tensors
+ *
+ * For each tensor in the input array, this function:
+ * 1. Diagonalizes the tensor into eigenvalues and eigenvectors
+ * 2. Applies specified perturbations to the eigenvalues and eigenvectors
+ * 3. Recombines into a perturbed tensor
+ *
+ * @param metrics Array of shape (num_point, num_met) where each row
+ *                contains the lower triangular elements of a tensor
+ * @param val_perturbations Array of shape (num_point, dim) containing
+ *                        eigenvalue perturbations for each point
+ * @param vec_perturbations Array of shape (num_point, dim, dim) containing
+ *                        eigenvector perturbations for each point
+ * @return Array of perturbed metric tensors in lower triangular form
+ */
+py::array_t<double> perturb_metric_field(
+    py::array_t<double> metrics,
+    py::array_t<double> val_perturbations,
+    py::array_t<double> vec_perturbations) {
+
+    // Get input array info
+    auto metrics_info = metrics.request();
+    auto val_pert_info = val_perturbations.request();
+    auto vec_pert_info = vec_perturbations.request();
+
+    // Check dimensions
+    if (metrics_info.ndim != 2) {
+        throw std::runtime_error("Tensors array must be 2-dimensional");
+    }
+
+    int64_t num_point = metrics_info.shape[0];
+    int64_t num_met = metrics_info.shape[1];
+
+    // Determine dimension from lower triangle size
+    int dim = 0;
+    if (num_met == 1) dim = 1;
+    else if (num_met == 3) dim = 2;
+    else if (num_met == 6) dim = 3;
+    else throw std::runtime_error("Invalid tensor size: must be 1, 3, or 6 elements per tensor");
+
+    // Validate input shapes
+    if (val_pert_info.ndim != 2 || val_pert_info.shape[0] != num_point ||
+        val_pert_info.shape[1] != dim) {
+        throw std::runtime_error("Eigenvalue perturbations shape must be (num_point, dim)");
+    }
+
+    if (vec_pert_info.ndim != 3 || vec_pert_info.shape[0] != num_point ||
+        vec_pert_info.shape[1] != dim || vec_pert_info.shape[2] != dim) {
+        throw std::runtime_error("Eigenvector perturbations shape must be (num_point, dim, dim)");
+    }
+
+    // Create output array
+    py::array_t<double> perturbed_metrics({num_point, num_met});
+    auto result_info = perturbed_metrics.request();
+
+    // Direct pointers to data
+    double* metrics_ptr = static_cast<double*>(metrics_info.ptr);
+    double* val_pert_ptr = static_cast<double*>(val_pert_info.ptr);
+    double* vec_pert_ptr = static_cast<double*>(vec_pert_info.ptr);
+    double* result_ptr = static_cast<double*>(result_info.ptr);
+
+    // Process each tensor
+    for (int64_t i = 0; i < num_point; i++) {
+        // Create view for current tensor
+        py::array_t<double> metric({num_met}, {sizeof(double)},
+                                   metrics_ptr + i * num_met);
+
+        // Diagonalize
+        py::tuple diag_result = diagonalize(metric);
+        py::array_t<double> eigenvalues = diag_result[0].cast<py::array_t<double>>();
+        py::array_t<double> eigenvectors = diag_result[1].cast<py::array_t<double>>();
+
+        // Create views for current perturbations
+        py::array_t<double> val_pert({dim}, {sizeof(double)},
+                                    val_pert_ptr + i * dim);
+        py::array_t<double> vec_pert({dim, dim}, {dim * sizeof(double), sizeof(double)},
+                                    vec_pert_ptr + i * dim * dim);
+
+        // Apply perturbations
+        py::tuple pert_result = perturb(eigenvalues, eigenvectors, val_pert, vec_pert);
+        py::array_t<double> perturbed_vals = pert_result[0].cast<py::array_t<double>>();
+        py::array_t<double> perturbed_vecs = pert_result[1].cast<py::array_t<double>>();
+
+        // Recombine
+        py::array_t<double> perturbed_tensor = recombine(perturbed_vals, perturbed_vecs);
+
+        // Copy to output array
+        auto perturbed_info = perturbed_tensor.request();
+        double* perturbed_ptr = static_cast<double*>(perturbed_info.ptr);
+        std::memcpy(result_ptr + i * num_met, perturbed_ptr, num_met * sizeof(double));
+    }
+
+    return perturbed_metrics;
+}
+
+/**
  * Python module definition for metric tensor operations.
  */
 PYBIND11_MODULE(_metric, m) {
@@ -362,4 +461,8 @@ PYBIND11_MODULE(_metric, m) {
     m.def("perturb", &perturb, "Apply perturbation to eigenvalues and eigenvectors",
           py::arg("eigenvalues"), py::arg("eigenvectors"),
           py::arg("val_perturbations"), py::arg("vec_perturbations"));
+
+    m.def("perturb_metric_field", &perturb_metric_field,
+          "Perturb a field of metric tensors",
+          py::arg("metrics"), py::arg("val_perturbations"), py::arg("vec_perturbations"));
 }
