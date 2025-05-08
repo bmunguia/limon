@@ -16,6 +16,7 @@ setup.py
 *.pyc
 *.so
 *.su2
+*.vizir
 *.vtk
 *.vtu
 *.yaml
