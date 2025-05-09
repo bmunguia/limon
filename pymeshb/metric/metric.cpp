@@ -69,7 +69,7 @@ py::tuple diagonalize(py::array_t<double> lower_tri) {
         eig_vals(1) = (trace - std::sqrt(discriminant)) / 2.0;
 
         // Calculate eigenvectors
-        for (int i = 0; i < 2; i++) {
+        for (auto i = 0; i < 2; i++) {
             double lambda = eig_vals(i);
 
             if (std::abs(b) > 1e-10) {
@@ -114,8 +114,8 @@ py::tuple diagonalize(py::array_t<double> lower_tri) {
 
         // Make working copy of matrix
         double a[3][3];
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
+        for (auto i = 0; i < 3; i++) {
+            for (auto j = 0; j < 3; j++) {
                 a[i][j] = matrix[i][j];
             }
         }
@@ -124,13 +124,13 @@ py::tuple diagonalize(py::array_t<double> lower_tri) {
         const int MAX_ITER = 50;
         const double EPSILON = 1e-10;
 
-        for (int iter = 0; iter < MAX_ITER; iter++) {
+        for (auto iter = 0; iter < MAX_ITER; iter++) {
             // Find largest off-diagonal element
             int p = 0, q = 1;
             double max_val = std::abs(a[p][q]);
 
-            for (int i = 0; i < 3; i++) {
-                for (int j = i+1; j < 3; j++) {
+            for (auto i = 0; i < 3; i++) {
+                for (auto j = i+1; j < 3; j++) {
                     if (std::abs(a[i][j]) > max_val) {
                         max_val = std::abs(a[i][j]);
                         p = i;
@@ -156,7 +156,7 @@ py::tuple diagonalize(py::array_t<double> lower_tri) {
             a[q][q] = app * s * s + aqq * c * c - 2 * apq * c * s;
             a[p][q] = a[q][p] = 0.0;  // Should be zero after rotation
 
-            for (int i = 0; i < 3; i++) {
+            for (auto i = 0; i < 3; i++) {
                 if (i != p && i != q) {
                     double api = a[p][i];
                     double aqi = a[q][i];
@@ -166,7 +166,7 @@ py::tuple diagonalize(py::array_t<double> lower_tri) {
             }
 
             // Update eigenvectors
-            for (int i = 0; i < 3; i++) {
+            for (auto i = 0; i < 3; i++) {
                 double vip = evecs[i][p];
                 double viq = evecs[i][q];
                 evecs[i][p] = vip * c + viq * s;
@@ -175,13 +175,13 @@ py::tuple diagonalize(py::array_t<double> lower_tri) {
         }
 
         // Copy results into return arrays
-        for (int i = 0; i < 3; i++) {
+        for (auto i = 0; i < 3; i++) {
             eig_vals(i) = a[i][i];
         }
 
         // Sort eigenvalues and eigenvectors (descending order)
-        for (int i = 0; i < 3; i++) {
-            for (int j = i + 1; j < 3; j++) {
+        for (auto i = 0; i < 3; i++) {
+            for (auto j = i + 1; j < 3; j++) {
                 if (eig_vals(i) < eig_vals(j)) {
                     // Swap eigenvalues
                     double temp = eig_vals(i);
@@ -189,7 +189,7 @@ py::tuple diagonalize(py::array_t<double> lower_tri) {
                     eig_vals(j) = temp;
 
                     // Swap eigenvectors
-                    for (int k = 0; k < 3; k++) {
+                    for (auto k = 0; k < 3; k++) {
                         temp = evecs[k][i];
                         evecs[k][i] = evecs[k][j];
                         evecs[k][j] = temp;
@@ -199,8 +199,8 @@ py::tuple diagonalize(py::array_t<double> lower_tri) {
         }
 
         // Copy eigenvectors to output array
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
+        for (auto i = 0; i < 3; i++) {
+            for (auto j = 0; j < 3; j++) {
                 eig_vecs(i, j) = evecs[i][j];
             }
         }
@@ -237,10 +237,10 @@ py::array_t<double> recombine(py::array_t<double> eigenvalues, py::array_t<doubl
     // Full matrix reconstruction: M = V * D * V^T
     double matrix[3][3] = {{0}};
 
-    for (int i = 0; i < dim; i++) {
-        for (int j = 0; j < dim; j++) {
+    for (auto i = 0; i < dim; i++) {
+        for (auto j = 0; j < dim; j++) {
             double sum = 0.0;
-            for (int k = 0; k < dim; k++) {
+            for (auto k = 0; k < dim; k++) {
                 sum += eig_vecs(i, k) * eig_vals(k) * eig_vecs(j, k);
             }
             matrix[i][j] = sum;
@@ -307,7 +307,7 @@ py::tuple perturb(py::array_t<double> eigenvalues,
     auto p_vecs = perturbed_vecs.mutable_unchecked<2>();
 
     // Perturb eigenvalues
-    for (int i = 0; i < dim; i++) {
+    for (auto i = 0; i < dim; i++) {
         // Ensure eigenvalues are positive before taking log
         double eigen_val = std::max(eig_vals(i), 1e-10);
         // Take log, perturb, then exponentiate
@@ -315,33 +315,33 @@ py::tuple perturb(py::array_t<double> eigenvalues,
     }
 
     // Perturb eigenvectors
-    for (int i = 0; i < dim; i++) {
-        for (int j = 0; j < dim; j++) {
+    for (auto i = 0; i < dim; i++) {
+        for (auto j = 0; j < dim; j++) {
             p_vecs(i, j) = eig_vecs(i, j) + vec_pert(i, j);
         }
     }
 
     // Orthonormalize eigenvectors using Gram-Schmidt
-    for (int j = 0; j < dim; j++) {
+    for (auto j = 0; j < dim; j++) {
         // Normalize the j-th vector
         double norm = 0.0;
-        for (int i = 0; i < dim; i++) {
+        for (auto i = 0; i < dim; i++) {
             norm += p_vecs(i, j) * p_vecs(i, j);
         }
         norm = std::sqrt(norm);
 
-        for (int i = 0; i < dim; i++) {
+        for (auto i = 0; i < dim; i++) {
             p_vecs(i, j) /= norm;
         }
 
         // Orthogonalize against previous vectors
-        for (int k = j + 1; k < dim; k++) {
+        for (auto k = j + 1; k < dim; k++) {
             double dot = 0.0;
-            for (int i = 0; i < dim; i++) {
+            for (auto i = 0; i < dim; i++) {
                 dot += p_vecs(i, j) * p_vecs(i, k);
             }
 
-            for (int i = 0; i < dim; i++) {
+            for (auto i = 0; i < dim; i++) {
                 p_vecs(i, k) -= dot * p_vecs(i, j);
             }
         }
@@ -413,7 +413,7 @@ py::array_t<double> perturb_metric_field(
     double* result_ptr = static_cast<double*>(result_info.ptr);
 
     // Process each tensor
-    for (int64_t i = 0; i < num_point; i++) {
+    for (auto i = 0; i < num_point; i++) {
         // Create view for current tensor
         py::array_t<double> metric({num_met}, {sizeof(double)},
                                    metrics_ptr + i * num_met);

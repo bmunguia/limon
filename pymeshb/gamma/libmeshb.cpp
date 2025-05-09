@@ -61,7 +61,7 @@ PYBIND11_MODULE(libmeshb, m) {
         }
 
         // Read vertices
-        for (int64_t i = 0; i < num_ver; i++) {
+        for (auto i = 0; i < num_ver; i++) {
             int ref;
             if (dim == 2) {
                 GmfGetLin(mesh_id, GmfVertices, &coords_ptr[i * dim],
@@ -90,7 +90,7 @@ PYBIND11_MODULE(libmeshb, m) {
                 auto elm_ptr = element_array.mutable_data();
 
                 if (GmfGotoKwd(mesh_id, kwd)) {
-                    for (int64_t i = 0; i < num_elm; i++) {
+                    for (auto i = 0; i < num_elm; i++) {
                         std::vector<int> bufInt(num_nodes);
                         int ref;
                         if (kwd == GmfEdges) {
@@ -115,7 +115,7 @@ PYBIND11_MODULE(libmeshb, m) {
                                       &bufInt[4], &bufInt[5], &bufInt[6], &bufInt[7], &ref);
                         }
 
-                        for (int j = 0; j < num_nodes; j++) {
+                        for (auto j = 0; j < num_nodes; j++) {
                             elm_ptr[i * (num_nodes + 1) + j] = bufInt[j];
                         }
                         elm_ptr[i * (num_nodes + 1) + num_nodes] = ref;
@@ -160,14 +160,14 @@ PYBIND11_MODULE(libmeshb, m) {
                     // Solution array
                     std::vector<py::array_t<double>> sol_array;
                     py::array_t<double> bufDbl(sol_size);
-                    for (int64_t i = 0; i < num_ver; i++) {
+                    for (auto i = 0; i < num_ver; i++) {
                         GmfGetLin(mesh_id, GmfSolAtVertices, &bufDbl);
                         sol_array.push_back(bufDbl);
                     }
 
                     // Solution dict
                     int count = 0;
-                    for (int i = 0; i < num_types; i++) {
+                    for (auto i = 0; i < num_types; i++) {
                         std::string field_name = "sol_" + std::to_string(i);
 
                         // Create appropriate array based on field type
@@ -177,7 +177,7 @@ PYBIND11_MODULE(libmeshb, m) {
                             auto scalar_ptr = scalar_field.mutable_data();
 
                             // Read scalar values
-                            for (int64_t j = 0; j < num_ver; j++) {
+                            for (auto j = 0; j < num_ver; j++) {
                                 auto sol_data = sol_array[j].data();
                                 scalar_ptr[j] = sol_data[count + i];
                             }
@@ -191,8 +191,8 @@ PYBIND11_MODULE(libmeshb, m) {
                             auto vector_ptr = vector_field.mutable_data();
 
                             // Read vector values
-                            for (int64_t j = 0; j < num_ver; j++) {
-                                for (int k = 0; k < dim; k++) {
+                            for (auto j = 0; j < num_ver; j++) {
+                                for (auto k = 0; k < dim; k++) {
                                     auto sol_data = sol_array[j].data();
                                     vector_ptr[j*dim + k] = sol_data[count + k];
                                 }
@@ -208,8 +208,8 @@ PYBIND11_MODULE(libmeshb, m) {
                             auto matrix_ptr = matrix_field.mutable_data();
 
                             // Read symmetric matrix values
-                            for (int64_t j = 0; j < num_ver; j++) {
-                                for (int k = 0; k < sym_size; k++) {
+                            for (auto j = 0; j < num_ver; j++) {
+                                for (auto k = 0; k < sym_size; k++) {
                                     auto sol_data = sol_array[j].data();
                                     matrix_ptr[j*sym_size + k] = sol_data[count + k];
                                 }
@@ -276,7 +276,7 @@ PYBIND11_MODULE(libmeshb, m) {
         }
 
         // Write vertices
-        for (int64_t i = 0; i < num_ver; i++) {
+        for (auto i = 0; i < num_ver; i++) {
             if (dim == 2) {
                 GmfSetLin(mesh_id, GmfVertices, coords_ptr[i * dim],
                           coords_ptr[i * dim + 1], 0);
@@ -305,7 +305,7 @@ PYBIND11_MODULE(libmeshb, m) {
 
             GmfSetKwd(mesh_id, kwd, num_elm);
 
-            for (int64_t i = 0; i < num_elm; i++) {
+            for (auto i = 0; i < num_elm; i++) {
                 int j = i * (num_nodes + 1);
                 if (kwd == GmfEdges) {
                     GmfSetLin(mesh_id, GmfEdges,
@@ -372,7 +372,7 @@ PYBIND11_MODULE(libmeshb, m) {
 
                 // Write solution values for each vertex
                 std::vector<double> bufDbl;
-                for (int64_t i = 0; i < num_ver; i++) {
+                for (auto i = 0; i < num_ver; i++) {
                     bufDbl.clear();
 
                     for (size_t j = 0; j < field_type.size(); j++) {
@@ -383,13 +383,13 @@ PYBIND11_MODULE(libmeshb, m) {
                             bufDbl.push_back(field_ptr[i]);
                         } else if (field_type[j] == GmfVec) {
                             // Add vector values to buffer
-                            for (int k = 0; k < dim; k++) {
+                            for (auto k = 0; k < dim; k++) {
                                 bufDbl.push_back(field_ptr[i * dim + k]);
                             }
                         } else if (field_type[j] == GmfSymMat) {
                             // Add symmetric matrix values to buffer
                             int sym_size = (dim * (dim + 1)) / 2;
-                            for (int k = 0; k < sym_size; k++) {
+                            for (auto k = 0; k < sym_size; k++) {
                                 bufDbl.push_back(field_ptr[i * sym_size + k]);
                             }
                         }
