@@ -86,7 +86,7 @@ PYBIND11_MODULE(libmeshb, m) {
         for (const auto& [kwd, num_nodes] : element_types) {
             int64_t num_elm = GmfStatKwd(mesh_id, kwd);
             if (num_elm > 0) {
-                py::array_t<int64_t> element_array(std::vector<py::ssize_t>{num_elm, num_nodes + 1});
+                py::array_t<unsigned int> element_array(std::vector<py::ssize_t>{num_elm, num_nodes + 1});
                 auto elm_ptr = element_array.mutable_data();
 
                 if (GmfGotoKwd(mesh_id, kwd)) {
@@ -289,7 +289,7 @@ PYBIND11_MODULE(libmeshb, m) {
         // Write elements
         for (auto item : elements) {
             std::string key = item.first.cast<std::string>();
-            py::array_t<int64_t> element_array = item.second.cast<py::array_t<int64_t>>();
+            py::array_t<unsigned int> element_array = item.second.cast<py::array_t<unsigned int>>();
             auto elm_ptr = element_array.data();
             int64_t num_elm = element_array.shape(0);
             int num_nodes = element_array.shape(1) - 1;
