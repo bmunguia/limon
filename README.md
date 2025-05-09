@@ -28,3 +28,9 @@ pymeshb is a Python API to handle the *.meshb file format, and to handle various
     ```
     poetry install
     ```
+    
+   Optional: to be able to run the tests, install with extras:
+
+    ```
+    poetry install -E test
+    ```
