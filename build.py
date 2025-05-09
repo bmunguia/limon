@@ -1,56 +1,52 @@
-import subprocess
 import os
+import subprocess
+import shutil
+from pathlib import Path
 
-from pybind11.setup_helpers import Pybind11Extension, build_ext
-
-def build_external(source_dir, build_dir):
-    os.makedirs(build_dir, exist_ok=True)
-
-    # Configure CMake
-    cmake_configure_command = [
-        "cmake",
-        "-S", source_dir,
-        "-B", build_dir,
-        "-DCMAKE_C_FLAGS=-fPIC",
-        "-DCMAKE_CXX_FLAGS=-fPIC",
-        "-DCMAKE_BUILD_TYPE=Release",
+def build(setup_kwargs=None):
+    """Build the C++ extensions using CMake"""
+    # Get conda environment path
+    conda_prefix = os.environ.get("CONDA_PREFIX")
+    
+    # Create build directory
+    build_dir = Path("build")
+    build_dir.mkdir(exist_ok=True)
+    
+    # Run CMake
+    cmd = [
+        "cmake", 
+        "-S", ".", 
+        "-B", "build",
+        "-DCMAKE_BUILD_TYPE=Release"
     ]
-    try:
-        subprocess.run(cmake_configure_command, check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"CMake configure failed: {e}")
-        return
+    if conda_prefix:
+        cmd.extend(["-DCMAKE_PREFIX_PATH=" + conda_prefix])
+    
+    subprocess.run(cmd, check=True)
+    
+    # Build
+    subprocess.run(["cmake", "--build", "build"], check=True)
+    
+    # Create necessary directory structure
+    metrics_dir = Path("pymeshb/metric")
+    metrics_dir.mkdir(exist_ok=True)
+    
+    # Copy built libraries to right locations
+    metric_lib = list(build_dir.glob("*_metric.*"))
+    gamma_lib = list(build_dir.glob("*libmeshb.*"))
+    
+    if metric_lib:
+        shutil.copy2(metric_lib[0], metrics_dir)
+    else:
+        print("Warning: _metric library not found in build dir")
+        
+    if gamma_lib:
+        shutil.copy2(gamma_lib[0], Path("pymeshb/gamma"))
+    else:
+        print("Warning: libmeshb library not found in build dir")
+        
+    # Return empty dict if called by Poetry
+    return {} if setup_kwargs is not None else None
 
-    # Build the project
-    cmake_build_command = ["cmake", "--build", build_dir]
-    try:
-        subprocess.run(cmake_build_command, check=True)
-    except:
-        raise
-
-def build(setup_kwargs):
-    build_external("libMeshb", "build")
-
-    ext_modules = [
-        Pybind11Extension(
-            "pymeshb.gamma.libmeshb",
-            ["pymeshb/gamma/libmeshb.cpp"],
-            include_dirs=["libMeshb/sources"],
-            libraries=["Meshb.7"],
-            library_dirs=["build/sources"],
-            extra_compile_args=["-std=c++17"],
-        ),
-        Pybind11Extension(
-            "pymeshb.metric._metric",
-            ["pymeshb/metric/metric.cpp"],
-            include_dirs=[],
-            extra_compile_args=["-std=c++17"],
-        ),
-    ]
-
-    setup_kwargs.update(
-        {
-            "ext_modules": ext_modules,
-            "cmdclass": {"build_ext": build_ext},
-        }
-    )
+if __name__ == "__main__":
+    build()
