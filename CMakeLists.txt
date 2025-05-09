@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.0)
+cmake_minimum_required(VERSION 3.12)
 project(pymeshb LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -19,6 +19,8 @@ target_include_directories(libmeshb PRIVATE
     ${PROJECT_SOURCE_DIR}/libMeshb/sources)
 
 # Build metric module
+find_package(Eigen3 REQUIRED)
 pybind11_add_module(_metric MODULE ${PROJECT_SOURCE_DIR}/pymeshb/metric/metric.cpp)
+target_link_libraries(_metric PRIVATE Eigen3::Eigen)
 set_target_properties(_metric PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/pymeshb/metric)

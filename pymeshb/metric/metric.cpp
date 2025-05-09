@@ -8,259 +8,164 @@
  *  @bug No known bugs.
  */
 
-#include <pybind11/pybind11.h>
-#include <pybind11/numpy.h>
+#include <algorithm>
 #include <cmath>
-#include <vector>
 #include <stdexcept>
+#include <vector>
+
+#include <Eigen/Dense>
+#include <Eigen/Eigenvalues>
+#include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
 
 namespace py = pybind11;
 
 /**
- * Diagonalize a symmetric tensor represented by its lower triangular elements
+ * Diagonalize a symmetric tensor represented by its lower triangular elements using Eigen
  *
  * @param lower_tri Array containing the lower triangular elements of tensor
  * @return Tuple containing eigenvalues and eigenvectors
  */
 py::tuple diagonalize(py::array_t<double> lower_tri) {
     auto buf = lower_tri.request();
+    if (buf.ndim != 1) {
+        throw std::runtime_error("Input lower_tri must be a 1D array.");
+    }
     double *ptr = static_cast<double *>(buf.ptr);
 
-    // Determine dimension from lower triangle size
     int dim = 0;
     if (buf.size == 1) dim = 1;
     else if (buf.size == 3) dim = 2;
     else if (buf.size == 6) dim = 3;
     else throw std::runtime_error("Input size must be 1, 3, or 6 for 1D, 2D, or 3D tensor");
 
-    // Allocate return arrays
-    py::array_t<double> eigenvalues(dim);
-    auto eig_vals = eigenvalues.mutable_unchecked<1>();
+    Eigen::MatrixXd A(dim, dim);
 
-    py::array_t<double> eigenvectors({dim, dim});
-    auto eig_vecs = eigenvectors.mutable_unchecked<2>();
-
-    // 1D case is trivial
     if (dim == 1) {
-        eig_vals(0) = ptr[0];
-        eig_vecs(0, 0) = 1.0;
-        return py::make_tuple(eigenvalues, eigenvectors);
+        A(0,0) = ptr[0];
+    } else if (dim == 2) {
+        // lower_tri: [A00, A10, A11]
+        A(0,0) = ptr[0];
+        A(1,0) = ptr[1]; A(0,1) = ptr[1];
+        A(1,1) = ptr[2];
+    } else { // dim == 3
+        // lower_tri: [A00, A10, A11, A20, A21, A22]
+        A(0,0) = ptr[0];
+        A(1,0) = ptr[1]; A(0,1) = ptr[1];
+        A(1,1) = ptr[2];
+        A(2,0) = ptr[3]; A(0,2) = ptr[3];
+        A(2,1) = ptr[4]; A(1,2) = ptr[4];
+        A(2,2) = ptr[5];
     }
 
-    // 2D case
-    else if (dim == 2) {
-        double a = ptr[0]; // a[0][0]
-        double b = ptr[1]; // a[1][0]
-        double c = ptr[2]; // a[1][1]
-
-        // Calculate eigenvalues using quadratic formula
-        double trace = a + c;
-        double det = a * c - b * b;
-        double discriminant = trace * trace - 4 * det;
-
-        // Check for numerical issues
-        if (discriminant < 0 && discriminant > -1e-10) {
-            discriminant = 0;
-        } else if (discriminant < 0) {
-            throw std::runtime_error("Negative discriminant in 2D eigenvalue calculation");
-        }
-
-        eig_vals(0) = (trace + std::sqrt(discriminant)) / 2.0;
-        eig_vals(1) = (trace - std::sqrt(discriminant)) / 2.0;
-
-        // Calculate eigenvectors
-        for (auto i = 0; i < 2; i++) {
-            double lambda = eig_vals(i);
-
-            if (std::abs(b) > 1e-10) {
-                double v1 = lambda - c;
-                double v2 = b;
-                double norm = std::sqrt(v1*v1 + v2*v2);
-
-                eig_vecs(0, i) = v1 / norm;
-                eig_vecs(1, i) = v2 / norm;
-            } else {
-                // b is effectively zero, matrix is already diagonal
-                if (std::abs(lambda - a) < 1e-10) {
-                    // First eigenvector
-                    eig_vecs(0, i) = 1.0;
-                    eig_vecs(1, i) = 0.0;
-                } else {
-                    // Second eigenvector
-                    eig_vecs(0, i) = 0.0;
-                    eig_vecs(1, i) = 1.0;
-                }
-            }
-        }
-
-        return py::make_tuple(eigenvalues, eigenvectors);
+    // Use SelfAdjointEigenSolver since metric is symmetric positive definite
+    Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es(A);
+    if (es.info() != Eigen::Success) {
+        throw std::runtime_error("Eigenvalue decomposition failed.");
     }
 
-    // 3D case
-    else {
-        // Construct the full symmetric matrix
-        double matrix[3][3] = {
-            {ptr[0], ptr[1], ptr[3]},
-            {ptr[1], ptr[2], ptr[4]},
-            {ptr[3], ptr[4], ptr[5]}
-        };
+    Eigen::VectorXd eigen_values_eigen = es.eigenvalues();
+    Eigen::MatrixXd eigen_vectors_eigen = es.eigenvectors();
 
-        // Initialize eigenvectors as identity matrix
-        double evecs[3][3] = {
-            {1.0, 0.0, 0.0},
-            {0.0, 1.0, 0.0},
-            {0.0, 0.0, 1.0}
-        };
+    // Prepare pybind11 output arrays
+    py::array_t<double> eigenvalues(dim);
+    auto eig_vals_ptr = eigenvalues.mutable_unchecked<1>();
 
-        // Make working copy of matrix
-        double a[3][3];
-        for (auto i = 0; i < 3; i++) {
-            for (auto j = 0; j < 3; j++) {
-                a[i][j] = matrix[i][j];
-            }
-        }
+    py::array_t<double> eigenvectors({(ptrdiff_t)dim, (ptrdiff_t)dim});
+    auto eig_vecs_ptr = eigenvectors.mutable_unchecked<2>();
 
-        // Jacobi iteration to find eigenvalues and eigenvectors
-        const int MAX_ITER = 50;
-        const double EPSILON = 1e-10;
-
-        for (auto iter = 0; iter < MAX_ITER; iter++) {
-            // Find largest off-diagonal element
-            int p = 0, q = 1;
-            double max_val = std::abs(a[p][q]);
-
-            for (auto i = 0; i < 3; i++) {
-                for (auto j = i+1; j < 3; j++) {
-                    if (std::abs(a[i][j]) > max_val) {
-                        max_val = std::abs(a[i][j]);
-                        p = i;
-                        q = j;
-                    }
-                }
-            }
-
-            // Check for convergence
-            if (max_val < EPSILON) break;
-
-            // Calculate rotation angles
-            double theta = 0.5 * atan2(2 * a[p][q], a[p][p] - a[q][q]);
-            double c = cos(theta);
-            double s = sin(theta);
-
-            // Apply rotation
-            double app = a[p][p];
-            double aqq = a[q][q];
-            double apq = a[p][q];
-
-            a[p][p] = app * c * c + aqq * s * s + 2 * apq * c * s;
-            a[q][q] = app * s * s + aqq * c * c - 2 * apq * c * s;
-            a[p][q] = a[q][p] = 0.0;  // Should be zero after rotation
-
-            for (auto i = 0; i < 3; i++) {
-                if (i != p && i != q) {
-                    double api = a[p][i];
-                    double aqi = a[q][i];
-                    a[p][i] = a[i][p] = api * c + aqi * s;
-                    a[q][i] = a[i][q] = -api * s + aqi * c;
-                }
-            }
-
-            // Update eigenvectors
-            for (auto i = 0; i < 3; i++) {
-                double vip = evecs[i][p];
-                double viq = evecs[i][q];
-                evecs[i][p] = vip * c + viq * s;
-                evecs[i][q] = -vip * s + viq * c;
-            }
-        }
-
-        // Copy results into return arrays
-        for (auto i = 0; i < 3; i++) {
-            eig_vals(i) = a[i][i];
-        }
-
-        // Sort eigenvalues and eigenvectors (descending order)
-        for (auto i = 0; i < 3; i++) {
-            for (auto j = i + 1; j < 3; j++) {
-                if (eig_vals(i) < eig_vals(j)) {
-                    // Swap eigenvalues
-                    double temp = eig_vals(i);
-                    eig_vals(i) = eig_vals(j);
-                    eig_vals(j) = temp;
-
-                    // Swap eigenvectors
-                    for (auto k = 0; k < 3; k++) {
-                        temp = evecs[k][i];
-                        evecs[k][i] = evecs[k][j];
-                        evecs[k][j] = temp;
-                    }
-                }
-            }
-        }
-
-        // Copy eigenvectors to output array
-        for (auto i = 0; i < 3; i++) {
-            for (auto j = 0; j < 3; j++) {
-                eig_vecs(i, j) = evecs[i][j];
-            }
-        }
-
-        return py::make_tuple(eigenvalues, eigenvectors);
+    // Eigen returns eigenvalues in ascending order. We need descending.
+    // Create pairs of (eigenvalue, eigenvector_column) to sort
+    std::vector<std::pair<double, Eigen::VectorXd>> eigen_pairs(dim);
+    for (int i = 0; i < dim; ++i) {
+        eigen_pairs[i] = {eigen_values_eigen(i), eigen_vectors_eigen.col(i)};
     }
+
+    // Sort in descending order of eigenvalues
+    std::sort(eigen_pairs.begin(), eigen_pairs.end(),
+              [](const auto& a, const auto& b) {
+                  return a.first > b.first;
+              });
+
+    // Populate the pybind arrays
+    for (int i = 0; i < dim; ++i) {
+        eig_vals_ptr(i) = eigen_pairs[i].first;
+        for (int j = 0; j < dim; ++j) {
+            // Store j-th component of i-th (sorted) eigenvector
+            // Eigenvectors are columns in eigenvectors
+            eig_vecs_ptr(j, i) = eigen_pairs[i].second(j);
+        }
+    }
+
+    return py::make_tuple(eigenvalues, eigenvectors);
 }
 
 /**
- * Recombine eigenvalues and eigenvectors to reconstruct the tensor
+ * Recombine eigenvalues and eigenvectors to reconstruct the tensor using Eigen
  *
  * @param eigenvalues Array of eigenvalues
  * @param eigenvectors Array of eigenvectors (column-wise)
  * @return Lower triangular elements of reconstructed tensor
  */
 py::array_t<double> recombine(py::array_t<double> eigenvalues, py::array_t<double> eigenvectors) {
-    auto eig_vals = eigenvalues.unchecked<1>();
-    auto eig_vecs = eigenvectors.unchecked<2>();
+    auto eig_vals_info = eigenvalues.request();
+    auto eig_vecs_info = eigenvectors.request();
 
-    int dim = eig_vals.shape(0);
+    if (eig_vals_info.ndim != 1) {
+        throw std::runtime_error("Eigenvalues must be a 1D array.");
+    }
+    if (eig_vecs_info.ndim != 2) {
+        throw std::runtime_error("Eigenvectors must be a 2D array.");
+    }
+
+    int dim = eig_vals_info.shape[0];
     if (dim < 1 || dim > 3) {
         throw std::runtime_error("Dimension must be 1, 2, or 3");
     }
 
-    if (eig_vecs.shape(0) != dim || eig_vecs.shape(1) != dim) {
-        throw std::runtime_error("Eigenvector dimensions must match eigenvalue count");
+    if (eig_vecs_info.shape[0] != dim || eig_vecs_info.shape[1] != dim) {
+        throw std::runtime_error("Eigenvector dimensions must match eigenvalue count and be square.");
     }
+
+    // Convert py::array_t to Eigen types
+    Eigen::VectorXd D_vec(dim);
+    auto eig_vals_unchecked = eigenvalues.unchecked<1>();
+    for (int i = 0; i < dim; ++i) {
+        D_vec(i) = eig_vals_unchecked(i);
+    }
+
+    Eigen::MatrixXd V(dim, dim);
+    auto eig_vecs_unchecked = eigenvectors.unchecked<2>();
+    for (int i = 0; i < dim; ++i) { // rows
+        for (int j = 0; j < dim; ++j) { // cols
+            // Assuming eigenvectors are columns in the input py::array_t
+            // V(row_idx, col_idx_of_eigenvector)
+            V(i, j) = eig_vecs_unchecked(i, j);
+        }
+    }
+
+    // Reconstruct: M = V * D_diag * V^T
+    Eigen::MatrixXd D_diag = D_vec.asDiagonal();
+    Eigen::MatrixXd M = V * D_diag * V.transpose();
 
     // Output will be the lower triangular elements
     int num_elements = dim * (dim + 1) / 2;
     py::array_t<double> lower_tri(num_elements);
-    auto result = lower_tri.mutable_unchecked<1>();
+    auto result_ptr = lower_tri.mutable_unchecked<1>();
 
-    // Full matrix reconstruction: M = V * D * V^T
-    double matrix[3][3] = {{0}};
-
-    for (auto i = 0; i < dim; i++) {
-        for (auto j = 0; j < dim; j++) {
-            double sum = 0.0;
-            for (auto k = 0; k < dim; k++) {
-                sum += eig_vecs(i, k) * eig_vals(k) * eig_vecs(j, k);
-            }
-            matrix[i][j] = sum;
-        }
-    }
-
-    // Copy to result (lower triangular elements only)
     if (dim == 1) {
-        result(0) = matrix[0][0];
+        result_ptr(0) = M(0,0);
     } else if (dim == 2) {
-        result(0) = matrix[0][0]; // a[0][0]
-        result(1) = matrix[1][0]; // a[1][0]
-        result(2) = matrix[1][1]; // a[1][1]
+        result_ptr(0) = M(0,0); // M(0,0)
+        result_ptr(1) = M(1,0); // M(1,0)
+        result_ptr(2) = M(1,1); // M(1,1)
     } else { // dim == 3
-        result(0) = matrix[0][0]; // a[0][0]
-        result(1) = matrix[1][0]; // a[1][0]
-        result(2) = matrix[1][1]; // a[1][1]
-        result(3) = matrix[2][0]; // a[2][0]
-        result(4) = matrix[2][1]; // a[2][1]
-        result(5) = matrix[2][2]; // a[2][2]
+        result_ptr(0) = M(0,0); // M(0,0)
+        result_ptr(1) = M(1,0); // M(1,0)
+        result_ptr(2) = M(1,1); // M(1,1)
+        result_ptr(3) = M(2,0); // M(2,0)
+        result_ptr(4) = M(2,1); // M(2,1)
+        result_ptr(5) = M(2,2); // M(2,2)
     }
 
     return lower_tri;
