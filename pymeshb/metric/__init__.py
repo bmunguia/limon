@@ -1,1 +1,1 @@
-from .metric import diagonalize, recombine, perturb, perturb_metric_field
+from .metric import decompose, recompose, perturb, perturb_metric_field

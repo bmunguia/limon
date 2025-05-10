@@ -1,12 +1,13 @@
 import numpy as np
 import pytest
-import pymeshb
 from pathlib import Path
+
+import pymeshb
 
 
 @pytest.fixture
 def mesh_data():
-    """Fixture to load the mesh and create a sample solution."""
+    """Load the mesh and create a sample solution."""
     meshpath_in = "libMeshb/sample_meshes/quad.meshb"
     coords, elements, solution = pymeshb.read_mesh(meshpath_in)
 
@@ -31,7 +32,7 @@ def mesh_data():
 
 @pytest.fixture
 def output_dir(request):
-    """Fixture to create a persistent output directory for test files."""
+    """Create a persistent output directory for test files."""
     out_dir = Path("output") / request.node.name
     out_dir.mkdir(parents=True, exist_ok=True)
     return out_dir

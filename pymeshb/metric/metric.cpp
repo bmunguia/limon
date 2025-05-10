@@ -26,7 +26,7 @@ namespace py = pybind11;
  * @param lower_tri Array containing the lower triangular elements of tensor
  * @return Tuple containing eigenvalues and eigenvectors
  */
-py::tuple diagonalize(py::array_t<double> lower_tri) {
+py::tuple decompose(py::array_t<double> lower_tri) {
     auto buf = lower_tri.request();
     if (buf.ndim != 1) {
         throw std::runtime_error("Input lower_tri must be a 1D array.");
@@ -107,7 +107,7 @@ py::tuple diagonalize(py::array_t<double> lower_tri) {
  * @param eigenvectors Array of eigenvectors (column-wise)
  * @return Lower triangular elements of reconstructed tensor
  */
-py::array_t<double> recombine(py::array_t<double> eigenvalues, py::array_t<double> eigenvectors) {
+py::array_t<double> recompose(py::array_t<double> eigenvalues, py::array_t<double> eigenvectors) {
     auto eig_vals_info = eigenvalues.request();
     auto eig_vecs_info = eigenvectors.request();
 
@@ -324,7 +324,7 @@ py::array_t<double> perturb_metric_field(
                                    metrics_ptr + i * num_met);
 
         // Diagonalize
-        py::tuple diag_result = diagonalize(metric);
+        py::tuple diag_result = decompose(metric);
         py::array_t<double> eigenvalues = diag_result[0].cast<py::array_t<double>>();
         py::array_t<double> eigenvectors = diag_result[1].cast<py::array_t<double>>();
 
@@ -340,7 +340,7 @@ py::array_t<double> perturb_metric_field(
         py::array_t<double> perturbed_vecs = pert_result[1].cast<py::array_t<double>>();
 
         // Recombine
-        py::array_t<double> perturbed_tensor = recombine(perturbed_vals, perturbed_vecs);
+        py::array_t<double> perturbed_tensor = recompose(perturbed_vals, perturbed_vecs);
 
         // Copy to output array
         auto perturbed_info = perturbed_tensor.request();
@@ -357,10 +357,10 @@ py::array_t<double> perturb_metric_field(
 PYBIND11_MODULE(_metric, m) {
     m.doc() = "Metric tensor operations";
 
-    m.def("diagonalize", &diagonalize, "Diagonalize a symmetric tensor",
+    m.def("decompose", &decompose, "Diagonalize a symmetric tensor",
           py::arg("lower_tri"));
 
-    m.def("recombine", &recombine, "Recombine eigenvalues and eigenvectors to reconstruct the tensor",
+    m.def("recompose", &recompose, "Recombine eigenvalues and eigenvectors to reconstruct the tensor",
           py::arg("eigenvalues"), py::arg("eigenvectors"));
 
     m.def("perturb", &perturb, "Apply perturbation to eigenvalues and eigenvectors",

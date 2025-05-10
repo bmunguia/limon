@@ -1,13 +1,13 @@
 import numpy as np
 from numpy.typing import NDArray
 
-from pymeshb.metric._metric import diagonalize as _diagonalize
-from pymeshb.metric._metric import recombine as _recombine
+from pymeshb.metric._metric import decompose as _decompose
+from pymeshb.metric._metric import recompose as _recompose
 from pymeshb.metric._metric import perturb as _perturb
 from pymeshb.metric._metric import perturb_metric_field as _perturb_metric_field
 
 
-def diagonalize(lower_tri: NDArray) -> tuple[NDArray, NDArray]:
+def decompose(lower_tri: NDArray) -> tuple[NDArray, NDArray]:
     r"""
     Diagonalize a symmetric tensor represented by its lower triangular elements.
 
@@ -32,12 +32,12 @@ def diagonalize(lower_tri: NDArray) -> tuple[NDArray, NDArray]:
     Examples:
         >>> # Diagonalize a 2D tensor
         >>> lower_tri = np.array([3.0, 1.0, 2.0])  # [a00, a10, a11]
-        >>> eigenvalues, eigenvectors = diagonalize(lower_tri)
+        >>> eigenvalues, eigenvectors = decompose(lower_tri)
     """
-    return _diagonalize(np.asarray(lower_tri, dtype=np.float64))
+    return _decompose(np.asarray(lower_tri, dtype=np.float64))
 
 
-def recombine(eigenvalues: NDArray, eigenvectors: NDArray) -> NDArray:
+def recompose(eigenvalues: NDArray, eigenvectors: NDArray) -> NDArray:
     r"""
     Recombine eigenvalues and eigenvectors to reconstruct the tensor.
 
@@ -63,9 +63,9 @@ def recombine(eigenvalues: NDArray, eigenvectors: NDArray) -> NDArray:
         >>> # Reconstruct a tensor from its eigendecomposition
         >>> eigenvalues = np.array([4.0, 1.0])
         >>> eigenvectors = np.array([[0.8944, -0.4472], [0.4472, 0.8944]])
-        >>> tensor = recombine(eigenvalues, eigenvectors)
+        >>> tensor = recompose(eigenvalues, eigenvectors)
     """
-    return _recombine(
+    return _recompose(
         np.asarray(eigenvalues, dtype=np.float64),
         np.asarray(eigenvectors, dtype=np.float64)
     )

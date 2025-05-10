@@ -1,7 +1,9 @@
 import numpy as np
 import pytest
-import pymeshb
 from pathlib import Path
+
+import pymeshb
+from pymeshb.metric import perturb_metric_field
 
 
 @pytest.fixture
@@ -28,7 +30,7 @@ def mesh_data():
 
 @pytest.fixture
 def output_dir(request):
-    """Fixture to create a persistent output directory for test files."""
+    """Create a persistent output directory for test files."""
     out_dir = Path("output") / request.node.name
     out_dir.mkdir(parents=True, exist_ok=True)
     return out_dir
@@ -65,7 +67,7 @@ def test_perturb_metric_field(mesh_data, output_dir):
     vec_perturbations = np.zeros((num_point, num_dim, num_dim))
 
     # Perturb the metric field
-    perturbed_metrics = pymeshb.metric.perturb_metric_field(
+    perturbed_metrics = perturb_metric_field(
         solution["Metric"],
         val_perturbations,
         vec_perturbations
