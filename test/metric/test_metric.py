@@ -59,9 +59,9 @@ def test_perturb_metric_field(mesh_data, output_dir):
 
     # Create perturbation arrays for eigenvalues (in log space)
     val_perturbations = np.zeros((num_point, 3))
-    val_perturbations[:, 0] = -4.6052
-    val_perturbations[:, 1] = 2.3025
-    val_perturbations[:, 2] = 2.3025
+    val_perturbations[:, 0] = -np.log(100)
+    val_perturbations[:, 1] = np.log(10)
+    val_perturbations[:, 2] = np.log(10)
 
     # Create perturbation arrays for eigenvectors
     vec_perturbations = np.zeros((num_point, num_dim, num_dim))
