@@ -176,18 +176,18 @@ py::array_t<double> recompose(py::array_t<double> eigenvalues, py::array_t<doubl
  *
  * @param eigenvalues Original eigenvalues
  * @param eigenvectors Original eigenvectors
- * @param val_perturbations Perturbation values for eigenvalues
- * @param vec_perturbations Perturbation values for eigenvectors
+ * @param delta_eigenvals Perturbation values for eigenvalues
+ * @param rotation_angles Rotational perturbation values for eigenvectors
  * @return Tuple containing perturbed eigenvalues and eigenvectors
  */
 py::tuple perturb(py::array_t<double> eigenvalues,
                   py::array_t<double> eigenvectors,
-                  py::array_t<double> val_perturbations,
-                  py::array_t<double> vec_perturbations) {
+                  py::array_t<double> delta_eigenvals,
+                  py::array_t<double> rotation_angles) {
     auto eig_vals = eigenvalues.unchecked<1>();
     auto eig_vecs = eigenvectors.unchecked<2>();
-    auto val_pert = val_perturbations.unchecked<1>();
-    auto vec_pert = vec_perturbations.unchecked<2>();
+    auto delta_vals = delta_eigenvals.unchecked<1>();
+    auto rot_angles = rotation_angles.unchecked<1>();
 
     int dim = eig_vals.shape(0);
     if (dim < 1 || dim > 3) {
@@ -198,11 +198,14 @@ py::tuple perturb(py::array_t<double> eigenvalues,
     if (eig_vecs.shape(0) != dim || eig_vecs.shape(1) != dim) {
         throw std::runtime_error("Eigenvector dimensions must match eigenvalue count");
     }
-    if (val_pert.shape(0) != dim) {
+    if (delta_vals.shape(0) != dim) {
         throw std::runtime_error("Eigenvalue perturbations must match eigenvalue count");
     }
-    if (vec_pert.shape(0) != dim || vec_pert.shape(1) != dim) {
-        throw std::runtime_error("Eigenvector perturbations dimensions must match eigenvectors");
+
+    int num_angle = (dim == 1) ? 0 : ((dim == 2) ? 1 : 3);
+    if (rot_angles.shape(0) != num_angle) {
+        throw std::runtime_error("Invalid rotation angles array size: "
+            "should be 0 for 1D, 1 for 2D, or 3 for 3D");
     }
 
     // Apply perturbations
@@ -216,38 +219,86 @@ py::tuple perturb(py::array_t<double> eigenvalues,
         // Ensure eigenvalues are positive before taking log
         double eigen_val = std::max(eig_vals(i), 1e-10);
         // Take log, perturb, then exponentiate
-        p_vals(i) = std::exp(std::log(eigen_val) + val_pert(i));
+        p_vals(i) = std::exp(std::log(eigen_val) + delta_vals(i));
     }
 
     // Perturb eigenvectors
-    for (auto i = 0; i < dim; i++) {
-        for (auto j = 0; j < dim; j++) {
-            p_vecs(i, j) = eig_vecs(i, j) + vec_pert(i, j);
+    // First, copy the original eigenvectors as the starting point
+    for (int i = 0; i < dim; i++) {
+        for (int j = 0; j < dim; j++) {
+            p_vecs(i, j) = eig_vecs(i, j);
         }
     }
 
-    // Orthonormalize eigenvectors using Gram-Schmidt
-    for (auto j = 0; j < dim; j++) {
-        // Normalize the j-th vector
-        double norm = 0.0;
-        for (auto i = 0; i < dim; i++) {
-            norm += p_vecs(i, j) * p_vecs(i, j);
-        }
-        norm = std::sqrt(norm);
+    // Apply rotational perturbations based on dimension
+    if (dim == 2) {
+        // In 2D, we only need one rotation angle
+        double theta = rot_angles(0);
 
-        for (auto i = 0; i < dim; i++) {
-            p_vecs(i, j) /= norm;
-        }
-
-        // Orthogonalize against previous vectors
-        for (auto k = j + 1; k < dim; k++) {
-            double dot = 0.0;
-            for (auto i = 0; i < dim; i++) {
-                dot += p_vecs(i, j) * p_vecs(i, k);
+        // Create eigenvector matrix
+        Eigen::Matrix2d V;
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                V(i, j) = eig_vecs(i, j);
             }
+        }
 
-            for (auto i = 0; i < dim; i++) {
-                p_vecs(i, k) -= dot * p_vecs(i, j);
+        // Create rotation matrix
+        Eigen::Matrix2d rot;
+        rot << std::cos(theta), -std::sin(theta),
+               std::sin(theta), std::cos(theta);
+
+        // Apply rotation
+        Eigen::Matrix2d V_rotated = V * rot;
+
+        // Copy back to output
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                p_vecs(i, j) = V_rotated(i, j);
+            }
+        }
+    }
+    else if (dim == 3) {
+        // In 3D, we need three rotation angles for xy, yz, xz planes
+        double theta_xy = rot_angles(0);  // rotation in xy plane
+        double theta_yz = rot_angles(1);  // rotation in yz plane
+        double theta_xz = rot_angles(2);  // rotation in xz plane
+
+        // Create eigenvector matrix
+        Eigen::Matrix3d V;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                V(i, j) = eig_vecs(i, j);
+            }
+        }
+
+        // Create rotation matrices for each plane
+        Eigen::Matrix3d R_xy = Eigen::Matrix3d::Identity();
+        R_xy(0, 0) = std::cos(theta_xy);
+        R_xy(0, 1) = -std::sin(theta_xy);
+        R_xy(1, 0) = std::sin(theta_xy);
+        R_xy(1, 1) = std::cos(theta_xy);
+
+        Eigen::Matrix3d R_yz = Eigen::Matrix3d::Identity();
+        R_yz(1, 1) = std::cos(theta_yz);
+        R_yz(1, 2) = -std::sin(theta_yz);
+        R_yz(2, 1) = std::sin(theta_yz);
+        R_yz(2, 2) = std::cos(theta_yz);
+
+        Eigen::Matrix3d R_xz = Eigen::Matrix3d::Identity();
+        R_xz(0, 0) = std::cos(theta_xz);
+        R_xz(0, 2) = -std::sin(theta_xz);
+        R_xz(2, 0) = std::sin(theta_xz);
+        R_xz(2, 2) = std::cos(theta_xz);
+
+        // Apply all rotations (order matters)
+        Eigen::Matrix3d R_combined = R_xy * R_yz * R_xz;
+        Eigen::Matrix3d V_rotated = V * R_combined;
+
+        // Copy back to output
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                p_vecs(i, j) = V_rotated(i, j);
             }
         }
     }
@@ -265,31 +316,23 @@ py::tuple perturb(py::array_t<double> eigenvalues,
  *
  * @param metrics Array of shape (num_point, num_met) where each row
  *                contains the lower triangular elements of a tensor
- * @param val_perturbations Array of shape (num_point, dim) containing
+ * @param delta_eigenvals Array of shape (num_point, dim) containing
  *                        eigenvalue perturbations for each point
- * @param vec_perturbations Array of shape (num_point, dim, dim) containing
- *                        eigenvector perturbations for each point
+ * @param rotation_angles Array of shape (num_point, num_angle) containing
+ *                        eigenvector rotational perturbations for each point
  * @return Array of perturbed metric tensors in lower triangular form
  */
 py::array_t<double> perturb_metric_field(
     py::array_t<double> metrics,
-    py::array_t<double> val_perturbations,
-    py::array_t<double> vec_perturbations) {
+    py::array_t<double> delta_eigenvals,
+    py::array_t<double> rotation_angles) {
 
-    // Get input array info
     auto metrics_info = metrics.request();
-    auto val_pert_info = val_perturbations.request();
-    auto vec_pert_info = vec_perturbations.request();
+    auto delta_vals_info = delta_eigenvals.request();
+    auto rot_angles_info = rotation_angles.request();
 
-    // Check dimensions
-    if (metrics_info.ndim != 2) {
-        throw std::runtime_error("Tensors array must be 2-dimensional");
-    }
-
-    int64_t num_point = metrics_info.shape[0];
-    int64_t num_met = metrics_info.shape[1];
-
-    // Determine dimension from lower triangle size
+    unsigned int num_point = metrics_info.shape[0];
+    unsigned int num_met = metrics_info.shape[1];
     int dim = 0;
     if (num_met == 1) dim = 1;
     else if (num_met == 3) dim = 2;
@@ -297,14 +340,19 @@ py::array_t<double> perturb_metric_field(
     else throw std::runtime_error("Invalid tensor size: must be 1, 3, or 6 elements per tensor");
 
     // Validate input shapes
-    if (val_pert_info.ndim != 2 || val_pert_info.shape[0] != num_point ||
-        val_pert_info.shape[1] != dim) {
+    if (metrics_info.ndim != 2) {
+        throw std::runtime_error("Tensors array must be 2-dimensional");
+    }
+    if (delta_vals_info.ndim != 2 || delta_vals_info.shape[0] != num_point ||
+        delta_vals_info.shape[1] != dim) {
         throw std::runtime_error("Eigenvalue perturbations shape must be (num_point, dim)");
     }
 
-    if (vec_pert_info.ndim != 3 || vec_pert_info.shape[0] != num_point ||
-        vec_pert_info.shape[1] != dim || vec_pert_info.shape[2] != dim) {
-        throw std::runtime_error("Eigenvector perturbations shape must be (num_point, dim, dim)");
+    int num_angle = (dim == 1) ? 0 : ((dim == 2) ? 1 : 3);
+    if (rot_angles_info.ndim != 2 || rot_angles_info.shape[0] != num_point ||
+        rot_angles_info.shape[1] != num_angle) {
+        throw std::runtime_error("Rotation angles shape must be (num_point, num_angle) "
+                                 "where num_angle is 0 for 1D, 1 for 2D, or 3 for 3D");
     }
 
     // Create output array
@@ -313,8 +361,8 @@ py::array_t<double> perturb_metric_field(
 
     // Direct pointers to data
     double* metrics_ptr = static_cast<double*>(metrics_info.ptr);
-    double* val_pert_ptr = static_cast<double*>(val_pert_info.ptr);
-    double* vec_pert_ptr = static_cast<double*>(vec_pert_info.ptr);
+    double* delta_vals_ptr = static_cast<double*>(delta_vals_info.ptr);
+    double* rot_angles_ptr = static_cast<double*>(rot_angles_info.ptr);
     double* result_ptr = static_cast<double*>(result_info.ptr);
 
     // Process each tensor
@@ -329,13 +377,13 @@ py::array_t<double> perturb_metric_field(
         py::array_t<double> eigenvectors = diag_result[1].cast<py::array_t<double>>();
 
         // Create views for current perturbations
-        py::array_t<double> val_pert({dim}, {sizeof(double)},
-                                    val_pert_ptr + i * dim);
-        py::array_t<double> vec_pert({dim, dim}, {dim * sizeof(double), sizeof(double)},
-                                    vec_pert_ptr + i * dim * dim);
+        py::array_t<double> delta_vals({dim}, {sizeof(double)},
+                                       delta_vals_ptr + i * dim);
+        py::array_t<double> rot_angles({num_angle}, {sizeof(double)},
+                                       rot_angles_ptr + i * num_angle);
 
         // Apply perturbations
-        py::tuple pert_result = perturb(eigenvalues, eigenvectors, val_pert, vec_pert);
+        py::tuple pert_result = perturb(eigenvalues, eigenvectors, delta_vals, rot_angles);
         py::array_t<double> perturbed_vals = pert_result[0].cast<py::array_t<double>>();
         py::array_t<double> perturbed_vecs = pert_result[1].cast<py::array_t<double>>();
 
@@ -365,9 +413,9 @@ PYBIND11_MODULE(_metric, m) {
 
     m.def("perturb", &perturb, "Apply perturbation to eigenvalues and eigenvectors",
           py::arg("eigenvalues"), py::arg("eigenvectors"),
-          py::arg("val_perturbations"), py::arg("vec_perturbations"));
+          py::arg("delta_eigenvals"), py::arg("rotation_angles"));
 
     m.def("perturb_metric_field", &perturb_metric_field,
           "Perturb a field of metric tensors",
-          py::arg("metrics"), py::arg("val_perturbations"), py::arg("vec_perturbations"));
+          py::arg("metrics"), py::arg("delta_eigenvals"), py::arg("rotation_angles"));
 }

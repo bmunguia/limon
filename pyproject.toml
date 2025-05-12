@@ -52,8 +52,11 @@ where = ["."]
 include = ["pymeshb"]
 
 [tool.pytest.ini_options]
-pythonpath = ["."]
-testpaths = ["test"]
+addopts = [
+    "--capture=no",
+    "--color=yes",
+    "-vv",
+]
 
 [tool.flake8]
 max-line-length = 80

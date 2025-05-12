@@ -74,8 +74,8 @@ def recompose(eigenvalues: NDArray, eigenvectors: NDArray) -> NDArray:
 def perturb(
     eigenvalues: NDArray,
     eigenvectors: NDArray,
-    val_perturbations: NDArray,
-    vec_perturbations: NDArray
+    delta_eigenvals: NDArray,
+    rotation_angles: NDArray
 ) -> tuple[NDArray, NDArray]:
     r"""
     Apply perturbations to eigenvalues and eigenvectors.
@@ -87,38 +87,36 @@ def perturb(
     Args:
         eigenvalues (numpy.ndarray): Original eigenvalues
         eigenvectors (numpy.ndarray): Original eigenvectors as columns
-        val_perturbations (numpy.ndarray): Perturbation values for eigenvalues
-        vec_perturbations (numpy.ndarray): Perturbation values for eigenvectors
-
-    Returns:
-        tuple[numpy.ndarray, numpy.ndarray]: A tuple containing:
-            - perturbed_eigenvalues: Array of perturbed eigenvalues
-            - perturbed_eigenvectors: Array of perturbed eigenvectors as columns
+        delta_eigenvals (numpy.ndarray): Logarithmic perturbation values for eigenvalues
+        rotation_angles (numpy.ndarray): Rotation angles in radians for eigenvector rotation.
+                                        For 2D: Single angle for rotation in xy-plane.
+                                        For 3D: Three angles for rotations in xy, yz, and xz planes.
 
     Raises:
         RuntimeError: If dimensions of inputs don't match
         RuntimeError: If dimension is not 1, 2, or 3
+        RuntimeError: If rotation_angles doesn't have expected size (0 for 1D, 1 for 2D, 3 for 3D)
 
     Examples:
         >>> # Apply perturbations to eigenvalues and eigenvectors
-        >>> eigenvalues = np.array([4.0, 1.0])
-        >>> eigenvectors = np.array([[0.8944, -0.4472], [0.4472, 0.8944]])
-        >>> eig_pert = np.array([0.1, -0.05])
-        >>> vec_pert = np.array([[0.01, 0.02], [-0.01, 0.01]])
-        >>> pert_vals, pert_vecs = perturb(eigenvalues, eigenvectors, eig_pert, vec_pert)
+        >>> eigenvalues = np.array([5.0, 3.0, 1.0])
+        >>> eigenvectors = np.eye(3)  # Identity matrix as example
+        >>> delta_vals = np.array([0.1, 0.0, -0.1])
+        >>> rot_angles = np.array([0.05, 0.02, 0.03])  # xy, yz, xz rotations
+        >>> pert_vals, pert_vecs = perturb(eigenvalues, eigenvectors, delta_vals, rot_angles)
     """
     return _perturb(
         np.asarray(eigenvalues, dtype=np.float64),
         np.asarray(eigenvectors, dtype=np.float64),
-        np.asarray(val_perturbations, dtype=np.float64),
-        np.asarray(vec_perturbations, dtype=np.float64)
+        np.asarray(delta_eigenvals, dtype=np.float64),
+        np.asarray(rotation_angles, dtype=np.float64)
     )
 
 
 def perturb_metric_field(
     metrics: NDArray,
-    val_perturbations: NDArray,
-    vec_perturbations: NDArray
+    delta_eigenvals: NDArray,
+    rotation_angles: NDArray
 ) -> NDArray:
     r"""
     Perturb a field of metric tensors.
@@ -131,11 +129,12 @@ def perturb_metric_field(
     Args:
         metrics (numpy.ndarray): Array of shape (num_point, num_met) where each row
                                 contains the lower triangular elements of a tensor.
-        val_perturbations (numpy.ndarray): Array of shape (num_point, dim) containing
- *                                        eigenvalue perturbations for each point.
-                                          dim is 1, 2, or 3 for 1D, 2D, or 3D tensors.
-        vec_perturbations (numpy.ndarray): Array of shape (num_point, dim, dim) containing
-                                          eigenvector perturbations for each point.
+        delta_eigenvals (numpy.ndarray): Array of shape (num_point, dim) containing
+                                        logarithmic eigenvalue perturbations for each point.
+                                        dim is 1, 2, or 3 for 1D, 2D, or 3D tensors.
+        rotation_angles (numpy.ndarray): Array of shape (num_point, num_angle) containing
+                                        rotation angles in radians for each point.
+                                        num_angle is 0 for 1D, 1 for 2D, or 3 for 3D.
 
     Returns:
         numpy.ndarray: Array of perturbed metric tensors in lower triangular form.
@@ -143,25 +142,27 @@ def perturb_metric_field(
     Raises:
         RuntimeError: If input arrays have incompatible shapes
         RuntimeError: If tensor size is not 1, 3, or 6 elements
+        RuntimeError: If rotation_angles shape is not (num_point, num_angle) where
+                     num_angle is 0 for 1D, 1 for 2D, or 3 for 3D
 
     Examples:
-        >>> # Process a field of 2D tensors with perturbations
+        >>> # Process a field of tensors with perturbations
         >>> metrics = np.array([
-        ...     [2.0, 0.5, 1.0],  # First tensor: [a00, a10, a11]
-        ...     [3.0, 0.0, 1.0],  # Second tensor: [a00, a10, a11]
+        ...     [2.0, 0.5, 1.0, 0.1, 0.2, 3.0],  # First 3D tensor in lower triangular form
+        ...     [3.0, 0.0, 1.0, 0.3, 0.1, 2.0],  # Second 3D tensor
         ... ])
-        >>> val_perturbations = np.array([
-        ...     [0.1, -0.1],  # Log-space perturbations for first tensor's eigenvalues
-        ...     [0.2, -0.05]  # Log-space perturbations for second tensor's eigenvalues
+        >>> val_pert = np.array([
+        ...     [0.1, 0.0, -0.1],  # Perturbations for first tensor's eigenvalues
+        ...     [0.2, -0.05, 0.0]  # Perturbations for second tensor's eigenvalues
         ... ])
-        >>> vec_perturbations = np.array([
-        ...     [[0.01, 0.02], [-0.01, 0.01]],  # For first tensor
-        ...     [[0.03, 0.01], [-0.02, 0.02]]   # For second tensor
+        >>> rot_angles = np.array([
+        ...     [0.05, 0.02, 0.01],  # Rotations for first tensor (xy, yz, xz)
+        ...     [0.03, 0.04, 0.02]   # Rotations for second tensor
         ... ])
-        >>> perturbed_metrics = perturb_metric_field(metrics, val_perturbations, vec_perturbations)
+        >>> perturbed_metrics = perturb_metric_field(metrics, val_pert, rot_angles)
     """
     return _perturb_metric_field(
         np.asarray(metrics, dtype=np.float64),
-        np.asarray(val_perturbations, dtype=np.float64),
-        np.asarray(vec_perturbations, dtype=np.float64)
+        np.asarray(delta_eigenvals, dtype=np.float64),
+        np.asarray(rotation_angles, dtype=np.float64)
     )
