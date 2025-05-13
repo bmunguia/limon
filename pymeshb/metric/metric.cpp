@@ -287,8 +287,8 @@ py::tuple perturb(py::array_t<double> eigenvalues,
 
         Eigen::Matrix3d R_xz = Eigen::Matrix3d::Identity();
         R_xz(0, 0) = std::cos(theta_xz);
-        R_xz(0, 2) = -std::sin(theta_xz);
-        R_xz(2, 0) = std::sin(theta_xz);
+        R_xz(0, 2) = std::sin(theta_xz);
+        R_xz(2, 0) = -std::sin(theta_xz);
         R_xz(2, 2) = std::cos(theta_xz);
 
         // Apply all rotations (order matters)

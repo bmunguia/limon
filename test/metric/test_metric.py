@@ -6,6 +6,20 @@ import pymeshb
 from pymeshb.metric import perturb_metric_field
 
 
+def print_perturb_comparison(met, met_pert):
+    """Print a comparison between the initial and perturbed metric."""
+    met_init_str = 'Initial metric:   ['
+    met_pert_str = 'Perturbed metric: ['
+    for i in range(met.shape[1]):
+        met_init_str += f'{met[0][i]:4.0f}'
+        met_pert_str += f'{met_pert[0][i]:4.0f}'
+        if i < len(met[0]) - 1:
+            met_init_str += ', '
+            met_pert_str += ', '
+
+    print('\n' + met_init_str + ']')
+    print(met_pert_str + ']')
+
 @pytest.fixture
 def mesh_data():
     """Load the mesh and create a sample solution."""
@@ -74,7 +88,7 @@ def test_perturb_eigenvalues(mesh_data, output_dir):
         rotation_angles
     )
 
-    print(solution["Metric"][0], perturbed_metrics_eig[0])
+    print_perturb_comparison(solution["Metric"], perturbed_metrics_eig)
 
     # Assert that the perturbed metrics have the same shape as the original
     assert perturbed_metrics_eig.shape == solution["Metric"].shape
@@ -110,9 +124,8 @@ def test_perturb_orientation(mesh_data, output_dir):
     # Create perturbation arrays for eigenvector orientations
     num_angle = 1 if num_dim == 2 else 3
     rotation_angles = np.zeros((num_point, num_angle))
-
-    # 90-degree rotation in yz plane to swap valuesx and z directions
-    rotation_angles[:, 1] = np.pi/2
+    rotation_angles[:, 0] = np.pi / 2
+    rotation_angles[:, 1] = np.pi / 2
 
     # Perturb the metric field (eigenvalues only)
     perturbed_metrics_rot = perturb_metric_field(
@@ -121,7 +134,7 @@ def test_perturb_orientation(mesh_data, output_dir):
         rotation_angles
     )
 
-    print(solution["Metric"][0], perturbed_metrics_rot[0])
+    print_perturb_comparison(solution["Metric"], perturbed_metrics_rot)
 
     # Assert that the perturbed metrics have the same shape as the original
     assert perturbed_metrics_rot.shape == solution["Metric"].shape
