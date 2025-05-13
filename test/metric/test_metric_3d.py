@@ -56,8 +56,8 @@ def test_write_mesh_with_metric(mesh_data, output_dir):
     coords, elements, solution, _, _ = mesh_data
 
     # Output paths
-    meshpath_out = output_dir / "quad_with_met.meshb"
-    solpath_out = output_dir / "quad_with_met.solb"
+    meshpath_out = output_dir / "sphere_with_met.meshb"
+    solpath_out = output_dir / "sphere_with_met.solb"
 
     # Write the mesh with the solution
     pymeshb.write_mesh(str(meshpath_out), coords, elements,
@@ -103,8 +103,8 @@ def test_perturb_eigenvalues(mesh_data, output_dir):
     }
 
     # Output paths
-    pert_meshpath_out = output_dir / "quad_with_eig_pert_only.meshb"
-    pert_solpath_out = output_dir / "quad_with_eig_pert_only.solb"
+    pert_meshpath_out = output_dir / "sphere_with_eig_pert_only.meshb"
+    pert_solpath_out = output_dir / "sphere_with_eig_pert_only.solb"
 
     # Write the mesh with perturbed metrics
     pymeshb.write_mesh(str(pert_meshpath_out), coords, elements,
@@ -149,8 +149,8 @@ def test_perturb_orientation(mesh_data, output_dir):
     }
 
     # Output paths
-    pert_meshpath_out = output_dir / "quad_with_rot_pert_only.meshb"
-    pert_solpath_out = output_dir / "quad_with_rot_pert_only.solb"
+    pert_meshpath_out = output_dir / "sphere_with_rot_pert_only.meshb"
+    pert_solpath_out = output_dir / "sphere_with_rot_pert_only.solb"
 
     # Write the mesh with perturbed metrics
     pymeshb.write_mesh(str(pert_meshpath_out), coords, elements,
@@ -198,8 +198,8 @@ def test_perturb_metric_field(mesh_data, output_dir):
     }
 
     # Output paths
-    pert_meshpath_out = output_dir / "quad_with_combined_pert_met.meshb"
-    pert_solpath_out = output_dir / "quad_with_combined_pert_met.solb"
+    pert_meshpath_out = output_dir / "sphere_with_combined_pert_met.meshb"
+    pert_solpath_out = output_dir / "sphere_with_combined_pert_met.solb"
 
     # Write the mesh with perturbed metrics
     pymeshb.write_mesh(str(pert_meshpath_out), coords, elements,
