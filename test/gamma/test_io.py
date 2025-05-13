@@ -53,8 +53,8 @@ def test_write_mesh_with_solution(mesh_data, output_dir):
     coords, elements, solution = mesh_data
 
     # Output paths
-    meshpath_out = output_dir / "quad_with_sol.meshb"
-    solpath_out = output_dir / "quad_with_sol.solb"
+    meshpath_out = output_dir / "sphere_with_sol.meshb"
+    solpath_out = output_dir / "sphere_with_sol.solb"
 
     # Write the mesh with the solution
     pymeshb.write_mesh(str(meshpath_out), coords, elements,

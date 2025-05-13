@@ -86,7 +86,7 @@ def test_perturb_eigenvalues(mesh_data, output_dir):
     perturbed_metrics_eig = perturb_metric_field(
         solution["Metric"],
         delta_eigenvals,
-        rotation_angles
+        rotation_angles,
     )
 
     print_perturb_comparison(solution["Metric"], perturbed_metrics_eig)
@@ -128,11 +128,11 @@ def test_perturb_orientation(mesh_data, output_dir):
     rotation_angles[:, 0] = np.pi / 2
     rotation_angles[:, 1] = np.pi / 2
 
-    # Perturb the metric field (eigenvalues only)
+    # Perturb the metric field (rotation only)
     perturbed_metrics_rot = perturb_metric_field(
         solution["Metric"],
         delta_eigenvals,
-        rotation_angles
+        rotation_angles,
     )
 
     print_perturb_comparison(solution["Metric"], perturbed_metrics_rot)
@@ -183,7 +183,7 @@ def test_perturb_metric_field(mesh_data, output_dir):
     perturbed_metrics = perturb_metric_field(
         solution["Metric"],
         delta_eigenvals,
-        rotation_angles
+        rotation_angles,
     )
 
     # Assert that the perturbed metrics have the same shape as the original
