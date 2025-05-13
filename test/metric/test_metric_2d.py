@@ -206,3 +206,56 @@ def test_perturb_metric_field(mesh_data, output_dir):
     # Assert that the files were created
     assert pert_meshpath_out.exists()
     assert pert_solpath_out.exists()
+
+
+def test_nonuniform_perturb_metric_field(mesh_data, output_dir):
+    """Test nonuniformly perturbing the 2D metric field."""
+    coords, elements, solution, num_point, num_dim = mesh_data
+
+    assert num_dim == 2, "This test is specifically for 2D meshes"
+
+    # Create perturbation arrays for eigenvalues (in log space)
+    log_max_old = np.log(max(solution["Metric"][0, [0, 2]]))
+    log_min_old = np.log(min(solution["Metric"][0, [0, 2]]))
+    r2 = pow(coords - 0.5, 2).sum(-1).clip(1e-2)
+    log_max_new = np.log(1e3 / np.sqrt(r2))
+    delta_eigenvals = np.zeros((num_point, num_dim))
+    delta_eigenvals[:, 0] = log_max_new - log_max_old
+    delta_eigenvals[:, 1] = np.log(1e2) - log_min_old
+
+    # Create perturbation arrays for eigenvector orientations
+    rotation_angles = np.zeros((num_point, 1))
+    th_new = np.atan2(coords[:, 1] - 0.5, coords[:, 0] - 0.5)
+    rotation_angles[:, 0] = th_new
+
+    # Perturb the metric field (both eigenvalues and rotation)
+    perturbed_metrics = perturb_metric_field(
+        solution["Metric"],
+        delta_eigenvals,
+        rotation_angles
+    )
+
+    print_perturb_comparison(solution["Metric"], perturbed_metrics)
+
+    # Assert that the perturbed metrics have the same shape as the original
+    assert perturbed_metrics.shape == solution["Metric"].shape
+
+    # Assert that the perturbed metrics are different from the original
+    assert not np.allclose(perturbed_metrics, solution["Metric"])
+
+    # Create a new solution dictionary for perturbed metrics
+    perturbed_solution = {
+        "Metric": perturbed_metrics
+    }
+
+    # Output paths
+    pert_meshpath_out = output_dir / "square_with_nonuniform_pert.meshb"
+    pert_solpath_out = output_dir / "square_with_nonuniform_pert.solb"
+
+    # Write the mesh with perturbed metrics
+    pymeshb.write_mesh(str(pert_meshpath_out), coords, elements,
+                       solpath=str(pert_solpath_out), solution=perturbed_solution)
+
+    # Assert that the files were created
+    assert pert_meshpath_out.exists()
+    assert pert_solpath_out.exists()
