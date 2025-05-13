@@ -21,11 +21,11 @@ classifiers = [
     "Topic :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Physics",
 ]
-requires-python = "~=3.12"
+requires-python = "~=3.12.1"
 dependencies = [
     "docopt==0.6.2",
     "matplotlib==3.9.2",
-    "numpy~=2.0",
+    "numpy~=2.0.0",
     "pybind11==2.13.6",
     "pyyaml==6.0.2",
     "vtk==9.3.1",
