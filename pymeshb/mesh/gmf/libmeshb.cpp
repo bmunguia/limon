@@ -3,7 +3,7 @@
  *
  *  Implementation of Python bindings for the libMeshb library, providing
  *  functionality to read and write meshb files, including scalar, vector,
- *  and tensor fields.
+ *  and tensor fields in solutions.
  *
  *  @author Brian Munguía
  *  @bug No known bugs.
@@ -16,11 +16,10 @@ extern "C" {
 #include <libmeshb7.h>
 }
 
+#include "../util.hpp"
+
 namespace py = pybind11;
 
-/**
- * Python module definition for libMeshb bindings.
- */
 PYBIND11_MODULE(libmeshb, m) {
     m.doc() = "Python bindings for libMeshb";
 
@@ -166,10 +165,7 @@ PYBIND11_MODULE(libmeshb, m) {
                         GmfGetLin(sol_id, GmfReferenceStrings, &kwd, &ind, &bufChar);
                         // Convert to string and remove spaces/newlines
                         std::string field_name = std::string(bufChar, strnlen(bufChar, sizeof(bufChar)));
-                        field_name.erase(std::remove_if(field_name.begin(),
-                                         field_name.end(),
-                                         [](char c){ return std::isspace(c); }),
-                                         field_name.end());
+                        field_name = pymeshb::trim(field_name);
                         sol_name.push_back(field_name);
                         sol_ind.push_back(ind-1);
                     }

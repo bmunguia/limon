@@ -30,10 +30,12 @@ def build(setup_kwargs: dict | None = None):
     # Copy the libraries to the install location
     lib_names = [
         'libmeshb',
+        'libsu2',
         '_metric',
     ]
     lib_dirs = [
         Path('pymeshb/mesh/gmf'),
+        Path('pymeshb/mesh/su2'),
         Path('pymeshb/metric'),
     ]
     for lib_name, lib_dir in zip(lib_names, lib_dirs):
