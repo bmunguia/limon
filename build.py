@@ -33,7 +33,7 @@ def build(setup_kwargs: dict | None = None):
         '_metric',
     ]
     lib_dirs = [
-        Path('pymeshb/gamma'),
+        Path('pymeshb/mesh/gmf'),
         Path('pymeshb/metric'),
     ]
     for lib_name, lib_dir in zip(lib_names, lib_dirs):

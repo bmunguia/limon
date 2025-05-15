@@ -1,16 +1,14 @@
 import numpy as np
 from numpy.typing import NDArray
 
-import pymeshb.gamma.libmeshb as libmeshb
+import pymeshb.mesh.gmf.libmeshb as libmeshb
 
 def read_mesh(
     meshpath: str,
     solpath: str | None = None,
     read_sol: bool = False
 ) -> tuple[NDArray, NDArray, NDArray]:
-    r"""Read a meshb file and return nodes and coordinates as numpy arrays.
-
-    This function uses the C++ binding read_mesh from libmeshb.
+    r"""Read a SU2 mesh file and return nodes and coordinates as numpy arrays.
 
     Args:
         meshpath (str): Path to the mesh file.
@@ -21,17 +19,18 @@ def read_mesh(
         tuple: If read_sol=False, returns (coords, elements)
                If read_sol=True, returns (coords, elements, sol)
     """
-    try:
-        solpath = solpath if solpath is not None else ''
-        msh = libmeshb.read_mesh(meshpath, solpath, read_sol)
-        if len(msh) == 3:
-            coords, elms, sol = msh
-            return coords, elms, sol
-        else:
-            return msh[0], msh[1], {}
-    except Exception as e:
-        print(f"Error reading mesh: {e}")
-        return None, None
+    pass
+    # try:
+    #     solpath = solpath if solpath is not None else ''
+    #     msh = libmeshb.read_mesh(meshpath, solpath, read_sol)
+    #     if len(msh) == 3:
+    #         coords, elms, sol = msh
+    #         return coords, elms, sol
+    #     else:
+    #         return msh[0], msh[1], {}
+    # except Exception as e:
+    #     print(f"Error reading mesh: {e}")
+    #     return None, None
 
 def write_mesh(
     meshpath: str,
@@ -40,9 +39,7 @@ def write_mesh(
     solpath: str | None = None,
     solution: dict[str, NDArray] | None= None,
 ) -> bool:
-    r"""Write nodes and coordinates to a meshb file.
-
-    This function uses the C++ binding write_mesh from libmeshb.
+    r"""Write nodes and coordinates to a SU2 mesh file.
 
     Args:
         meshpath (str): Path to the mesh file.
@@ -56,12 +53,13 @@ def write_mesh(
     Returns:
         bool: True if successful, False otherwise
     """
-    try:
-        sol = solution if solution is not None else {}
-        solpath = solpath if solpath is not None else ''
-        out = libmeshb.write_mesh(meshpath, coords, elements, solpath, sol)
-        return out
+    pass
+    # try:
+    #     sol = solution if solution is not None else {}
+    #     solpath = solpath if solpath is not None else ''
+    #     success = libmeshb.write_mesh(meshpath, coords, elements, solpath, sol)
+    #     return success
 
-    except Exception as e:
-        print(f"Error writing mesh: {e}")
-        return False
+    # except Exception as e:
+    #     print(f"Error writing mesh: {e}")
+    #     return False

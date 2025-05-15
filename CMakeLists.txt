@@ -16,7 +16,7 @@ find_package(Eigen3 REQUIRED)
 add_subdirectory(${PROJECT_SOURCE_DIR}/libMeshb)
 
 pybind11_add_module(libmeshb MODULE
-    ${PROJECT_SOURCE_DIR}/pymeshb/gamma/libmeshb.cpp)
+    ${PROJECT_SOURCE_DIR}/pymeshb/mesh/gmf/libmeshb.cpp)
 target_link_libraries(libmeshb PRIVATE Meshb.7)
 target_include_directories(libmeshb PRIVATE
     ${PROJECT_SOURCE_DIR}/libMeshb/sources)

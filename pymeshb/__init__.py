@@ -1,1 +1,1 @@
-from .gamma import read_mesh, write_mesh
+from .mesh import read_mesh, write_mesh
