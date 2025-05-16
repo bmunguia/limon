@@ -13,7 +13,7 @@ extern "C" {
 namespace pymeshb {
 namespace gmf {
 
-py::tuple read_mesh(const std::string& meshpath, const std::string& solpath, 
+py::tuple read_mesh(const std::string& meshpath, const std::string& solpath,
                     bool read_sol) {
     int version;
     int dim;

@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.typing import NDArray
 
-import pymeshb.mesh.gmf.libgmf as libgmf
+import pymeshb.mesh.su2.libsu2 as libsu2
 
 def read_mesh(
     meshpath: str,
@@ -19,18 +19,17 @@ def read_mesh(
         tuple: If read_sol=False, returns (coords, elements)
                If read_sol=True, returns (coords, elements, sol)
     """
-    pass
-    # try:
-    #     solpath = solpath if solpath is not None else ''
-    #     msh = libgmf.read_mesh(meshpath, solpath, read_sol)
-    #     if len(msh) == 3:
-    #         coords, elms, sol = msh
-    #         return coords, elms, sol
-    #     else:
-    #         return msh[0], msh[1], {}
-    # except Exception as e:
-    #     print(f"Error reading mesh: {e}")
-    #     return None, None
+    try:
+        solpath = solpath if solpath is not None else ''
+        msh = libsu2.read_mesh(meshpath, solpath, read_sol)
+        if len(msh) == 3:
+            coords, elms, sol = msh
+            return coords, elms, sol
+        else:
+            return msh[0], msh[1], {}
+    except Exception as e:
+        print(f"Error reading mesh: {e}")
+        return None, None
 
 def write_mesh(
     meshpath: str,
@@ -53,13 +52,12 @@ def write_mesh(
     Returns:
         bool: True if successful, False otherwise
     """
-    pass
-    # try:
-    #     sol = solution if solution is not None else {}
-    #     solpath = solpath if solpath is not None else ''
-    #     success = libgmf.write_mesh(meshpath, coords, elements, solpath, sol)
-    #     return success
+    try:
+        sol = solution if solution is not None else {}
+        solpath = solpath if solpath is not None else ''
+        success = libsu2.write_mesh(meshpath, coords, elements, solpath, sol)
+        return success
 
-    # except Exception as e:
-    #     print(f"Error writing mesh: {e}")
-    #     return False
+    except Exception as e:
+        print(f"Error writing mesh: {e}")
+        return False

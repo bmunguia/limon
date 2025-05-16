@@ -13,13 +13,13 @@ def test_decompose_and_recompose_2d():
     eigenvalues, eigenvectors = decompose(lower_tri)
 
     # Assert eigenvalues are sorted in descending order
-    assert np.all(eigenvalues[:-1] >= eigenvalues[1:]), "Eigenvalues are not sorted in descending order"
+    assert np.all(eigenvalues[:-1] >= eigenvalues[1:]), 'Eigenvalues are not sorted in descending order'
 
     # Recombine the tensor from eigenvalues and eigenvectors
     reconstructed = recompose(eigenvalues, eigenvectors)
 
     # Assert the reconstructed tensor matches the original tensor
-    assert np.allclose(reconstructed, lower_tri, atol=1e-6), "Reconstructed tensor does not match the original"
+    assert np.allclose(reconstructed, lower_tri, atol=1e-6), 'Reconstructed tensor does not match the original'
 
 
 def test_decompose_and_recompose_3d():
@@ -32,13 +32,13 @@ def test_decompose_and_recompose_3d():
     eigenvalues, eigenvectors = decompose(lower_tri)
 
     # Assert eigenvalues are sorted in descending order
-    assert np.all(eigenvalues[:-1] >= eigenvalues[1:]), "Eigenvalues are not sorted in descending order"
+    assert np.all(eigenvalues[:-1] >= eigenvalues[1:]), 'Eigenvalues are not sorted in descending order'
 
     # Recombine the tensor from eigenvalues and eigenvectors
     reconstructed = recompose(eigenvalues, eigenvectors)
 
     # Assert the reconstructed tensor matches the original tensor
-    assert np.allclose(reconstructed, lower_tri, atol=1e-6), "Reconstructed tensor does not match the original"
+    assert np.allclose(reconstructed, lower_tri, atol=1e-6), 'Reconstructed tensor does not match the original'
 
 
 def test_decompose_and_recompose_1d():
@@ -51,10 +51,10 @@ def test_decompose_and_recompose_1d():
     eigenvalues, eigenvectors = decompose(lower_tri)
 
     # Assert eigenvalues are correct
-    assert np.allclose(eigenvalues, [7.0]), "Eigenvalues are incorrect for 1D tensor"
+    assert np.allclose(eigenvalues, [7.0]), 'Eigenvalues are incorrect for 1D tensor'
 
     # Recombine the tensor from eigenvalues and eigenvectors
     reconstructed = recompose(eigenvalues, eigenvectors)
 
     # Assert the reconstructed tensor matches the original tensor
-    assert np.allclose(reconstructed, lower_tri, atol=1e-6), "Reconstructed tensor does not match the original"
+    assert np.allclose(reconstructed, lower_tri, atol=1e-6), 'Reconstructed tensor does not match the original'

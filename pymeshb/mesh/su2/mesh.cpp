@@ -1,11 +1,11 @@
-#include "mesh.hpp"
-#include "solution.hpp"
-#include <fstream>
-#include <sstream>
 #include <algorithm>
+#include <fstream>
 #include <regex>
+#include <sstream>
 
 #include "../util.hpp"
+#include "mesh.hpp"
+#include "solution.hpp"
 
 namespace pymeshb {
 namespace su2 {

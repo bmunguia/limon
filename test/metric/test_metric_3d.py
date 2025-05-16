@@ -24,7 +24,7 @@ def print_perturb_comparison(met, met_pert):
 @pytest.fixture
 def mesh_data():
     """Load the 3D mesh and create a sample solution."""
-    meshpath_in = "libMeshb/sample_meshes/quad.meshb"
+    meshpath_in = 'libMeshb/sample_meshes/quad.meshb'
     coords, elements, solution = pymeshb.read_mesh(meshpath_in)
 
     num_point = coords.shape[0]
@@ -32,13 +32,13 @@ def mesh_data():
 
     # Create a sample solution dictionary
     solution = {
-        "Metric": np.zeros((num_point, (num_dim * (num_dim + 1)) // 2))
+        'Metric': np.zeros((num_point, (num_dim * (num_dim + 1)) // 2))
     }
 
     # Make sample metric diagonal
-    solution["Metric"][:, 0] = 1e1
-    solution["Metric"][:, 2] = 1e2
-    solution["Metric"][:, 5] = 1e3
+    solution['Metric'][:, 0] = 1e1
+    solution['Metric'][:, 2] = 1e2
+    solution['Metric'][:, 5] = 1e3
 
     return coords, elements, solution, num_point, num_dim
 
@@ -46,7 +46,7 @@ def mesh_data():
 @pytest.fixture
 def output_dir(request):
     """Create a persistent output directory for test files."""
-    out_dir = Path("output") / request.node.name
+    out_dir = Path('output') / request.node.name
     out_dir.mkdir(parents=True, exist_ok=True)
     return out_dir
 
@@ -56,8 +56,8 @@ def test_write_mesh_with_metric(mesh_data, output_dir):
     coords, elements, solution, _, _ = mesh_data
 
     # Output paths
-    meshpath_out = output_dir / "sphere_with_met.meshb"
-    solpath_out = output_dir / "sphere_with_met.solb"
+    meshpath_out = output_dir / 'sphere_with_met.meshb'
+    solpath_out = output_dir / 'sphere_with_met.solb'
 
     # Write the mesh with the solution
     pymeshb.write_mesh(str(meshpath_out), coords, elements,
@@ -84,27 +84,27 @@ def test_perturb_eigenvalues(mesh_data, output_dir):
 
     # Perturb the metric field (eigenvalues only)
     perturbed_metrics_eig = perturb_metric_field(
-        solution["Metric"],
+        solution['Metric'],
         delta_eigenvals,
         rotation_angles,
     )
 
-    print_perturb_comparison(solution["Metric"], perturbed_metrics_eig)
+    print_perturb_comparison(solution['Metric'], perturbed_metrics_eig)
 
     # Assert that the perturbed metrics have the same shape as the original
-    assert perturbed_metrics_eig.shape == solution["Metric"].shape
+    assert perturbed_metrics_eig.shape == solution['Metric'].shape
 
     # Assert that the perturbed metrics are different from the original
-    assert not np.allclose(perturbed_metrics_eig, solution["Metric"])
+    assert not np.allclose(perturbed_metrics_eig, solution['Metric'])
 
     # Create a new solution dictionary for perturbed metrics
     perturbed_solution = {
-        "Metric": perturbed_metrics_eig
+        'Metric': perturbed_metrics_eig
     }
 
     # Output paths
-    pert_meshpath_out = output_dir / "sphere_with_eig_pert_only.meshb"
-    pert_solpath_out = output_dir / "sphere_with_eig_pert_only.solb"
+    pert_meshpath_out = output_dir / 'sphere_with_eig_pert_only.meshb'
+    pert_solpath_out = output_dir / 'sphere_with_eig_pert_only.solb'
 
     # Write the mesh with perturbed metrics
     pymeshb.write_mesh(str(pert_meshpath_out), coords, elements,
@@ -130,27 +130,27 @@ def test_perturb_orientation(mesh_data, output_dir):
 
     # Perturb the metric field (rotation only)
     perturbed_metrics_rot = perturb_metric_field(
-        solution["Metric"],
+        solution['Metric'],
         delta_eigenvals,
         rotation_angles,
     )
 
-    print_perturb_comparison(solution["Metric"], perturbed_metrics_rot)
+    print_perturb_comparison(solution['Metric'], perturbed_metrics_rot)
 
     # Assert that the perturbed metrics have the same shape as the original
-    assert perturbed_metrics_rot.shape == solution["Metric"].shape
+    assert perturbed_metrics_rot.shape == solution['Metric'].shape
 
     # Assert that the perturbed metrics are different from the original
-    assert not np.allclose(perturbed_metrics_rot, solution["Metric"])
+    assert not np.allclose(perturbed_metrics_rot, solution['Metric'])
 
     # Create a new solution dictionary for perturbed metrics
     perturbed_solution = {
-        "Metric": perturbed_metrics_rot
+        'Metric': perturbed_metrics_rot
     }
 
     # Output paths
-    pert_meshpath_out = output_dir / "sphere_with_rot_pert_only.meshb"
-    pert_solpath_out = output_dir / "sphere_with_rot_pert_only.solb"
+    pert_meshpath_out = output_dir / 'sphere_with_rot_pert_only.meshb'
+    pert_solpath_out = output_dir / 'sphere_with_rot_pert_only.solb'
 
     # Write the mesh with perturbed metrics
     pymeshb.write_mesh(str(pert_meshpath_out), coords, elements,
@@ -181,25 +181,25 @@ def test_perturb_metric_field(mesh_data, output_dir):
 
     # Perturb the metric field
     perturbed_metrics = perturb_metric_field(
-        solution["Metric"],
+        solution['Metric'],
         delta_eigenvals,
         rotation_angles,
     )
 
     # Assert that the perturbed metrics have the same shape as the original
-    assert perturbed_metrics.shape == solution["Metric"].shape
+    assert perturbed_metrics.shape == solution['Metric'].shape
 
     # Assert that the perturbed metrics are different from the original
-    assert not np.allclose(perturbed_metrics, solution["Metric"])
+    assert not np.allclose(perturbed_metrics, solution['Metric'])
 
     # Create a new solution dictionary for perturbed metrics
     perturbed_solution = {
-        "Metric": perturbed_metrics
+        'Metric': perturbed_metrics
     }
 
     # Output paths
-    pert_meshpath_out = output_dir / "sphere_with_combined_pert_met.meshb"
-    pert_solpath_out = output_dir / "sphere_with_combined_pert_met.solb"
+    pert_meshpath_out = output_dir / 'sphere_with_combined_pert_met.meshb'
+    pert_solpath_out = output_dir / 'sphere_with_combined_pert_met.solb'
 
     # Write the mesh with perturbed metrics
     pymeshb.write_mesh(str(pert_meshpath_out), coords, elements,
