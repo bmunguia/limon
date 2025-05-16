@@ -1,16 +1,16 @@
 import numpy as np
 from numpy.typing import NDArray
 
-import pymeshb.mesh.gmf.libmeshb as libmeshb
+import pymeshb.mesh.gmf.libgmf as libgmf
 
 def read_mesh(
     meshpath: str,
     solpath: str | None = None,
     read_sol: bool = False
 ) -> tuple[NDArray, NDArray, NDArray]:
-    r"""Read a meshb file and return nodes and coordinates as numpy arrays.
+    r"""Read a meshb file and return nodes and element as numpy arrays.
 
-    This function uses the C++ binding read_mesh from libmeshb.
+    This function uses the C++ binding read_mesh from libgmf.
 
     Args:
         meshpath (str): Path to the mesh file.
@@ -23,7 +23,7 @@ def read_mesh(
     """
     try:
         solpath = solpath if solpath is not None else ''
-        msh = libmeshb.read_mesh(meshpath, solpath, read_sol)
+        msh = libgmf.read_mesh(meshpath, solpath, read_sol)
         if len(msh) == 3:
             coords, elms, sol = msh
             return coords, elms, sol
@@ -40,9 +40,9 @@ def write_mesh(
     solpath: str | None = None,
     solution: dict[str, NDArray] | None= None,
 ) -> bool:
-    r"""Write nodes and coordinates to a meshb file.
+    r"""Write nodes and elements to a meshb file.
 
-    This function uses the C++ binding write_mesh from libmeshb.
+    This function uses the C++ binding write_mesh from libgmf.
 
     Args:
         meshpath (str): Path to the mesh file.
@@ -59,7 +59,7 @@ def write_mesh(
     try:
         sol = solution if solution is not None else {}
         solpath = solpath if solpath is not None else ''
-        success = libmeshb.write_mesh(meshpath, coords, elements, solpath, sol)
+        success = libgmf.write_mesh(meshpath, coords, elements, solpath, sol)
         return success
 
     except Exception as e:

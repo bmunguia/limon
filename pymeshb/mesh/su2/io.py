@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.typing import NDArray
 
-import pymeshb.mesh.gmf.libmeshb as libmeshb
+import pymeshb.mesh.gmf.libgmf as libgmf
 
 def read_mesh(
     meshpath: str,
@@ -22,7 +22,7 @@ def read_mesh(
     pass
     # try:
     #     solpath = solpath if solpath is not None else ''
-    #     msh = libmeshb.read_mesh(meshpath, solpath, read_sol)
+    #     msh = libgmf.read_mesh(meshpath, solpath, read_sol)
     #     if len(msh) == 3:
     #         coords, elms, sol = msh
     #         return coords, elms, sol
@@ -57,7 +57,7 @@ def write_mesh(
     # try:
     #     sol = solution if solution is not None else {}
     #     solpath = solpath if solpath is not None else ''
-    #     success = libmeshb.write_mesh(meshpath, coords, elements, solpath, sol)
+    #     success = libgmf.write_mesh(meshpath, coords, elements, solpath, sol)
     #     return success
 
     # except Exception as e:

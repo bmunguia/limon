@@ -29,7 +29,7 @@ def build(setup_kwargs: dict | None = None):
 
     # Copy the libraries to the install location
     lib_names = [
-        'libmeshb',
+        'libgmf',
         'libsu2',
         '_metric',
     ]

@@ -21,12 +21,14 @@ set(PYMESHB_UTIL_HEADERS
 set(PYMESHB_UTIL_SOURCES
     ${PROJECT_SOURCE_DIR}/pymeshb/mesh/util.cpp)
 
-# Build libmeshb submodule
-pybind11_add_module(libmeshb MODULE
-    ${PROJECT_SOURCE_DIR}/pymeshb/mesh/gmf/libmeshb.cpp
+# Build libgmf submodule
+pybind11_add_module(libgmf MODULE
+    ${PROJECT_SOURCE_DIR}/pymeshb/mesh/gmf/libgmf.cpp
+    ${PROJECT_SOURCE_DIR}/pymeshb/mesh/gmf/mesh.cpp
+    ${PROJECT_SOURCE_DIR}/pymeshb/mesh/gmf/solution.cpp
     ${PYMESHB_UTIL_SOURCES})
-target_link_libraries(libmeshb PRIVATE Meshb.7)
-target_include_directories(libmeshb PRIVATE
+target_link_libraries(libgmf PRIVATE Meshb.7)
+target_include_directories(libgmf PRIVATE
     ${PROJECT_SOURCE_DIR}/libMeshb/sources
     ${PROJECT_SOURCE_DIR}/pymeshb/mesh)
 
@@ -36,7 +38,6 @@ pybind11_add_module(libsu2 MODULE
     ${PROJECT_SOURCE_DIR}/pymeshb/mesh/su2/mesh.cpp
     ${PROJECT_SOURCE_DIR}/pymeshb/mesh/su2/solution.cpp
     ${PYMESHB_UTIL_SOURCES})
-
 target_include_directories(libsu2 PRIVATE
     ${PROJECT_SOURCE_DIR}/pymeshb/mesh)
 

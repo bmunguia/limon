@@ -21,7 +21,7 @@ py::tuple read_mesh(const std::string& meshpath, const std::string& solpath, boo
     std::vector<std::string> lines;
     std::string line;
     while (std::getline(mesh_file, line)) {
-        if (line.empty() || line[0] == '%') {  // Skip comments and empty lines
+        if (line.empty() || line[0] == '%') {
             continue;
         }
         lines.push_back(line);
@@ -29,7 +29,7 @@ py::tuple read_mesh(const std::string& meshpath, const std::string& solpath, boo
     mesh_file.close();
 
     // Parse dimension
-    int dim = 2;  // Default
+    int dim = 2;
     for (const auto& line : lines) {
         if (line.find("NDIME=") != std::string::npos) {
             std::istringstream iss(line.substr(line.find("=") + 1));
@@ -193,13 +193,13 @@ py::tuple read_mesh(const std::string& meshpath, const std::string& solpath, boo
                     iss >> elem_type;
 
                     if (elem_type == 3) {  // Line
-                        std::vector<unsigned int> edge(3);  // 2 nodes + ref
+                        std::vector<unsigned int> edge(3);
                         iss >> edge[0] >> edge[1];
                         edge[2] = marker_idx + 1;  // Use marker index as reference
                         edge_elements.push_back(edge);
                     }
                     else if (elem_type == 5) {  // Triangle
-                        std::vector<unsigned int> tri(4);  // 3 nodes + ref
+                        std::vector<unsigned int> tri(4);
                         iss >> tri[0] >> tri[1] >> tri[2];
                         tri[3] = marker_idx + 1;
                         triangle_elements.push_back(tri);
