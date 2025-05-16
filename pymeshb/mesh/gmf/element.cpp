@@ -57,25 +57,31 @@ void read_element_type(int64_t mesh_id, int kwd, int num_node, py::dict& element
     }
 }
 
-void read_elements_2D(int64_t mesh_id, py::dict& elements) {
-    read_element_type(mesh_id, GmfEdges, 2, elements, "Edges");
+void read_elements_2D(int64_t mesh_id, py::dict& elements, py::dict& boundaries) {
+    // Boundary elements
+    read_element_type(mesh_id, GmfEdges, 2, boundaries, "Edges");
+
+    // Volume elements
     read_element_type(mesh_id, GmfTriangles, 3, elements, "Triangles");
     read_element_type(mesh_id, GmfQuadrilaterals, 4, elements, "Quadrilaterals");
 }
 
-void read_elements_3D(int64_t mesh_id, py::dict& elements) {
-    read_element_type(mesh_id, GmfTriangles, 3, elements, "Triangles");
-    read_element_type(mesh_id, GmfQuadrilaterals, 4, elements, "Quadrilaterals");
+void read_elements_3D(int64_t mesh_id, py::dict& elements, py::dict& boundaries) {
+    // Boundary elements
+    read_element_type(mesh_id, GmfTriangles, 3, boundaries, "Triangles");
+    read_element_type(mesh_id, GmfQuadrilaterals, 4, boundaries, "Quadrilaterals");
+
+    // Domain elements
     read_element_type(mesh_id, GmfTetrahedra, 4, elements, "Tetrahedra");
     read_element_type(mesh_id, GmfPrisms, 6, elements, "Prisms");
     read_element_type(mesh_id, GmfHexahedra, 8, elements, "Hexahedra");
 }
 
-void write_element_type(int64_t mesh_id, int kwd, py::array_t<unsigned int>& element_array) {
-    auto elm_buf = element_array.request();
+void write_element_type(int64_t mesh_id, int kwd, py::array_t<unsigned int>& elm_array) {
+    auto elm_buf = elm_array.request();
     unsigned int* elm_ptr = static_cast<unsigned int*>(elm_buf.ptr);
-    int64_t num_elm = element_array.shape(0);
-    int num_node = element_array.shape(1) - 1;
+    int64_t num_elm = elm_array.shape(0);
+    int num_node = elm_array.shape(1) - 1;
 
     GmfSetKwd(mesh_id, kwd, num_elm);
     for (auto i = 0; i < num_elm; i++) {
@@ -138,11 +144,14 @@ void write_element_type(int64_t mesh_id, int kwd, py::array_t<unsigned int>& ele
     }
 }
 
-void write_elements_2D(int64_t mesh_id, py::dict& elements) {
-    if (elements.contains("Edges")) {
-        py::array_t<unsigned int> element_array = elements["Edges"].cast<py::array_t<unsigned int>>();
+void write_elements_2D(int64_t mesh_id, const py::dict& elements, const py::dict& boundaries) {
+    // Boundary elements
+    if (boundaries.contains("Edges")) {
+        py::array_t<unsigned int> element_array = boundaries["Edges"].cast<py::array_t<unsigned int>>();
         write_element_type(mesh_id, GmfEdges, element_array);
     }
+
+    // Volume elements
     if (elements.contains("Triangles")) {
         py::array_t<unsigned int> element_array = elements["Triangles"].cast<py::array_t<unsigned int>>();
         write_element_type(mesh_id, GmfTriangles, element_array);
@@ -153,15 +162,18 @@ void write_elements_2D(int64_t mesh_id, py::dict& elements) {
     }
 }
 
-void write_elements_3D(int64_t mesh_id, py::dict& elements) {
-    if (elements.contains("Triangles")) {
-        py::array_t<unsigned int> element_array = elements["Triangles"].cast<py::array_t<unsigned int>>();
+void write_elements_3D(int64_t mesh_id, const py::dict& elements, const py::dict& boundaries) {
+    // Boundary elements
+    if (boundaries.contains("Triangles")) {
+        py::array_t<unsigned int> element_array = boundaries["Triangles"].cast<py::array_t<unsigned int>>();
         write_element_type(mesh_id, GmfTriangles, element_array);
     }
-    if (elements.contains("Quadrilaterals")) {
-        py::array_t<unsigned int> element_array = elements["Quadrilaterals"].cast<py::array_t<unsigned int>>();
+    if (boundaries.contains("Quadrilaterals")) {
+        py::array_t<unsigned int> element_array = boundaries["Quadrilaterals"].cast<py::array_t<unsigned int>>();
         write_element_type(mesh_id, GmfQuadrilaterals, element_array);
     }
+
+    // Volume elements
     if (elements.contains("Tetrahedra")) {
         py::array_t<unsigned int> element_array = elements["Tetrahedra"].cast<py::array_t<unsigned int>>();
         write_element_type(mesh_id, GmfTetrahedra, element_array);

@@ -25,7 +25,7 @@ def print_perturb_comparison(met, met_pert):
 def mesh_data():
     """Load the 3D mesh and create a sample solution."""
     meshpath_in = 'libMeshb/sample_meshes/quad.meshb'
-    coords, elements, solution = pymeshb.read_mesh(meshpath_in)
+    coords, elements, boundaries, solution = pymeshb.read_mesh(meshpath_in)
 
     num_point = coords.shape[0]
     num_dim = coords.shape[1]
@@ -40,7 +40,7 @@ def mesh_data():
     solution['Metric'][:, 2] = 1e2
     solution['Metric'][:, 5] = 1e3
 
-    return coords, elements, solution, num_point, num_dim
+    return coords, elements, boundaries, solution, num_point, num_dim
 
 
 @pytest.fixture
@@ -53,14 +53,14 @@ def output_dir(request):
 
 def test_write_mesh_with_metric(mesh_data, output_dir):
     """Test writing a 3D mesh with a metric."""
-    coords, elements, solution, _, _ = mesh_data
+    coords, elements, boundaries, solution, _, _ = mesh_data
 
     # Output paths
     meshpath_out = output_dir / 'sphere_with_met.meshb'
     solpath_out = output_dir / 'sphere_with_met.solb'
 
     # Write the mesh with the solution
-    pymeshb.write_mesh(str(meshpath_out), coords, elements,
+    pymeshb.write_mesh(str(meshpath_out), coords, elements, boundaries,
                        solpath=str(solpath_out), solution=solution)
 
     # Assert that the files were created
@@ -70,7 +70,7 @@ def test_write_mesh_with_metric(mesh_data, output_dir):
 
 def test_perturb_eigenvalues(mesh_data, output_dir):
     """Test perturbing only the eigenvalues of the 3D metric field."""
-    coords, elements, solution, num_point, num_dim = mesh_data
+    coords, elements, boundaries, solution, num_point, num_dim = mesh_data
 
     # Create perturbation arrays for eigenvalues (in log space)
     delta_eigenvals = np.zeros((num_point, num_dim))
@@ -107,7 +107,7 @@ def test_perturb_eigenvalues(mesh_data, output_dir):
     pert_solpath_out = output_dir / 'sphere_with_eig_pert_only.solb'
 
     # Write the mesh with perturbed metrics
-    pymeshb.write_mesh(str(pert_meshpath_out), coords, elements,
+    pymeshb.write_mesh(str(pert_meshpath_out), coords, elements, boundaries,
                       solpath=str(pert_solpath_out), solution=perturbed_solution)
 
     # Assert that the files were created
@@ -117,7 +117,7 @@ def test_perturb_eigenvalues(mesh_data, output_dir):
 
 def test_perturb_orientation(mesh_data, output_dir):
     """Test perturbing only the orientation of the 3D metric field."""
-    coords, elements, solution, num_point, num_dim = mesh_data
+    coords, elements, boundaries, solution, num_point, num_dim = mesh_data
 
     # Use zero perturbations to isolate rotation effects
     delta_eigenvals = np.zeros((num_point, num_dim))
@@ -153,7 +153,7 @@ def test_perturb_orientation(mesh_data, output_dir):
     pert_solpath_out = output_dir / 'sphere_with_rot_pert_only.solb'
 
     # Write the mesh with perturbed metrics
-    pymeshb.write_mesh(str(pert_meshpath_out), coords, elements,
+    pymeshb.write_mesh(str(pert_meshpath_out), coords, elements, boundaries,
                       solpath=str(pert_solpath_out), solution=perturbed_solution)
 
     # Assert that the files were created
@@ -163,7 +163,7 @@ def test_perturb_orientation(mesh_data, output_dir):
 
 def test_perturb_metric_field(mesh_data, output_dir):
     """Test perturbing the 3D metric field."""
-    coords, elements, solution, num_point, num_dim = mesh_data
+    coords, elements, boundaries, solution, num_point, num_dim = mesh_data
 
     # Create perturbation arrays for eigenvalues (in log space)
     delta_eigenvals = np.zeros((num_point, num_dim))
@@ -202,7 +202,7 @@ def test_perturb_metric_field(mesh_data, output_dir):
     pert_solpath_out = output_dir / 'sphere_with_combined_pert_met.solb'
 
     # Write the mesh with perturbed metrics
-    pymeshb.write_mesh(str(pert_meshpath_out), coords, elements,
+    pymeshb.write_mesh(str(pert_meshpath_out), coords, elements, boundaries,
                        solpath=str(pert_solpath_out), solution=perturbed_solution)
 
     # Assert that the files were created

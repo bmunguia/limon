@@ -1,7 +1,7 @@
-import numpy as np
 from numpy.typing import NDArray
 
 from pymeshb.mesh import gmf, su2
+
 
 def read_mesh(
     meshpath: str,
@@ -31,19 +31,22 @@ def read_mesh(
                 'Supported formats are .mesh, .meshb, and .su2'
             )
 
-        if len(msh) == 3:
-            coords, elms, sol = msh
-            return coords, elms, sol
+        if len(msh) == 4:
+            coords, elms, bnds, sol = msh
+            return coords, elms, bnds, sol
         else:
-            return msh[0], msh[1], {}
+            return msh[0], msh[1], msh[2], {}
+
     except Exception as e:
         print(f"Error reading mesh: {e}")
         return None, None
+
 
 def write_mesh(
     meshpath: str,
     coords: NDArray,
     elements: dict[str, NDArray],
+    boundaries: dict[str, NDArray],
     solpath: str | None = None,
     solution: dict[str, NDArray] | None= None,
 ) -> bool:
@@ -53,7 +56,10 @@ def write_mesh(
         meshpath (str): Path to the mesh file.
         coords (numpy.ndarray): Coordinates of each node.
         elements (dict[str, NDArray]): Dictionary of mesh elements. Keys are
-                                      element types, values are numpy arrays.
+                                       element types, values are numpy arrays.
+        boundaries (dict[str, NDArray]): Dictionary of mesh boundary elements.
+                                         Keys are element types, values are
+                                         numpy arrays.
         solpath (str, optional): Path to the solution file. Defaults to None.
         solution (dict, optional): Dictionary of solution data. Keys are
                                    field names, values are numpy arrays.
@@ -65,9 +71,9 @@ def write_mesh(
         sol = solution if solution is not None else {}
         solpath = solpath if solpath is not None else ''
         if 'mesh' in meshpath or 'meshb' in meshpath:
-            success = gmf.write_mesh(meshpath, coords, elements, solpath, solution)
+            success = gmf.write_mesh(meshpath, coords, elements, boundaries, solpath, solution)
         elif 'su2' in meshpath:
-            success = su2.write_mesh(meshpath, coords, elements, solpath, solution)
+            success = su2.write_mesh(meshpath, coords, elements, boundaries, solpath, solution)
         else:
             raise ValueError(
                 f'Unsupported mesh file format: {meshpath}. '

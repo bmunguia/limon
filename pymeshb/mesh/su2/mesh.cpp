@@ -112,8 +112,8 @@ py::tuple read_mesh(const std::string& meshpath, const std::string& solpath, boo
     std::map<std::string, int> element_indices;
 
     for (const auto& [elem_type, count] : element_counts) {
-        auto [elem_name, num_nodes] = element_type_map[elem_type];
-        element_arrays[elem_name] = py::array_t<unsigned int>(std::vector<py::ssize_t>{count, num_nodes + 1});
+        auto [elem_name, num_node] = element_type_map[elem_type];
+        element_arrays[elem_name] = py::array_t<unsigned int>(std::vector<py::ssize_t>{count, num_node + 1});
         element_ptrs[elem_name] = element_arrays[elem_name].mutable_data();
         element_indices[elem_name] = 0;
     }
@@ -128,19 +128,19 @@ py::tuple read_mesh(const std::string& meshpath, const std::string& solpath, boo
             continue;  // Skip unknown element types
         }
 
-        auto [elem_name, num_nodes] = element_type_map[elem_type];
+        auto [elem_name, num_node] = element_type_map[elem_type];
         int elem_index = element_indices[elem_name]++;
-        unsigned int* elem_ptr = element_ptrs[elem_name] + elem_index * (num_nodes + 1);
+        unsigned int* elem_ptr = element_ptrs[elem_name] + elem_index * (num_node + 1);
 
         // Read node indices
-        for (int j = 0; j < num_nodes; j++) {
+        for (int j = 0; j < num_node; j++) {
             iss >> elem_ptr[j];
         }
 
         // Read element ID (reference value), default to 0
         int elem_id = 0;
         iss >> elem_id;
-        elem_ptr[num_nodes] = elem_id;
+        elem_ptr[num_node] = elem_id;
     }
 
     // Parse boundary conditions
@@ -321,17 +321,17 @@ bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
         py::array_t<unsigned int> element_array = item.second.cast<py::array_t<unsigned int>>();
         auto elem_ptr = element_array.data();
         int64_t num_elem = element_array.shape(0);
-        int num_nodes = element_array.shape(1) - 1;
+        int num_node = element_array.shape(1) - 1;
 
         // If these are edges in a 2D/3D mesh, check references to identify boundaries
         if (key == "Edges" && dim > 1) {
             for (int i = 0; i < num_elem; i++) {
                 std::vector<unsigned int> elem;
-                int ref = elem_ptr[i * (num_nodes + 1) + num_nodes];
+                int ref = elem_ptr[i * (num_node + 1) + num_node];
 
                 // Add nodes
-                for (int j = 0; j < num_nodes; j++) {
-                    elem.push_back(elem_ptr[i * (num_nodes + 1) + j]);
+                for (int j = 0; j < num_node; j++) {
+                    elem.push_back(elem_ptr[i * (num_node + 1) + j]);
                 }
 
                 // If reference > 0, it's a boundary
@@ -346,11 +346,11 @@ bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
             for (int i = 0; i < num_elem; i++) {
                 std::vector<unsigned int> elem;
                 // Add nodes
-                for (int j = 0; j < num_nodes; j++) {
-                    elem.push_back(elem_ptr[i * (num_nodes + 1) + j]);
+                for (int j = 0; j < num_node; j++) {
+                    elem.push_back(elem_ptr[i * (num_node + 1) + j]);
                 }
                 // Add reference
-                elem.push_back(elem_ptr[i * (num_nodes + 1) + num_nodes]);
+                elem.push_back(elem_ptr[i * (num_node + 1) + num_node]);
                 interior_elements[key].push_back(elem);
             }
         }

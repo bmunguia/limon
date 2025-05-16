@@ -9,7 +9,7 @@ import pymeshb
 def mesh_data_3d():
     """Load the 3D mesh and create a sample solution."""
     meshpath_in = 'libMeshb/sample_meshes/quad.meshb'
-    coords, elements, solution = pymeshb.read_mesh(meshpath_in)
+    coords, elements, boundaries, solution = pymeshb.read_mesh(meshpath_in)
 
     num_point = coords.shape[0]
     num_dim = coords.shape[1]
@@ -27,14 +27,14 @@ def mesh_data_3d():
     solution['Metric'][:, 2] = 1e2
     solution['Metric'][:, 5] = 1e3
 
-    return coords, elements, solution
+    return coords, elements, boundaries, solution
 
 
 @pytest.fixture
 def mesh_data_2d():
     """Load the 2D mesh and create a sample solution."""
-    meshpath_in = 'example/square.mesh'
-    coords, elements, solution = pymeshb.read_mesh(meshpath_in)
+    meshpath_in = 'example/square.meshb'
+    coords, elements, boundaries, solution = pymeshb.read_mesh(meshpath_in)
 
     num_point = coords.shape[0]
     num_dim = coords.shape[1]
@@ -60,7 +60,7 @@ def mesh_data_2d():
     solution['GradientT'][:, 0] = 5.0 * (coords[:, 0] + 0.1)  # dT/dx
     solution['GradientT'][:, 1] = 8.0 * (coords[:, 1] + 0.1)  # dT/dy
 
-    return coords, elements, solution
+    return coords, elements, boundaries, solution
 
 
 @pytest.fixture
@@ -71,26 +71,26 @@ def output_dir(request):
     return out_dir
 
 
-def test_read_mesh(mesh_data_3d):
+def test_read_meshb(mesh_data_3d):
     """Test reading a mesh."""
-    coords, elements, solution = mesh_data_3d
+    coords, elements, boundaries, solution = mesh_data_3d
 
     # Assert that the mesh data is loaded correctly
     assert coords.shape[0] > 0  # Ensure there are points
-    assert len(elements) > 0  # Ensure there are elements
+    assert len(boundaries) > 0  # The sphere example only has a surface
     assert isinstance(solution, dict)  # Ensure solution is a dictionary
 
 
 def test_write_solb(mesh_data_3d, output_dir):
     """Test writing a mesh with a solution."""
-    coords, elements, solution = mesh_data_3d
+    coords, elements, boundaries, solution = mesh_data_3d
 
     # Output paths
     meshpath_out = output_dir / 'sphere_with_sol.mesh'
     solpath_out = output_dir / 'sphere_with_sol.sol'
 
     # Write the mesh with the solution
-    pymeshb.write_mesh(str(meshpath_out), coords, elements,
+    pymeshb.write_mesh(str(meshpath_out), coords, elements, boundaries,
                        solpath=str(solpath_out), solution=solution)
 
     # Assert that the files were created
@@ -100,14 +100,14 @@ def test_write_solb(mesh_data_3d, output_dir):
 
 def test_solution_keys_solb(mesh_data_2d, output_dir):
     """Test that solution field keys are preserved when writing and reading back a mesh."""
-    coords, elements, original_solution = mesh_data_2d
+    coords, elements, boundaries, original_solution = mesh_data_2d
 
     # Output paths
     meshpath_out = output_dir / 'square_with_fields.mesh'
     solpath_out = output_dir / 'square_with_fields.sol'
 
     # Write the mesh with the original solution
-    write_success = pymeshb.write_mesh(str(meshpath_out), coords, elements,
+    write_success = pymeshb.write_mesh(str(meshpath_out), coords, elements, boundaries,
                                        solpath=str(solpath_out), solution=original_solution)
     print(f'Original solution written: {write_success}')
 
@@ -117,7 +117,7 @@ def test_solution_keys_solb(mesh_data_2d, output_dir):
     assert solpath_out.exists(), 'Output solution file was not created'
 
     # Read the mesh and solution back
-    _, _, reread_solution = pymeshb.read_mesh(
+    _, _, _, reread_solution = pymeshb.read_mesh(
         str(meshpath_out),
         solpath=str(solpath_out),
         read_sol=True
@@ -149,7 +149,7 @@ def test_solution_keys_solb(mesh_data_2d, output_dir):
 
     # Test reading specific fields
     # Read only Temperature field
-    _, _, partial_solution = pymeshb.read_mesh(
+    _, _, _, partial_solution = pymeshb.read_mesh(
         str(meshpath_out),
         solpath=str(solpath_out),
         read_sol=True
@@ -175,12 +175,13 @@ def test_solution_keys_solb(mesh_data_2d, output_dir):
         str(subset_meshpath_out),
         coords,
         elements,
+        boundaries,
         solpath=str(subset_solpath_out),
         solution=subset_solution
     )
 
     # Read back the subset
-    _, _, subset_reread = pymeshb.read_mesh(
+    _, _, _, subset_reread = pymeshb.read_mesh(
         str(subset_meshpath_out),
         solpath=str(subset_solpath_out),
         read_sol=True

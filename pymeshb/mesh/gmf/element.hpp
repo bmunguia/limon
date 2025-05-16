@@ -12,12 +12,12 @@ namespace pymeshb {
 namespace gmf {
 
 void read_element_type(int64_t mesh_id, int kwd, int num_nodes, py::dict& elements, const std::string& key_name);
-void read_elements_2D(int64_t mesh_id, py::dict& elements);
-void read_elements_3D(int64_t mesh_id, py::dict& elements);
+void read_elements_2D(int64_t mesh_id, py::dict& elements, py::dict& boundaries);
+void read_elements_3D(int64_t mesh_id, py::dict& elements, py::dict& boundaries);
 
 void write_element_type(int64_t mesh_id, int kwd, py::array_t<unsigned int>& element_array);
-void write_elements_2D(int64_t mesh_id, py::dict& elements);
-void write_elements_3D(int64_t mesh_id, py::dict& elements);
+void write_elements_2D(int64_t mesh_id, const py::dict& elements, const py::dict& boundaries);
+void write_elements_3D(int64_t mesh_id, const py::dict& elements, const py::dict& boundaries);
 
 } // namespace gmf
 } // namespace pymeshb

@@ -39,13 +39,14 @@ PYBIND11_MODULE(libgmf, m) {
      * @param meshpath Path to the mesh file
      * @param coords Coordinates of each node
      * @param elements Dictionary of mesh elements
+     * @param boundaries Dictionary of mesh boundary elements
      * @param solpath Path to the solution file (optional)
      * @param sol Dictionary of solution data (optional)
      * @return Boolean indicating success
      */
     m.def("write_mesh", &pymeshb::gmf::write_mesh,
           py::arg("meshpath"), py::arg("coords"), py::arg("elements"),
-          py::arg("solpath") = "", py::arg("sol") = py::dict(),
+          py::arg("boundaries"), py::arg("solpath") = "", py::arg("sol") = py::dict(),
           "Write nodes, elements, and optionally solution data to a meshb file.");
 
     /**

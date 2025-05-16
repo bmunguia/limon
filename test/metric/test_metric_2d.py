@@ -25,7 +25,7 @@ def print_perturb_comparison(met, met_pert):
 def mesh_data():
     """Load the 2D mesh and create a sample solution."""
     meshpath_in = 'example/square.mesh'
-    coords, elements, solution = pymeshb.mesh.read_mesh(meshpath_in)
+    coords, elements, boundaries, solution = pymeshb.mesh.read_mesh(meshpath_in)
 
     num_point = coords.shape[0]
     num_dim = coords.shape[1]
@@ -39,7 +39,7 @@ def mesh_data():
     solution['Metric'][:, 0] = 1e3
     solution['Metric'][:, 2] = 1e4
 
-    return coords, elements, solution, num_point, num_dim
+    return coords, elements, boundaries, solution, num_point, num_dim
 
 
 @pytest.fixture
@@ -52,14 +52,14 @@ def output_dir(request):
 
 def test_write_mesh_with_metric(mesh_data, output_dir):
     """Test writing a 2D mesh with a metric."""
-    coords, elements, solution, _, _ = mesh_data
+    coords, elements, boundaries, solution, _, _ = mesh_data
 
     # Output paths
     meshpath_out = output_dir / 'square_with_met.meshb'
     solpath_out = output_dir / 'square_with_met.solb'
 
     # Write the mesh with the solution
-    pymeshb.write_mesh(str(meshpath_out), coords, elements,
+    pymeshb.write_mesh(str(meshpath_out), coords, elements, boundaries,
                        solpath=str(solpath_out), solution=solution)
 
     # Assert that the files were created
@@ -69,7 +69,7 @@ def test_write_mesh_with_metric(mesh_data, output_dir):
 
 def test_perturb_eigenvalues(mesh_data, output_dir):
     """Test perturbing only the eigenvalues of the 2D metric field."""
-    coords, elements, solution, num_point, num_dim = mesh_data
+    coords, elements, boundaries, solution, num_point, num_dim = mesh_data
 
     assert num_dim == 2, 'This test is specifically for 2D meshes'
 
@@ -106,7 +106,7 @@ def test_perturb_eigenvalues(mesh_data, output_dir):
     pert_solpath_out = output_dir / 'square_with_eig_pert_only.solb'
 
     # Write the mesh with perturbed metrics
-    pymeshb.write_mesh(str(pert_meshpath_out), coords, elements,
+    pymeshb.write_mesh(str(pert_meshpath_out), coords, elements, boundaries,
                       solpath=str(pert_solpath_out), solution=perturbed_solution)
 
     # Assert that the files were created
@@ -116,7 +116,7 @@ def test_perturb_eigenvalues(mesh_data, output_dir):
 
 def test_perturb_orientation(mesh_data, output_dir):
     """Test perturbing only the orientation of the 2D metric field."""
-    coords, elements, solution, num_point, num_dim = mesh_data
+    coords, elements, boundaries, solution, num_point, num_dim = mesh_data
 
     assert num_dim == 2, 'This test is specifically for 2D meshes'
 
@@ -152,7 +152,7 @@ def test_perturb_orientation(mesh_data, output_dir):
     pert_solpath_out = output_dir / 'square_with_rot_pert_only.solb'
 
     # Write the mesh with perturbed metrics
-    pymeshb.write_mesh(str(pert_meshpath_out), coords, elements,
+    pymeshb.write_mesh(str(pert_meshpath_out), coords, elements, boundaries,
                       solpath=str(pert_solpath_out), solution=perturbed_solution)
 
     # Assert that the files were created
@@ -162,7 +162,7 @@ def test_perturb_orientation(mesh_data, output_dir):
 
 def test_perturb_metric_field(mesh_data, output_dir):
     """Test perturbing the 2D metric field."""
-    coords, elements, solution, num_point, num_dim = mesh_data
+    coords, elements, boundaries, solution, num_point, num_dim = mesh_data
 
     assert num_dim == 2, 'This test is specifically for 2D meshes'
 
@@ -200,7 +200,7 @@ def test_perturb_metric_field(mesh_data, output_dir):
     pert_solpath_out = output_dir / 'square_with_combined_pert.solb'
 
     # Write the mesh with perturbed metrics
-    pymeshb.write_mesh(str(pert_meshpath_out), coords, elements,
+    pymeshb.write_mesh(str(pert_meshpath_out), coords, elements, boundaries,
                        solpath=str(pert_solpath_out), solution=perturbed_solution)
 
     # Assert that the files were created
@@ -210,7 +210,7 @@ def test_perturb_metric_field(mesh_data, output_dir):
 
 def test_nonuniform_perturb_metric_field(mesh_data, output_dir):
     """Test nonuniformly perturbing the 2D metric field."""
-    coords, elements, solution, num_point, num_dim = mesh_data
+    coords, elements, boundaries, solution, num_point, num_dim = mesh_data
 
     assert num_dim == 2, 'This test is specifically for 2D meshes'
 
@@ -253,7 +253,7 @@ def test_nonuniform_perturb_metric_field(mesh_data, output_dir):
     pert_solpath_out = output_dir / 'square_with_nonuniform_pert.solb'
 
     # Write the mesh with perturbed metrics
-    pymeshb.write_mesh(str(pert_meshpath_out), coords, elements,
+    pymeshb.write_mesh(str(pert_meshpath_out), coords, elements, boundaries,
                        solpath=str(pert_solpath_out), solution=perturbed_solution)
 
     # Assert that the files were created

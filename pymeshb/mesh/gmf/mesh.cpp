@@ -56,10 +56,11 @@ py::tuple read_mesh(const std::string& meshpath, const std::string& solpath,
 
     // Read elements
     py::dict elements;
+    py::dict boundaries;
     if (dim == 2) {
-        read_elements_2D(mesh_id, elements);
+        read_elements_2D(mesh_id, elements, boundaries);
     } else {
-        read_elements_3D(mesh_id, elements);
+        read_elements_3D(mesh_id, elements, boundaries);
     }
 
     // Close the mesh
@@ -71,14 +72,15 @@ py::tuple read_mesh(const std::string& meshpath, const std::string& solpath,
     }
 
     if (read_sol && sol_dict.size() > 0) {
-        return py::make_tuple(coords, elements, sol_dict);
+        return py::make_tuple(coords, elements, boundaries, sol_dict);
     } else {
-        return py::make_tuple(coords, elements);
+        return py::make_tuple(coords, elements, boundaries);
     }
 }
 
 bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
-                py::dict elements, const std::string& solpath, py::dict sol) {
+                const py::dict& elements, const py::dict& boundaries,
+                const std::string& solpath, py::dict sol) {
     // Get dimensions
     int version = 4;
     int dim = coords.shape(1);
@@ -107,17 +109,19 @@ bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
     // Write vertices
     for (auto i = 0; i < num_ver; i++) {
         if (dim == 2) {
-            GmfSetLin(mesh_id, GmfVertices, coords_ptr[i * dim], coords_ptr[i * dim + 1], 0);
+            GmfSetLin(mesh_id, GmfVertices, coords_ptr[i * dim],
+                      coords_ptr[i * dim + 1], 0);
         } else {
-            GmfSetLin(mesh_id, GmfVertices, coords_ptr[i * dim], coords_ptr[i * dim + 1], coords_ptr[i * dim + 2], 0);
+            GmfSetLin(mesh_id, GmfVertices, coords_ptr[i * dim],
+                      coords_ptr[i * dim + 1], coords_ptr[i * dim + 2], 0);
         }
     }
 
     // Write elements
     if (dim == 2) {
-        write_elements_2D(mesh_id, elements);
+        write_elements_2D(mesh_id, elements, boundaries);
     } else {
-        write_elements_3D(mesh_id, elements);
+        write_elements_3D(mesh_id, elements, boundaries);
     }
 
     // Close the mesh
