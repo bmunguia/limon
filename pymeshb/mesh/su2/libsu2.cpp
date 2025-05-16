@@ -21,7 +21,7 @@
      m.doc() = "Python bindings for SU2 mesh and solution files";
 
      /**
-      * Read mesh data from a meshb file.
+      * Read mesh data from a SU2 mesh (.su2) file.
       *
       * @param meshpath Path to the mesh file
       * @param solpath Path to the solution file (optional)
@@ -33,7 +33,7 @@
            "Read a SU2 mesh file and return nodes and coordinates as numpy arrays");
 
      /**
-      * Write mesh data to a meshb file.
+      * Write mesh data to a SU2 mesh (.su2) file.
       *
       * @param meshpath Path to the mesh file
       * @param coords Coordinates of each node
@@ -48,7 +48,7 @@
            "Write nodes and coordinates to a SU2 mesh file");
 
     /**
-     * Read solution data from a solb file.
+     * Read solution data from a SU2 solution (.dat) file.
      *
      * @param solpath Path to the solution file
      * @param num_ver Number of vertices
@@ -60,7 +60,7 @@
         "Read a SU2 solution file and return solution fields as a dictionary");
 
   /**
-   * Write solution data to a solb file.
+   * Write solution data to a SU2 solution (.dat) file.
    *
    * @param solpath Path to the solution file
    * @param sol Dictionary of solution fields

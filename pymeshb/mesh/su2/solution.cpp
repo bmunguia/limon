@@ -13,7 +13,7 @@ py::dict read_solution(const std::string& solpath, int num_ver, int dim) {
 
     std::ifstream sol_file(solpath);
     if (!sol_file.is_open()) {
-        return sol;  // Return empty dictionary if file can't be opened
+        return sol;
     }
 
     // Parse CSV header for field names

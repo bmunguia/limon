@@ -19,37 +19,37 @@
 namespace py = pybind11;
 
 PYBIND11_MODULE(libgmf, m) {
-    m.doc() = "Python bindings for libMeshb";
+    m.doc() = "Python bindings for libMeshb mesh and solution files";
 
     /**
-      * Read mesh data from an SU2 file.
-      *
-      * @param meshpath Path to the mesh file
-      * @param solpath Path to the solution file (optional)
-      * @param read_sol Whether to read solution data (default: false)
-      * @return Tuple containing coordinates, elements, and optionally solution data
-      */
+     * Read mesh data from a GMF mesh (.meshb) file.
+     *
+     * @param meshpath Path to the mesh file
+     * @param solpath Path to the solution file (optional)
+     * @param read_sol Whether to read solution data (default: false)
+     * @return Tuple containing coordinates, elements, and optionally solution data
+     */
     m.def("read_mesh", &pymeshb::gmf::read_mesh,
           py::arg("meshpath"), py::arg("solpath") = "", py::arg("read_sol") = false,
           "Read a meshb file and return nodes, elements, and optionally solution data.");
 
     /**
-      * Write mesh data to an SU2 mesh file.
-      *
-      * @param meshpath Path to the mesh file
-      * @param coords Coordinates of each node
-      * @param elements Dictionary of mesh elements
-      * @param solpath Path to the solution file (optional)
-      * @param sol Dictionary of solution data (optional)
-      * @return Boolean indicating success
-      */
+     * Write mesh data to a GMF mesh (.meshb) file.
+     *
+     * @param meshpath Path to the mesh file
+     * @param coords Coordinates of each node
+     * @param elements Dictionary of mesh elements
+     * @param solpath Path to the solution file (optional)
+     * @param sol Dictionary of solution data (optional)
+     * @return Boolean indicating success
+     */
     m.def("write_mesh", &pymeshb::gmf::write_mesh,
           py::arg("meshpath"), py::arg("coords"), py::arg("elements"),
           py::arg("solpath") = "", py::arg("sol") = py::dict(),
           "Write nodes, elements, and optionally solution data to a meshb file.");
 
     /**
-     * Read solution data from an SU2 solution file.
+     * Read solution data from a GMF solution (.solb) file.
      *
      * @param solpath Path to the solution file
      * @param num_ver Number of vertices
@@ -61,14 +61,14 @@ PYBIND11_MODULE(libgmf, m) {
           "Read a meshb solution file.");
 
     /**
-   * Write solution data to an SU2 solution file.
-   *
-   * @param solpath Path to the solution file
-   * @param sol Dictionary of solution fields
-   * @param num_ver Number of vertices
-   * @param dim Mesh dimension
-   * @return Boolean indicating success
-   */
+     * Write solution data to a GMF solution (.solb) file.
+     *
+     * @param solpath Path to the solution file
+     * @param sol Dictionary of solution fields
+     * @param num_ver Number of vertices
+     * @param dim Mesh dimension
+     * @return Boolean indicating success
+     */
     m.def("write_solution", &pymeshb::gmf::write_solution,
           py::arg("solpath"), py::arg("sol_data"), py::arg("num_ver"),
           py::arg("dim"), py::arg("version"),
