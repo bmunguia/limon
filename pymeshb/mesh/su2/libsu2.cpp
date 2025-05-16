@@ -11,6 +11,7 @@
  #include <pybind11/pybind11.h>
  #include <pybind11/numpy.h>
  #include <pybind11/stl.h>
+
  #include "mesh.hpp"
  #include "solution.hpp"
 
@@ -20,7 +21,7 @@
      m.doc() = "Python bindings for SU2 mesh and solution files";
 
      /**
-      * Read mesh data from an SU2 file.
+      * Read mesh data from a meshb file.
       *
       * @param meshpath Path to the mesh file
       * @param solpath Path to the solution file (optional)
@@ -32,7 +33,7 @@
            "Read a SU2 mesh file and return nodes and coordinates as numpy arrays");
 
      /**
-      * Write mesh data to an SU2 mesh file.
+      * Write mesh data to a meshb file.
       *
       * @param meshpath Path to the mesh file
       * @param coords Coordinates of each node
@@ -47,7 +48,7 @@
            "Write nodes and coordinates to a SU2 mesh file");
 
     /**
-     * Read solution data from an SU2 solution file.
+     * Read solution data from a solb file.
      *
      * @param solpath Path to the solution file
      * @param num_ver Number of vertices
@@ -59,7 +60,7 @@
         "Read a SU2 solution file and return solution fields as a dictionary");
 
   /**
-   * Write solution data to an SU2 solution file.
+   * Write solution data to a solb file.
    *
    * @param solpath Path to the solution file
    * @param sol Dictionary of solution fields
