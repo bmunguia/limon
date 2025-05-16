@@ -24,6 +24,7 @@ set(PYMESHB_UTIL_SOURCES
 # Build libgmf submodule
 pybind11_add_module(libgmf MODULE
     ${PROJECT_SOURCE_DIR}/pymeshb/mesh/gmf/libgmf.cpp
+    ${PROJECT_SOURCE_DIR}/pymeshb/mesh/gmf/element.cpp
     ${PROJECT_SOURCE_DIR}/pymeshb/mesh/gmf/mesh.cpp
     ${PROJECT_SOURCE_DIR}/pymeshb/mesh/gmf/solution.cpp
     ${PYMESHB_UTIL_SOURCES})
