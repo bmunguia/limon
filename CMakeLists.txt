@@ -36,6 +36,7 @@ target_include_directories(libgmf PRIVATE
 # Build libsu2 submodule
 pybind11_add_module(libsu2 MODULE
     ${PROJECT_SOURCE_DIR}/pymeshb/mesh/su2/libsu2.cpp
+    ${PROJECT_SOURCE_DIR}/pymeshb/mesh/su2/element.cpp
     ${PROJECT_SOURCE_DIR}/pymeshb/mesh/su2/mesh.cpp
     ${PROJECT_SOURCE_DIR}/pymeshb/mesh/su2/solution.cpp
     ${PYMESHB_UTIL_SOURCES})

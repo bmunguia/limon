@@ -29,8 +29,8 @@
       * @return Tuple containing coordinates, elements, and optionally solution data
       */
      m.def("read_mesh", &pymeshb::su2::read_mesh,
-           py::arg("meshpath"), py::arg("solpath") = "", py::arg("read_sol") = false,
-           "Read a SU2 mesh file and return nodes and coordinates as numpy arrays");
+          py::arg("meshpath"), py::arg("solpath") = "", py::arg("read_sol") = false,
+          "Read a SU2 mesh file and return nodes, elements, and optionally solution data.");
 
      /**
       * Write mesh data to a SU2 mesh (.su2) file.
@@ -43,9 +43,9 @@
       * @return Boolean indicating success
       */
      m.def("write_mesh", &pymeshb::su2::write_mesh,
-           py::arg("meshpath"), py::arg("coords"), py::arg("elements"),
-           py::arg("solpath") = "", py::arg("sol") = py::dict(),
-           "Write nodes and coordinates to a SU2 mesh file");
+          py::arg("meshpath"), py::arg("coords"), py::arg("elements"),
+          py::arg("boundaries"), py::arg("solpath") = "", py::arg("sol") = py::dict(),
+          "Write nodes, elements, and optionally solution data to a SU2 mesh file.");
 
     /**
      * Read solution data from a SU2 solution (.dat) file.

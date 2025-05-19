@@ -18,20 +18,19 @@ def read_mesh(
         tuple: If read_sol=False, returns (coords, elements, boundaries)
                If read_sol=True, returns (coords, elements, boundaries, sol)
     """
-    pass
-    # try:
-    #     solpath = solpath if solpath is not None else ''
-    #     msh = libsu2.read_mesh(meshpath, solpath, read_sol)
-    #
-    #     if len(msh) == 4:
-    #         coords, elms, bnds, sol = msh
-    #         return coords, elms, bnds, sol
-    #     else:
-    #         return msh[0], msh[1], msh[2], {}
-    #
-    # except Exception as e:
-    #     print(f"Error reading mesh: {e}")
-    #     return None, None
+    try:
+        solpath = solpath if solpath is not None else ''
+        msh = libsu2.read_mesh(meshpath, solpath, read_sol)
+
+        if len(msh) == 4:
+            coords, elms, bnds, sol = msh
+            return coords, elms, bnds, sol
+        else:
+            return msh[0], msh[1], msh[2], {}
+
+    except Exception as e:
+        print(f"Error reading mesh: {e}")
+        return None, None
 
 def write_mesh(
     meshpath: str,
@@ -58,13 +57,12 @@ def write_mesh(
     Returns:
         bool: True if successful, False otherwise
     """
-    pass
-    # try:
-    #     sol = solution if solution is not None else {}
-    #     solpath = solpath if solpath is not None else ''
-    #     success = libsu2.write_mesh(meshpath, coords, elements, boundaries, solpath, sol)
-    #     return success
+    try:
+        sol = solution if solution is not None else {}
+        solpath = solpath if solpath is not None else ''
+        success = libsu2.write_mesh(meshpath, coords, elements, boundaries, solpath, sol)
+        return success
 
-    # except Exception as e:
-    #     print(f"Error writing mesh: {e}")
-    #     return False
+    except Exception as e:
+        print(f"Error writing mesh: {e}")
+        return False
