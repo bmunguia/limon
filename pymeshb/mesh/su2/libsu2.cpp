@@ -44,7 +44,8 @@
       */
      m.def("write_mesh", &pymeshb::su2::write_mesh,
           py::arg("meshpath"), py::arg("coords"), py::arg("elements"),
-          py::arg("boundaries"), py::arg("solpath") = "", py::arg("sol") = py::dict(),
+          py::arg("boundaries"), py::arg("markerpath") = "", py::arg("solpath") = "",
+          py::arg("sol") = py::dict(),
           "Write nodes, elements, and optionally solution data to a SU2 mesh file.");
 
     /**

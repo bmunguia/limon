@@ -2,6 +2,7 @@
 #include <sstream>
 #include <stdexcept>
 #include "element.hpp"
+#include "marker_map.hpp"
 #include "../util.hpp"
 
 namespace pymeshb {
@@ -380,7 +381,8 @@ int write_elements(std::ofstream& mesh_file, const py::dict& elements) {
     return elem_count;
 }
 
-void write_boundary_elements_2D(std::ofstream& mesh_file, const py::dict& boundaries, std::map<int, std::string>& marker_map) {
+void write_boundary_elements_2D(std::ofstream& mesh_file, const py::dict& boundaries,
+                                std::map<int, std::string>& marker_map) {
     if (!boundaries.contains("Edges")) {
         return;
     }
@@ -403,13 +405,9 @@ void write_boundary_elements_2D(std::ofstream& mesh_file, const py::dict& bounda
 
     // Write marker sections
     for (auto& [marker_id, elements] : marker_elements) {
-        // Generate marker name if not provided
-        std::string marker_name = "MARKER_" + std::to_string(marker_id);
-        if (marker_map.find(marker_id) != marker_map.end()) {
-            marker_name = marker_map[marker_id];
-        } else {
-            marker_map[marker_id] = marker_name;
-        }
+        // Load marker name or fallback to MARKER_<marker_id>
+        std::string marker_name = MarkerMap::getMarkerName(marker_map, marker_id);
+        marker_map[marker_id] = marker_name;
 
         mesh_file << "MARKER_TAG= " << marker_name << std::endl;
         mesh_file << "MARKER_ELEMS= " << elements.size() << std::endl;
@@ -424,7 +422,8 @@ void write_boundary_elements_2D(std::ofstream& mesh_file, const py::dict& bounda
     }
 }
 
-void write_boundary_elements_3D(std::ofstream& mesh_file, const py::dict& boundaries, std::map<int, std::string>& marker_map) {
+void write_boundary_elements_3D(std::ofstream& mesh_file, const py::dict& boundaries,
+                                std::map<int, std::string>& marker_map) {
     std::map<unsigned int, std::vector<std::vector<unsigned int>>> triangles_by_marker;
     std::map<unsigned int, std::vector<std::vector<unsigned int>>> quads_by_marker;
 
@@ -469,13 +468,9 @@ void write_boundary_elements_3D(std::ofstream& mesh_file, const py::dict& bounda
 
     // Write marker sections
     for (unsigned int marker_id : all_markers) {
-        // Generate marker name if not provided
-        std::string marker_name = "MARKER_" + std::to_string(marker_id);
-        if (marker_map.find(marker_id) != marker_map.end()) {
-            marker_name = marker_map[marker_id];
-        } else {
-            marker_map[marker_id] = marker_name;
-        }
+        // Load marker name or fallback to MARKER_<marker_id>
+        std::string marker_name = MarkerMap::getMarkerName(marker_map, marker_id);
+        marker_map[marker_id] = marker_name;
 
         // Count total elements for this marker
         size_t total_elements =
@@ -509,16 +504,26 @@ void write_boundary_elements_3D(std::ofstream& mesh_file, const py::dict& bounda
     }
 }
 
-int write_boundary_elements(std::ofstream& mesh_file, const py::dict& boundaries) {
+int write_boundary_elements(std::ofstream& mesh_file, const py::dict& boundaries,
+                            const std::string& markerpath) {
     if (boundaries.empty()) {
         return 0;
     }
 
+    // Load marker map from file if provided
     std::map<int, std::string> marker_map;
+    if (!markerpath.empty()) {
+        marker_map = MarkerMap::loadMarkerMap(markerpath);
+    }
 
     // Write both 2D and 3D boundaries
     write_boundary_elements_2D(mesh_file, boundaries, marker_map);
     write_boundary_elements_3D(mesh_file, boundaries, marker_map);
+
+    // Save updated marker map back to file if provided
+    if (!markerpath.empty()) {
+        MarkerMap::saveMarkerMap(marker_map, markerpath);
+    }
 
     return marker_map.size();
 }

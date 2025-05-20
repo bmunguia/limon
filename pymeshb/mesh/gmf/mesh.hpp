@@ -29,6 +29,7 @@ py::tuple read_mesh(const std::string& meshpath, const std::string& solpath = ""
  * @param coords Coordinates of each node
  * @param elements Dictionary of mesh elements
  * @param boundaries Dictionary of mesh boundary elements
+ * @param markerpath Path to the map between marker strings and ref IDs (optional)
  * @param solpath Path to the solution file (optional)
  * @param sol Dictionary of solution data (optional)
  * @return Boolean indicating success

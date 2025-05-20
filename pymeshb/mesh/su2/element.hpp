@@ -52,7 +52,7 @@ void write_boundary_elements_2D(std::ofstream& mesh_file, const py::dict& bounda
 
 void write_boundary_elements_3D(std::ofstream& mesh_file, const py::dict& boundaries, std::map<int, std::string>& marker_map);
 
-int write_boundary_elements(std::ofstream& mesh_file, const py::dict& boundaries);
+int write_boundary_elements(std::ofstream& mesh_file, const py::dict& boundaries, const std::string& markerpath = "");
 
 } // namespace su2
 } // namespace pymeshb

@@ -120,7 +120,8 @@ py::tuple read_mesh(const std::string& meshpath, const std::string& solpath,
 
 bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
                 const py::dict& elements, const py::dict& boundaries,
-                const std::string& solpath, py::dict sol) {
+                const std::string& markerpath, const std::string& solpath,
+                py::dict sol) {
     // Get dimensions
     int dim = coords.shape(1);
     int num_ver = coords.shape(0);
@@ -202,7 +203,7 @@ bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
     mesh_file << "% Boundary elements" << std::endl;
     mesh_file << "%" << std::endl;
     mesh_file << "NMARK= " << marker_count << std::endl;
-     write_boundary_elements(mesh_file, boundaries);
+    write_boundary_elements(mesh_file, boundaries, markerpath);
 
     mesh_file.close();
 

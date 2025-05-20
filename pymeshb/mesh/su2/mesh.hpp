@@ -31,13 +31,15 @@ py::tuple read_mesh(const std::string& meshpath, const std::string& solpath = ""
  * @param coords Coordinates of each node
  * @param elements Dictionary of mesh elements
  * @param boundaries Dictionary of mesh boundary elements
+ * @param markerpath Path to the map between marker strings and ref IDs (optional)
  * @param solpath Path to the solution file (optional)
  * @param sol Dictionary of solution data (optional)
  * @return Boolean indicating success
  */
 bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
                 const py::dict& elements, const py::dict& boundaries,
-                const std::string& solpath = "", py::dict sol = py::dict());
+                const std::string& markerpath = "", const std::string& solpath = "",
+                py::dict sol = py::dict());
 
 }  // namespace su2
 }  // namespace pymeshb

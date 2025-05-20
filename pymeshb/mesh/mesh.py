@@ -46,6 +46,7 @@ def write_mesh(
     coords: NDArray,
     elements: dict[str, NDArray],
     boundaries: dict[str, NDArray],
+    markerpath: str | None = None,
     solpath: str | None = None,
     solution: dict[str, NDArray] | None = None,
 ) -> bool:
@@ -59,6 +60,8 @@ def write_mesh(
         boundaries (dict[str, NDArray]): Dictionary of mesh boundary elements.
                                          Keys are element types, values are
                                          numpy arrays.
+        markerpath (str, optional): Path to the map between marker strings and
+                                    ref IDs. Defaults to None.
         solpath (str, optional): Path to the solution file. Defaults to None.
         solution (dict, optional): Dictionary of solution data. Keys are
                                    field names, values are numpy arrays.
@@ -67,12 +70,15 @@ def write_mesh(
         bool: True if successful, False otherwise
     """
     try:
-        sol = solution if solution is not None else {}
         solpath = solpath if solpath is not None else ''
+        sol = solution if solution is not None else {}
         if 'mesh' in meshpath or 'meshb' in meshpath:
-            success = gmf.write_mesh(meshpath, coords, elements, boundaries, solpath, sol)
+            success = gmf.write_mesh(meshpath, coords, elements, boundaries,
+                                     solpath, sol)
         elif 'su2' in meshpath:
-            success = su2.write_mesh(meshpath, coords, elements, boundaries, solpath, sol)
+            markerpath = markerpath if markerpath is not None else ''
+            success = su2.write_mesh(meshpath, coords, elements, boundaries,
+                                     markerpath, solpath, sol)
         else:
             raise ValueError(
                 f'Unsupported mesh file format: {meshpath}. '
