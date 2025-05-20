@@ -140,70 +140,12 @@ bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
         throw std::runtime_error("Failed to create directory for mesh file");
     }
 
-    // Map from our element types to SU2 VTK types
-    std::map<std::string, int> elem_type_map = {
-        {"Edges", 3},              // Line
-        {"Triangles", 5},          // Triangle
-        {"Quadrilaterals", 9},     // Quadrilateral
-        {"Tetrahedra", 10},        // Tetrahedron
-        {"Prisms", 12},            // Prism
-        {"Pyramids", 13},          // Pyramid
-        {"Hexahedra", 14}          // Hexahedron
-    };
-
-    // Identify boundary elements (edges with reference > 0) and interior elements
-    std::map<int, std::vector<std::vector<unsigned int>>> boundary_elements;
+    // Process elements and boundaries
     std::map<std::string, std::vector<std::vector<unsigned int>>> interior_elements;
+    std::map<int, std::vector<std::vector<unsigned int>>> boundary_elements;
 
-    for (auto item : elements) {
-        std::string key = item.first.cast<std::string>();
-        if (elem_type_map.find(key) == elem_type_map.end()) {
-            continue;  // Skip unknown element types
-        }
-
-        py::array_t<unsigned int> element_array = item.second.cast<py::array_t<unsigned int>>();
-        auto elem_ptr = element_array.data();
-        int num_elem = element_array.shape(0);
-        int num_node = element_array.shape(1) - 1;
-
-        // If these are edges in a 2D/3D mesh, check references to identify boundaries
-        if (key == "Edges" && dim > 1) {
-            for (int i = 0; i < num_elem; i++) {
-                std::vector<unsigned int> elem;
-                int ref = elem_ptr[i * (num_node + 1) + num_node];
-
-                // Add nodes
-                for (int j = 0; j < num_node; j++) {
-                    elem.push_back(elem_ptr[i * (num_node + 1) + j]);
-                }
-
-                // If reference > 0, it's a boundary
-                if (ref > 0) {
-                    boundary_elements[ref].push_back(elem);
-                } else {
-                    interior_elements[key].push_back(elem);
-                }
-            }
-        } else {
-            // For other element types, treat all as interior
-            for (int i = 0; i < num_elem; i++) {
-                std::vector<unsigned int> elem;
-                // Add nodes
-                for (int j = 0; j < num_node; j++) {
-                    elem.push_back(elem_ptr[i * (num_node + 1) + j]);
-                }
-                // Add reference
-                elem.push_back(elem_ptr[i * (num_node + 1) + num_node]);
-                interior_elements[key].push_back(elem);
-            }
-        }
-    }
-
-    // Count total elements
-    int total_elements = 0;
-    for (const auto& [key, elems] : interior_elements) {
-        total_elements += elems.size();
-    }
+    int total_elements = process_elements_for_writing(
+        elements, boundaries, dim, interior_elements, boundary_elements);
 
     // Write the mesh
     std::ofstream mesh_file;
@@ -226,18 +168,7 @@ bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
     mesh_file << "%" << std::endl;
     mesh_file << "NELEM= " << total_elements << std::endl;
 
-    int elem_id = 0;
-    for (const auto& [key, elems] : interior_elements) {
-        int vtk_type = elem_type_map[key];
-        for (const auto& elem : elems) {
-            mesh_file << vtk_type << "\t";
-            for (size_t i = 0; i < elem.size() - 1; i++) {
-                mesh_file << elem[i] << "\t";
-            }
-            mesh_file << elem_id << std::endl;
-            elem_id++;
-        }
-    }
+    write_elements(mesh_file, interior_elements, get_reverse_element_type_map());
 
     // Write vertices
     auto coords_ptr = coords.data();
@@ -254,27 +185,12 @@ bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
     }
 
     // Write boundary markers
-    if (!boundary_elements.empty()) {
-        mesh_file << "%" << std::endl;
-        mesh_file << "% Boundary elements" << std::endl;
-        mesh_file << "%" << std::endl;
-        mesh_file << "NMARK= " << boundary_elements.size() << std::endl;
+    mesh_file << "%" << std::endl;
+    mesh_file << "% Boundary elements" << std::endl;
+    mesh_file << "%" << std::endl;
+    mesh_file << "NMARK= " << boundary_elements.size() << std::endl;
 
-        for (const auto& [marker_id, elems] : boundary_elements) {
-            mesh_file << "MARKER_TAG= MARKER_" << marker_id << std::endl;
-            mesh_file << "MARKER_ELEMS= " << elems.size() << std::endl;
-
-            for (const auto& elem : elems) {
-                // Determine element type
-                int vtk_type = (elem.size() == 2) ? 3 : 5; // Line or Triangle
-                mesh_file << vtk_type << "\t";
-                for (size_t i = 0; i < elem.size(); i++) {
-                    mesh_file << elem[i] << "\t";
-                }
-                mesh_file << std::endl;
-            }
-        }
-    }
+    write_boundary_elements(mesh_file, boundary_elements);
 
     mesh_file.close();
 

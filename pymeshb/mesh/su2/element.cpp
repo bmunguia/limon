@@ -19,6 +19,18 @@ std::map<int, ElementTypeInfo> get_element_type_map() {
     return map;
 }
 
+std::map<std::string, int> get_reverse_element_type_map() {
+    std::map<std::string, int> map;
+    map["Edges"] = 3;              // Line
+    map["Triangles"] = 5;          // Triangle
+    map["Quadrilaterals"] = 9;     // Quadrilateral
+    map["Tetrahedra"] = 10;        // Tetrahedron
+    map["Prisms"] = 12;            // Prism
+    map["Pyramids"] = 13;          // Pyramid
+    map["Hexahedra"] = 14;         // Hexahedron
+    return map;
+}
+
 bool read_elements(std::ifstream& file_stream, int elem_count, py::dict& elements) {
     if (elem_count <= 0) {
         return false;
@@ -238,6 +250,154 @@ bool read_boundary_elements(
 
                 boundaries["Triangles"] = new_tris;
             }
+        }
+    }
+
+    return true;
+}
+
+int process_elements_for_writing(
+    const py::dict& elements,
+    const py::dict& boundaries,
+    int dim,
+    std::map<std::string, std::vector<std::vector<unsigned int>>>& interior_elements,
+    std::map<int, std::vector<std::vector<unsigned int>>>& boundary_elements) {
+
+    int total_elements = 0;
+    std::map<std::string, int> elem_type_map = get_reverse_element_type_map();
+
+    // Process domain elements
+    for (auto item : elements) {
+        std::string key = item.first.cast<std::string>();
+        if (elem_type_map.find(key) == elem_type_map.end()) {
+            continue;
+        }
+
+        py::array_t<unsigned int> element_array = item.second.cast<py::array_t<unsigned int>>();
+        auto elem_ptr = element_array.data();
+        int num_elem = element_array.shape(0);
+        int num_node = element_array.shape(1) - 1;
+
+        // If these are edges in a 2D/3D mesh, check references to identify boundaries
+        if (key == "Edges" && dim > 1) {
+            for (int i = 0; i < num_elem; i++) {
+                std::vector<unsigned int> elem;
+                int ref = elem_ptr[i * (num_node + 1) + num_node];
+
+                // Add nodes
+                for (int j = 0; j < num_node; j++) {
+                    elem.push_back(elem_ptr[i * (num_node + 1) + j]);
+                }
+
+                // If reference > 0, it's a boundary
+                if (ref > 0) {
+                    boundary_elements[ref].push_back(elem);
+                } else {
+                    interior_elements[key].push_back(elem);
+                }
+            }
+        } else {
+            // For other element types, treat all as interior
+            for (int i = 0; i < num_elem; i++) {
+                std::vector<unsigned int> elem;
+                // Add nodes
+                for (int j = 0; j < num_node; j++) {
+                    elem.push_back(elem_ptr[i * (num_node + 1) + j]);
+                }
+                // Add reference
+                elem.push_back(elem_ptr[i * (num_node + 1) + num_node]);
+                interior_elements[key].push_back(elem);
+            }
+        }
+    }
+
+    // Process boundary elements (if any)
+    for (auto item : boundaries) {
+        std::string marker_tag = item.first.cast<std::string>();
+        int marker_id = 0;
+
+        // Try to extract numeric marker ID from marker tag (assuming format "MARKER_X")
+        if (marker_tag.find("MARKER_") == 0) {
+             // Skip "MARKER_"
+            std::string id_str = marker_tag.substr(7);
+            try {
+                marker_id = std::stoi(id_str);
+            } catch (...) {
+                // If not a number, generate sequential marker ID
+                marker_id = boundary_elements.size() + 1;
+            }
+        } else {
+            // If marker tag doesn't follow expected format, generate sequential marker ID
+            marker_id = boundary_elements.size() + 1;
+        }
+
+        py::array_t<unsigned int> boundary_array = item.second.cast<py::array_t<unsigned int>>();
+        auto boundary_ptr = boundary_array.data();
+        int num_boundary = boundary_array.shape(0);
+        int num_node = boundary_array.shape(1) - 1;
+
+        for (int i = 0; i < num_boundary; i++) {
+            std::vector<unsigned int> elem;
+            // Add nodes
+            for (int j = 0; j < num_node; j++) {
+                elem.push_back(boundary_ptr[i * (num_node + 1) + j]);
+            }
+            boundary_elements[marker_id].push_back(elem);
+        }
+    }
+
+    // Count total elements
+    for (const auto& [key, elems] : interior_elements) {
+        total_elements += elems.size();
+    }
+
+    return total_elements;
+}
+
+int write_elements(
+    std::ofstream& mesh_file,
+    const std::map<std::string, std::vector<std::vector<unsigned int>>>& interior_elements,
+    const std::map<std::string, int>& elem_type_map) {
+
+    int elem_id = 0;
+    for (const auto& [key, elems] : interior_elements) {
+        int vtk_type = elem_type_map.at(key);
+        for (const auto& elem : elems) {
+            mesh_file << vtk_type << "\t";
+            for (size_t i = 0; i < elem.size() - 1; i++) {
+                mesh_file << elem[i] << "\t";
+            }
+            mesh_file << elem_id << std::endl;
+            elem_id++;
+        }
+    }
+
+    return elem_id;
+}
+
+bool write_boundary_elements(
+    std::ofstream& mesh_file,
+    const std::map<int, std::vector<std::vector<unsigned int>>>& boundary_elements) {
+
+    if (boundary_elements.empty()) {
+        return true;
+    }
+
+    for (const auto& [marker_id, elems] : boundary_elements) {
+        mesh_file << "MARKER_TAG= MARKER_" << marker_id << std::endl;
+        mesh_file << "MARKER_ELEMS= " << elems.size() << std::endl;
+
+        for (const auto& elem : elems) {
+            // Determine element type based on number of nodes
+            int vtk_type = (elem.size() == 2) ? 3 :
+                          (elem.size() == 3) ? 5 :
+                          (elem.size() == 4) ? 9 : 3;
+
+            mesh_file << vtk_type << "\t";
+            for (size_t i = 0; i < elem.size(); i++) {
+                mesh_file << elem[i] << "\t";
+            }
+            mesh_file << std::endl;
         }
     }
 

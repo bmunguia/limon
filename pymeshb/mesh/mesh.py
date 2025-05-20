@@ -71,9 +71,9 @@ def write_mesh(
         sol = solution if solution is not None else {}
         solpath = solpath if solpath is not None else ''
         if 'mesh' in meshpath or 'meshb' in meshpath:
-            success = gmf.write_mesh(meshpath, coords, elements, boundaries, solpath, solution)
+            success = gmf.write_mesh(meshpath, coords, elements, boundaries, solpath, sol)
         elif 'su2' in meshpath:
-            success = su2.write_mesh(meshpath, coords, elements, boundaries, solpath, solution)
+            success = su2.write_mesh(meshpath, coords, elements, boundaries, solpath, sol)
         else:
             raise ValueError(
                 f'Unsupported mesh file format: {meshpath}. '
