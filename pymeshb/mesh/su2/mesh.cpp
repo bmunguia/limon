@@ -39,6 +39,7 @@ py::tuple read_mesh(const std::string& meshpath, const std::string& solpath,
         if (line.empty() || line[0] == '%') {
             continue;
         }
+
         if (line.find("NELEM=") != std::string::npos) {
             std::istringstream iss(line.substr(line.find("=") + 1));
             iss >> elem_count;
@@ -46,14 +47,11 @@ py::tuple read_mesh(const std::string& meshpath, const std::string& solpath,
         }
     }
 
-    if (elem_count == 0) {
-        throw std::runtime_error("No elements found in the mesh");
-    }
-
-    // Read elements
     py::dict elements;
-    if (!read_elements(mesh_file, elem_count, elements)) {
-        throw std::runtime_error("Failed to read elements from the mesh");
+    if (dim == 2) {
+        read_elements_2D(mesh_file, elem_count, elements);
+    } else {
+        read_elements_3D(mesh_file, elem_count, elements);
     }
 
     // Vertices
@@ -93,12 +91,13 @@ py::tuple read_mesh(const std::string& meshpath, const std::string& solpath,
         iss >> node_idx;
     }
 
-    // Parse boundary conditions
+    // Boundary elements
     int boundary_count = 0;
     while (std::getline(mesh_file, line)) {
         if (line.empty() || line[0] == '%') {
             continue;
         }
+
         if (line.find("NMARK=") != std::string::npos) {
             std::istringstream iss(line.substr(line.find("=") + 1));
             iss >> boundary_count;
@@ -106,13 +105,8 @@ py::tuple read_mesh(const std::string& meshpath, const std::string& solpath,
         }
     }
 
-    // Read boundary elements
     py::dict boundaries;
-    if (boundary_count > 0) {
-        if (!read_boundary_elements(mesh_file, boundary_count, boundaries)) {
-            throw std::runtime_error("Failed to read boundary elements from the mesh");
-        }
-    }
+    read_boundary_elements(mesh_file, boundary_count, boundaries);
 
     // Read solution if requested
     py::dict sol;
@@ -121,11 +115,7 @@ py::tuple read_mesh(const std::string& meshpath, const std::string& solpath,
     }
 
     // Return coords, elements and solution if available
-    if (read_sol && sol.size() > 0) {
-        return py::make_tuple(coords, elements, boundaries, sol);
-    } else {
-        return py::make_tuple(coords, elements, boundaries);
-    }
+    return py::make_tuple(coords, elements, boundaries, sol);
 }
 
 bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
@@ -139,13 +129,6 @@ bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
     if (!pymeshb::createDirectory(meshpath)) {
         throw std::runtime_error("Failed to create directory for mesh file");
     }
-
-    // Process elements and boundaries
-    std::map<std::string, std::vector<std::vector<unsigned int>>> interior_elements;
-    std::map<int, std::vector<std::vector<unsigned int>>> boundary_elements;
-
-    int total_elements = process_elements_for_writing(
-        elements, boundaries, dim, interior_elements, boundary_elements);
 
     // Write the mesh
     std::ofstream mesh_file;
@@ -163,12 +146,17 @@ bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
     mesh_file << "NDIME= " << dim << std::endl;
 
     // Write elements
+    int elem_count = 0;
+    for (auto item : elements) {
+        auto element_array = item.second.cast<py::array_t<unsigned int>>();
+        elem_count += element_array.shape(0);
+    }
     mesh_file << "%" << std::endl;
     mesh_file << "% Inner element connectivity" << std::endl;
     mesh_file << "%" << std::endl;
-    mesh_file << "NELEM= " << total_elements << std::endl;
+    mesh_file << "NELEM= " << elem_count << std::endl;
 
-    write_elements(mesh_file, interior_elements, get_reverse_element_type_map());
+    write_elements(mesh_file, elements);
 
     // Write vertices
     auto coords_ptr = coords.data();
@@ -185,12 +173,36 @@ bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
     }
 
     // Write boundary markers
+    int marker_count = 0;
+    if (!boundaries.empty()) {
+        std::set<unsigned int> unique_markers;
+
+        // Extract unique markers from boundaries
+        auto process_boundary_type = [&unique_markers](const py::dict& boundaries, const std::string& key) {
+            if (boundaries.contains(key)) {
+                auto element_array = boundaries[key.c_str()].cast<py::array_t<unsigned int>>();
+                auto elem_ptr = element_array.data();
+                int num_elem = element_array.shape(0);
+                int num_node = element_array.shape(1) - 1;
+
+                for (int i = 0; i < num_elem; i++) {
+                    unsigned int ref = elem_ptr[i * (num_node + 1) + num_node];
+                    unique_markers.insert(ref);
+                }
+            }
+        };
+        // Process each boundary type
+        process_boundary_type(boundaries, "Edges");
+        process_boundary_type(boundaries, "Triangles");
+        process_boundary_type(boundaries, "Quadrilaterals");
+
+        marker_count = unique_markers.size();
+    }
     mesh_file << "%" << std::endl;
     mesh_file << "% Boundary elements" << std::endl;
     mesh_file << "%" << std::endl;
-    mesh_file << "NMARK= " << boundary_elements.size() << std::endl;
-
-    write_boundary_elements(mesh_file, boundary_elements);
+    mesh_file << "NMARK= " << marker_count << std::endl;
+     write_boundary_elements(mesh_file, boundaries);
 
     mesh_file.close();
 

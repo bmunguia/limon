@@ -7,7 +7,7 @@ def read_mesh(
     meshpath: str,
     solpath: str | None = None,
     read_sol: bool = False
-) -> tuple[NDArray, NDArray, NDArray]:
+) -> tuple[NDArray, dict, dict, dict]:
     r"""Read a meshb file and return nodes and element as numpy arrays.
 
     Args:
@@ -16,22 +16,21 @@ def read_mesh(
         read_sol (bool, optional): Whether to read solution data. Defaults to False.
 
     Returns:
-        tuple: If read_sol=False, returns (coords, elements, boundaries)
-               If read_sol=True, returns (coords, elements, boundaries, sol)
+        A tuple containing:
+        - coords: NDArray of node coordinates
+        - elements: Dictionary mapping element types to arrays of elements
+        - boundaries: Dictionary mapping boundary element types to arrays
+        - solution: Dictionary of solution data (if read_sol is True, otherwise empty)
     """
     try:
         solpath = solpath if solpath is not None else ''
-        msh = libgmf.read_mesh(meshpath, solpath, read_sol)
+        coords, elms, bnds, sol = libgmf.read_mesh(meshpath, solpath, read_sol)
 
-        if len(msh) == 4:
-            coords, elms, bnds, sol = msh
-            return coords, elms, bnds, sol
-        else:
-            return msh[0], msh[1], msh[2], {}
+        return coords, elms, bnds, sol
 
     except Exception as e:
         print(f"Error reading mesh: {e}")
-        return None, None
+        return None, None, None, None
 
 
 def write_mesh(
@@ -40,7 +39,7 @@ def write_mesh(
     elements: dict[str, NDArray],
     boundaries: dict[str, NDArray],
     solpath: str | None = None,
-    solution: dict[str, NDArray] | None= None,
+    solution: dict[str, NDArray] | None = None,
 ) -> bool:
     r"""Write nodes and elements to a meshb file.
 

@@ -31,104 +31,223 @@ std::map<std::string, int> get_reverse_element_type_map() {
     return map;
 }
 
-bool read_elements(std::ifstream& file_stream, int elem_count, py::dict& elements) {
-    if (elem_count <= 0) {
-        return false;
+void read_element_type(std::ifstream& file_stream, int elem_type, int count, py::dict& elements, const std::string& key_name) {
+    auto element_type_map = get_element_type_map();
+    if (element_type_map.find(elem_type) == element_type_map.end()) {
+        throw std::runtime_error("Unknown element type: " + std::to_string(elem_type));
     }
 
-    // Get element type map
-    auto element_type_map = get_element_type_map();
+    int num_node = element_type_map[elem_type].num_node;
 
-    // First pass: count elements of each type
-    std::map<int, int> element_counts;
-
-    // Store the current position to return to it later
+    // Count actual elements of this type
     auto initial_position = file_stream.tellg();
-
     std::string line;
-    for (int i = 0; i < elem_count && std::getline(file_stream, line); i++) {
+    int found_count = 0;
+
+    for (int i = 0; i < count && std::getline(file_stream, line); i++) {
         if (line.empty() || line[0] == '%') {
-            // Skip empty lines or comments
+            // Skip comment or empty line
             i--;
             continue;
         }
 
         std::istringstream iss(line);
-        int elem_type;
-        iss >> elem_type;
+        int line_elem_type;
+        iss >> line_elem_type;
 
-        if (element_type_map.find(elem_type) != element_type_map.end()) {
-            element_counts[elem_type]++;
+        if (line_elem_type == elem_type) {
+            found_count++;
         }
     }
 
-    // Clear error flags and reset file position to start of element section
+    // Reset file position
     file_stream.clear();
     file_stream.seekg(initial_position);
 
-    // Create arrays for each element type
-    std::map<std::string, py::array_t<unsigned int>> element_arrays;
-    std::map<std::string, unsigned int*> element_ptrs;
-    std::map<std::string, int> element_indices;
+    if (found_count > 0) {
+        // Create array for this element type
+        py::array_t<unsigned int> element_array(std::vector<py::ssize_t>{found_count, num_node + 1});
+        auto elm_ptr = element_array.mutable_data();
+        int curr_idx = 0;
 
-    for (const auto& [elem_type, count] : element_counts) {
-        const auto& info = element_type_map[elem_type];
-        element_arrays[info.name] = py::array_t<unsigned int>(
-            std::vector<py::ssize_t>{count, info.num_node + 1});
-        element_ptrs[info.name] = element_arrays[info.name].mutable_data();
-        element_indices[info.name] = 0;
+        // Read elements
+        for (int i = 0; i < count && std::getline(file_stream, line); i++) {
+            if (line.empty() || line[0] == '%') {
+                // Skip comment or empty line
+                i--;
+                continue;
+            }
+
+            std::istringstream iss(line);
+            int line_elem_type;
+            iss >> line_elem_type;
+
+            if (line_elem_type == elem_type) {
+                // Read node indices
+                for (int j = 0; j < num_node; j++) {
+                    iss >> elm_ptr[curr_idx * (num_node + 1) + j];
+                }
+
+                // Read reference value
+                int ref = 0;
+                iss >> ref;
+                elm_ptr[curr_idx * (num_node + 1) + num_node] = ref;
+                curr_idx++;
+            }
+        }
+
+        // Reset file position
+        file_stream.clear();
+        file_stream.seekg(initial_position);
+
+        // Add to elements dictionary
+        elements[key_name.c_str()] = element_array;
+    }
+}
+
+void read_elements_2D(std::ifstream& file_stream, int elem_count, py::dict& elements) {
+    // Store initial position
+    auto initial_position = file_stream.tellg();
+
+    // Read volume elements (2D)
+    read_element_type(file_stream, 5, elem_count, elements, "Triangles");
+    read_element_type(file_stream, 9, elem_count, elements, "Quadrilaterals");
+
+    // Reset file position
+    file_stream.clear();
+    file_stream.seekg(initial_position);
+}
+
+void read_elements_3D(std::ifstream& file_stream, int elem_count, py::dict& elements) {
+    // Store initial position
+    auto initial_position = file_stream.tellg();
+
+    // Read volume elements (3D)
+    read_element_type(file_stream, 10, elem_count, elements, "Tetrahedra");
+    read_element_type(file_stream, 12, elem_count, elements, "Prisms");
+    read_element_type(file_stream, 13, elem_count, elements, "Pyramids");
+    read_element_type(file_stream, 14, elem_count, elements, "Hexahedra");
+
+    // Reset file position
+    file_stream.clear();
+    file_stream.seekg(initial_position);
+}
+
+void read_boundary_element_type(std::ifstream& file_stream, int marker_idx, int marker_elements,
+                               int elem_type, py::dict& boundaries, const std::string& key_name) {
+    auto element_type_map = get_element_type_map();
+    if (element_type_map.find(elem_type) == element_type_map.end()) {
+        // Unknown element type
+        return;
     }
 
-    // Second pass: read elements
-    for (int i = 0; i < elem_count && std::getline(file_stream, line); i++) {
+    int num_node = element_type_map[elem_type].num_node;
+
+    // Count actual elements of this type
+    auto initial_position = file_stream.tellg();
+    std::string line;
+    int found_count = 0;
+
+    for (int i = 0; i < marker_elements && std::getline(file_stream, line); i++) {
         if (line.empty() || line[0] == '%') {
-            // Skip empty lines or comments
+            // Skip comment or empty line
             i--;
             continue;
         }
 
         std::istringstream iss(line);
-        int elem_type;
-        iss >> elem_type;
+        int line_elem_type;
+        iss >> line_elem_type;
 
-        if (element_type_map.find(elem_type) == element_type_map.end()) {
-            continue;
+        if (line_elem_type == elem_type) {
+            found_count++;
         }
-
-        const auto& info = element_type_map[elem_type];
-        int elem_index = element_indices[info.name]++;
-        unsigned int* elem_ptr = element_ptrs[info.name] + elem_index * (info.num_node + 1);
-
-        // Read node indices
-        for (int j = 0; j < info.num_node; j++) {
-            iss >> elem_ptr[j];
-        }
-
-        // Read element ID (reference value), default to 0
-        int elem_id = 0;
-        iss >> elem_id;
-        elem_ptr[info.num_node] = elem_id;
     }
 
-    // Create Python dictionary of elements
-    for (auto& [name, array] : element_arrays) {
-        elements[name.c_str()] = array;
-    }
+    // Reset file position
+    file_stream.clear();
+    file_stream.seekg(initial_position);
 
-    return true;
+    if (found_count > 0) {
+        // Get existing array if it exists
+        py::array_t<unsigned int> element_array;
+        int existing_count = 0;
+
+        if (boundaries.contains(key_name)) {
+            element_array = boundaries[key_name.c_str()].cast<py::array_t<unsigned int>>();
+            existing_count = element_array.shape(0);
+
+            // Create new array with extended size
+            py::array_t<unsigned int> new_array(std::vector<py::ssize_t>{existing_count + found_count, num_node + 1});
+            auto new_ptr = new_array.mutable_data();
+
+            // Copy existing data
+            auto existing_ptr = element_array.data();
+            for (int i = 0; i < existing_count * (num_node + 1); i++) {
+                new_ptr[i] = existing_ptr[i];
+            }
+
+            element_array = new_array;
+        } else {
+            // Create new array
+            element_array = py::array_t<unsigned int>(std::vector<py::ssize_t>{found_count, num_node + 1});
+        }
+
+        auto elm_ptr = element_array.mutable_data();
+        int curr_idx = existing_count;
+
+        // Read boundary elements
+        for (int i = 0; i < marker_elements && std::getline(file_stream, line); i++) {
+            if (line.empty() || line[0] == '%') {
+                // Skip comment or empty line
+                i--;
+                continue;
+            }
+
+            std::istringstream iss(line);
+            int line_elem_type;
+            iss >> line_elem_type;
+
+            if (line_elem_type == elem_type) {
+                // Read node indices
+                for (int j = 0; j < num_node; j++) {
+                    iss >> elm_ptr[curr_idx * (num_node + 1) + j];
+                }
+
+                // Set reference value to marker index + 1
+                elm_ptr[curr_idx * (num_node + 1) + num_node] = marker_idx + 1;
+                curr_idx++;
+            }
+        }
+
+        // Reset file position
+        file_stream.clear();
+        file_stream.seekg(initial_position);
+
+        // Add to boundaries dictionary
+        boundaries[key_name.c_str()] = element_array;
+    }
 }
 
-bool read_boundary_elements(
-    std::ifstream& file_stream,
-    int boundary_count,
-    py::dict& boundaries) {
+void read_boundary_elements_2D(std::ifstream& file_stream, int marker_idx, int marker_elements,
+                              py::dict& boundaries) {
+    // In 2D, boundaries are primarily edges (type 3)
+    read_boundary_element_type(file_stream, marker_idx, marker_elements, 3, boundaries, "Edges");
+}
 
+void read_boundary_elements_3D(std::ifstream& file_stream, int marker_idx, int marker_elements,
+                              py::dict& boundaries) {
+    // In 3D, boundaries can be triangles (type 5) or quadrilaterals (type 9)
+    read_boundary_element_type(file_stream, marker_idx, marker_elements, 5, boundaries, "Triangles");
+    read_boundary_element_type(file_stream, marker_idx, marker_elements, 9, boundaries, "Quadrilaterals");
+}
+
+bool read_boundary_elements(std::ifstream& file_stream, int boundary_count, py::dict& boundaries) {
     if (boundary_count <= 0) {
         return true;
     }
 
     std::string line;
-    auto element_type_map = get_element_type_map();
 
     // Process each boundary marker
     for (int marker_idx = 0; marker_idx < boundary_count; marker_idx++) {
@@ -158,97 +277,26 @@ bool read_boundary_elements(
         }
 
         if (marker_elements > 0) {
-            // Store boundary elements
-            std::vector<std::vector<unsigned int>> edge_elements;
-            std::vector<std::vector<unsigned int>> triangle_elements;
+            // Store initial position
+            auto initial_position = file_stream.tellg();
 
-            for (int i = 0; i < marker_elements && std::getline(file_stream, line); i++) {
+            // Try to read as 2D boundary
+            read_boundary_elements_2D(file_stream, marker_idx, marker_elements, boundaries);
+
+            // Reset position
+            file_stream.clear();
+            file_stream.seekg(initial_position);
+
+            // Try to read as 3D boundary
+            read_boundary_elements_3D(file_stream, marker_idx, marker_elements, boundaries);
+
+            // Skip through these elements to get to the next marker
+            for (int i = 0; i < marker_elements; i++) {
+                std::getline(file_stream, line);
                 if (line.empty() || line[0] == '%') {
-                    // Skip empty lines or comments
+                    // Skip comment or empty line
                     i--;
-                    continue;
                 }
-
-                std::istringstream iss(line);
-                int elem_type;
-                iss >> elem_type;
-
-                if (elem_type == 3) {
-                    // Line
-                    std::vector<unsigned int> edge(3);
-                    iss >> edge[0] >> edge[1];
-                    edge[2] = marker_idx + 1;
-                    edge_elements.push_back(edge);
-                }
-                else if (elem_type == 5) {
-                    // Triangle
-                    std::vector<unsigned int> tri(4);
-                    iss >> tri[0] >> tri[1] >> tri[2];
-                    tri[3] = marker_idx + 1;
-                    triangle_elements.push_back(tri);
-                }
-            }
-
-            // Add edge elements to array
-            if (!edge_elements.empty()) {
-                int num_existing = 0;
-                py::array_t<unsigned int> existing_edges;
-
-                // Check if we already have edges
-                if (boundaries.contains("Edges")) {
-                    existing_edges = boundaries["Edges"].cast<py::array_t<unsigned int>>();
-                    num_existing = existing_edges.shape(0);
-                }
-
-                // Create new array with combined size
-                py::array_t<unsigned int> new_edges(std::vector<py::ssize_t>{num_existing + edge_elements.size(), 3});
-                unsigned int* new_edge_ptr = new_edges.mutable_data();
-
-                // Copy existing data if any
-                if (num_existing > 0) {
-                    unsigned int* old_edge_ptr = existing_edges.mutable_data();
-                    for (int i = 0; i < num_existing * 3; i++) {
-                        new_edge_ptr[i] = old_edge_ptr[i];
-                    }
-                }
-
-                // Add new edge elements
-                for (size_t i = 0; i < edge_elements.size(); i++) {
-                    for (size_t j = 0; j < 3; j++) {
-                        new_edge_ptr[(num_existing + i) * 3 + j] = edge_elements[i][j];
-                    }
-                }
-
-                boundaries["Edges"] = new_edges;
-            }
-
-            // Add triangle elements to array (similar process)
-            if (!triangle_elements.empty()) {
-                int num_existing = 0;
-                py::array_t<unsigned int> existing_tris;
-
-                if (boundaries.contains("Triangles")) {
-                    existing_tris = boundaries["Triangles"].cast<py::array_t<unsigned int>>();
-                    num_existing = existing_tris.shape(0);
-                }
-
-                py::array_t<unsigned int> new_tris(std::vector<py::ssize_t>{num_existing + triangle_elements.size(), 4});
-                unsigned int* new_tri_ptr = new_tris.mutable_data();
-
-                if (num_existing > 0) {
-                    unsigned int* old_tri_ptr = existing_tris.mutable_data();
-                    for (int i = 0; i < num_existing * 4; i++) {
-                        new_tri_ptr[i] = old_tri_ptr[i];
-                    }
-                }
-
-                for (size_t i = 0; i < triangle_elements.size(); i++) {
-                    for (size_t j = 0; j < 4; j++) {
-                        new_tri_ptr[(num_existing + i) * 4 + j] = triangle_elements[i][j];
-                    }
-                }
-
-                boundaries["Triangles"] = new_tris;
             }
         }
     }
@@ -256,152 +304,223 @@ bool read_boundary_elements(
     return true;
 }
 
-int process_elements_for_writing(
-    const py::dict& elements,
-    const py::dict& boundaries,
-    int dim,
-    std::map<std::string, std::vector<std::vector<unsigned int>>>& interior_elements,
-    std::map<int, std::vector<std::vector<unsigned int>>>& boundary_elements) {
+void write_element_type(std::ofstream& mesh_file, int elem_type, py::array_t<unsigned int>& element_array) {
+    auto elem_buf = element_array.request();
+    unsigned int* elem_ptr = static_cast<unsigned int*>(elem_buf.ptr);
+    int64_t num_elm = element_array.shape(0);
+    int num_node = element_array.shape(1) - 1;
 
-    int total_elements = 0;
-    std::map<std::string, int> elem_type_map = get_reverse_element_type_map();
-
-    // Process domain elements
-    for (auto item : elements) {
-        std::string key = item.first.cast<std::string>();
-        if (elem_type_map.find(key) == elem_type_map.end()) {
-            continue;
+    // Write each element
+    for (int i = 0; i < num_elm; i++) {
+        mesh_file << elem_type << "\t";
+        for (int j = 0; j < num_node; j++) {
+            mesh_file << elem_ptr[i * (num_node + 1) + j] << "\t";
         }
-
-        py::array_t<unsigned int> element_array = item.second.cast<py::array_t<unsigned int>>();
-        auto elem_ptr = element_array.data();
-        int num_elem = element_array.shape(0);
-        int num_node = element_array.shape(1) - 1;
-
-        // If these are edges in a 2D/3D mesh, check references to identify boundaries
-        if (key == "Edges" && dim > 1) {
-            for (int i = 0; i < num_elem; i++) {
-                std::vector<unsigned int> elem;
-                int ref = elem_ptr[i * (num_node + 1) + num_node];
-
-                // Add nodes
-                for (int j = 0; j < num_node; j++) {
-                    elem.push_back(elem_ptr[i * (num_node + 1) + j]);
-                }
-
-                // If reference > 0, it's a boundary
-                if (ref > 0) {
-                    boundary_elements[ref].push_back(elem);
-                } else {
-                    interior_elements[key].push_back(elem);
-                }
-            }
-        } else {
-            // For other element types, treat all as interior
-            for (int i = 0; i < num_elem; i++) {
-                std::vector<unsigned int> elem;
-                // Add nodes
-                for (int j = 0; j < num_node; j++) {
-                    elem.push_back(elem_ptr[i * (num_node + 1) + j]);
-                }
-                // Add reference
-                elem.push_back(elem_ptr[i * (num_node + 1) + num_node]);
-                interior_elements[key].push_back(elem);
-            }
-        }
+        mesh_file << elem_ptr[i * (num_node + 1) + num_node] << std::endl;
     }
-
-    // Process boundary elements (if any)
-    for (auto item : boundaries) {
-        std::string marker_tag = item.first.cast<std::string>();
-        int marker_id = 0;
-
-        // Try to extract numeric marker ID from marker tag (assuming format "MARKER_X")
-        if (marker_tag.find("MARKER_") == 0) {
-             // Skip "MARKER_"
-            std::string id_str = marker_tag.substr(7);
-            try {
-                marker_id = std::stoi(id_str);
-            } catch (...) {
-                // If not a number, generate sequential marker ID
-                marker_id = boundary_elements.size() + 1;
-            }
-        } else {
-            // If marker tag doesn't follow expected format, generate sequential marker ID
-            marker_id = boundary_elements.size() + 1;
-        }
-
-        py::array_t<unsigned int> boundary_array = item.second.cast<py::array_t<unsigned int>>();
-        auto boundary_ptr = boundary_array.data();
-        int num_boundary = boundary_array.shape(0);
-        int num_node = boundary_array.shape(1) - 1;
-
-        for (int i = 0; i < num_boundary; i++) {
-            std::vector<unsigned int> elem;
-            // Add nodes
-            for (int j = 0; j < num_node; j++) {
-                elem.push_back(boundary_ptr[i * (num_node + 1) + j]);
-            }
-            boundary_elements[marker_id].push_back(elem);
-        }
-    }
-
-    // Count total elements
-    for (const auto& [key, elems] : interior_elements) {
-        total_elements += elems.size();
-    }
-
-    return total_elements;
 }
 
-int write_elements(
-    std::ofstream& mesh_file,
-    const std::map<std::string, std::vector<std::vector<unsigned int>>>& interior_elements,
-    const std::map<std::string, int>& elem_type_map) {
+void write_elements_2D(std::ofstream& mesh_file, const py::dict& elements, int& elem_count) {
+    auto elem_type_map = get_reverse_element_type_map();
 
-    int elem_id = 0;
-    for (const auto& [key, elems] : interior_elements) {
-        int vtk_type = elem_type_map.at(key);
-        for (const auto& elem : elems) {
-            mesh_file << vtk_type << "\t";
-            for (size_t i = 0; i < elem.size() - 1; i++) {
-                mesh_file << elem[i] << "\t";
-            }
-            mesh_file << elem_id << std::endl;
-            elem_id++;
-        }
+    // Write triangles if present
+    if (elements.contains("Triangles")) {
+        auto element_array = elements["Triangles"].cast<py::array_t<unsigned int>>();
+        write_element_type(mesh_file, elem_type_map["Triangles"], element_array);
+        elem_count += element_array.shape(0);
     }
 
-    return elem_id;
+    // Write quadrilaterals if present
+    if (elements.contains("Quadrilaterals")) {
+        auto element_array = elements["Quadrilaterals"].cast<py::array_t<unsigned int>>();
+        write_element_type(mesh_file, elem_type_map["Quadrilaterals"], element_array);
+        elem_count += element_array.shape(0);
+    }
 }
 
-bool write_boundary_elements(
-    std::ofstream& mesh_file,
-    const std::map<int, std::vector<std::vector<unsigned int>>>& boundary_elements) {
+void write_elements_3D(std::ofstream& mesh_file, const py::dict& elements, int& elem_count) {
+    auto elem_type_map = get_reverse_element_type_map();
 
-    if (boundary_elements.empty()) {
-        return true;
+    // Write tetrahedra if present
+    if (elements.contains("Tetrahedra")) {
+        auto element_array = elements["Tetrahedra"].cast<py::array_t<unsigned int>>();
+        write_element_type(mesh_file, elem_type_map["Tetrahedra"], element_array);
+        elem_count += element_array.shape(0);
     }
 
-    for (const auto& [marker_id, elems] : boundary_elements) {
-        mesh_file << "MARKER_TAG= MARKER_" << marker_id << std::endl;
-        mesh_file << "MARKER_ELEMS= " << elems.size() << std::endl;
+    // Write prisms if present
+    if (elements.contains("Prisms")) {
+        auto element_array = elements["Prisms"].cast<py::array_t<unsigned int>>();
+        write_element_type(mesh_file, elem_type_map["Prisms"], element_array);
+        elem_count += element_array.shape(0);
+    }
 
-        for (const auto& elem : elems) {
-            // Determine element type based on number of nodes
-            int vtk_type = (elem.size() == 2) ? 3 :
-                          (elem.size() == 3) ? 5 :
-                          (elem.size() == 4) ? 9 : 3;
+    // Write pyramids if present
+    if (elements.contains("Pyramids")) {
+        auto element_array = elements["Pyramids"].cast<py::array_t<unsigned int>>();
+        write_element_type(mesh_file, elem_type_map["Pyramids"], element_array);
+        elem_count += element_array.shape(0);
+    }
 
-            mesh_file << vtk_type << "\t";
-            for (size_t i = 0; i < elem.size(); i++) {
-                mesh_file << elem[i] << "\t";
+    // Write hexahedra if present
+    if (elements.contains("Hexahedra")) {
+        auto element_array = elements["Hexahedra"].cast<py::array_t<unsigned int>>();
+        write_element_type(mesh_file, elem_type_map["Hexahedra"], element_array);
+        elem_count += element_array.shape(0);
+    }
+}
+
+int write_elements(std::ofstream& mesh_file, const py::dict& elements) {
+    int elem_count = 0;
+
+    // Write both 2D and 3D elements
+    write_elements_2D(mesh_file, elements, elem_count);
+    write_elements_3D(mesh_file, elements, elem_count);
+
+    return elem_count;
+}
+
+void write_boundary_elements_2D(std::ofstream& mesh_file, const py::dict& boundaries, std::map<int, std::string>& marker_map) {
+    if (!boundaries.contains("Edges")) {
+        return;
+    }
+
+    auto element_array = boundaries["Edges"].cast<py::array_t<unsigned int>>();
+    auto elem_ptr = element_array.data();
+    int num_elem = element_array.shape(0);
+    int num_node = element_array.shape(1) - 1;
+
+    // Group by reference (marker ID)
+    std::map<unsigned int, std::vector<std::vector<unsigned int>>> marker_elements;
+    for (int i = 0; i < num_elem; i++) {
+        unsigned int ref = elem_ptr[i * (num_node + 1) + num_node];
+        std::vector<unsigned int> nodes;
+        for (int j = 0; j < num_node; j++) {
+            nodes.push_back(elem_ptr[i * (num_node + 1) + j]);
+        }
+        marker_elements[ref].push_back(nodes);
+    }
+
+    // Write marker sections
+    for (auto& [marker_id, elements] : marker_elements) {
+        // Generate marker name if not provided
+        std::string marker_name = "MARKER_" + std::to_string(marker_id);
+        if (marker_map.find(marker_id) != marker_map.end()) {
+            marker_name = marker_map[marker_id];
+        } else {
+            marker_map[marker_id] = marker_name;
+        }
+
+        mesh_file << "MARKER_TAG= " << marker_name << std::endl;
+        mesh_file << "MARKER_ELEMS= " << elements.size() << std::endl;
+
+        for (auto& nodes : elements) {
+            mesh_file << "3\t"; // VTK_LINE
+            for (auto node : nodes) {
+                mesh_file << node << "\t";
             }
             mesh_file << std::endl;
         }
     }
+}
 
-    return true;
+void write_boundary_elements_3D(std::ofstream& mesh_file, const py::dict& boundaries, std::map<int, std::string>& marker_map) {
+    std::map<unsigned int, std::vector<std::vector<unsigned int>>> triangles_by_marker;
+    std::map<unsigned int, std::vector<std::vector<unsigned int>>> quads_by_marker;
+
+    // Process triangles
+    if (boundaries.contains("Triangles")) {
+        auto element_array = boundaries["Triangles"].cast<py::array_t<unsigned int>>();
+        auto elem_ptr = element_array.data();
+        int num_elem = element_array.shape(0);
+        int num_node = element_array.shape(1) - 1;
+
+        for (int i = 0; i < num_elem; i++) {
+            unsigned int ref = elem_ptr[i * (num_node + 1) + num_node];
+            std::vector<unsigned int> nodes;
+            for (int j = 0; j < num_node; j++) {
+                nodes.push_back(elem_ptr[i * (num_node + 1) + j]);
+            }
+            triangles_by_marker[ref].push_back(nodes);
+        }
+    }
+
+    // Process quadrilaterals
+    if (boundaries.contains("Quadrilaterals")) {
+        auto element_array = boundaries["Quadrilaterals"].cast<py::array_t<unsigned int>>();
+        auto elem_ptr = element_array.data();
+        int num_elem = element_array.shape(0);
+        int num_node = element_array.shape(1) - 1;
+
+        for (int i = 0; i < num_elem; i++) {
+            unsigned int ref = elem_ptr[i * (num_node + 1) + num_node];
+            std::vector<unsigned int> nodes;
+            for (int j = 0; j < num_node; j++) {
+                nodes.push_back(elem_ptr[i * (num_node + 1) + j]);
+            }
+            quads_by_marker[ref].push_back(nodes);
+        }
+    }
+
+    // Combine markers from both types
+    std::set<unsigned int> all_markers;
+    for (auto& [marker, _] : triangles_by_marker) all_markers.insert(marker);
+    for (auto& [marker, _] : quads_by_marker) all_markers.insert(marker);
+
+    // Write marker sections
+    for (unsigned int marker_id : all_markers) {
+        // Generate marker name if not provided
+        std::string marker_name = "MARKER_" + std::to_string(marker_id);
+        if (marker_map.find(marker_id) != marker_map.end()) {
+            marker_name = marker_map[marker_id];
+        } else {
+            marker_map[marker_id] = marker_name;
+        }
+
+        // Count total elements for this marker
+        size_t total_elements =
+            (triangles_by_marker.count(marker_id) ? triangles_by_marker[marker_id].size() : 0) +
+            (quads_by_marker.count(marker_id) ? quads_by_marker[marker_id].size() : 0);
+
+        mesh_file << "MARKER_TAG= " << marker_name << std::endl;
+        mesh_file << "MARKER_ELEMS= " << total_elements << std::endl;
+
+        // Write triangles for this marker
+        if (triangles_by_marker.count(marker_id)) {
+            for (auto& nodes : triangles_by_marker[marker_id]) {
+                mesh_file << "5\t"; // VTK_TRIANGLE
+                for (auto node : nodes) {
+                    mesh_file << node << "\t";
+                }
+                mesh_file << std::endl;
+            }
+        }
+
+        // Write quadrilaterals for this marker
+        if (quads_by_marker.count(marker_id)) {
+            for (auto& nodes : quads_by_marker[marker_id]) {
+                mesh_file << "9\t"; // VTK_QUAD
+                for (auto node : nodes) {
+                    mesh_file << node << "\t";
+                }
+                mesh_file << std::endl;
+            }
+        }
+    }
+}
+
+int write_boundary_elements(std::ofstream& mesh_file, const py::dict& boundaries) {
+    if (boundaries.empty()) {
+        return 0;
+    }
+
+    std::map<int, std::string> marker_map;
+
+    // Write both 2D and 3D boundaries
+    write_boundary_elements_2D(mesh_file, boundaries, marker_map);
+    write_boundary_elements_3D(mesh_file, boundaries, marker_map);
+
+    return marker_map.size();
 }
 
 } // namespace su2

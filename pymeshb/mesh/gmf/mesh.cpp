@@ -71,11 +71,7 @@ py::tuple read_mesh(const std::string& meshpath, const std::string& solpath,
         sol_dict = read_solution(solpath, num_ver, dim);
     }
 
-    if (read_sol && sol_dict.size() > 0) {
-        return py::make_tuple(coords, elements, boundaries, sol_dict);
-    } else {
-        return py::make_tuple(coords, elements, boundaries);
-    }
+    return py::make_tuple(coords, elements, boundaries, sol_dict);
 }
 
 bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
