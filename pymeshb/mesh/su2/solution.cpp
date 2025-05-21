@@ -157,7 +157,6 @@ py::dict process_solution_fields(const std::vector<std::string>& field_names,
     if (col_index < field_names.size() &&
         (field_names[col_index] == "PointID" || field_names[col_index] == "\"PointID\"")) {
         col_index++;
-        std::cout << "Skipping PointID" << std::endl;
     }
 
     while (col_index < field_names.size()) {
