@@ -6,7 +6,7 @@ import pymeshb
 
 @pytest.fixture
 def mesh_data():
-    '''Load the 2D mesh and create a sample solution.'''
+    """Load the 2D mesh and create a sample solution."""
     meshpath_in = 'example/naca0012/NACA0012_inv.su2'
     solpath_in = 'example/naca0012/restart_flow.dat'
     markerpath = Path('example/markers.dat')
@@ -20,14 +20,14 @@ def mesh_data():
 
 @pytest.fixture
 def output_dir(request):
-    '''Create a persistent output directory for test files.'''
+    """Create a persistent output directory for test files."""
     out_dir = Path('output') / request.node.name
     out_dir.mkdir(parents=True, exist_ok=True)
     return out_dir
 
 
 def test_read_su2(mesh_data):
-    '''Test reading a SU2 mesh file.'''
+    """Test reading a SU2 mesh file."""
     coords, elements, boundaries, markerpath, solution = mesh_data
 
     # Assert that the mesh data is loaded correctly
@@ -37,13 +37,34 @@ def test_read_su2(mesh_data):
     assert isinstance(solution, dict)  # Ensure solution is a dictionary
 
 
-def test_write_su2(mesh_data, output_dir):
-    '''Test writing a SU2 mesh file and reading it back.'''
+def test_write_su2_ascii(mesh_data, output_dir):
+    """Test reading a SU2 mesh file and solution, and writing it back with an
+    ASCII solution.
+    """
     coords, elements, boundaries, markerpath, solution = mesh_data
 
     # Output paths
     meshpath_out = output_dir / 'naca_with_sol.su2'
     solpath_out = output_dir / 'naca_with_sol.csv'
+
+    # Write the mesh with the solution
+    pymeshb.write_mesh(str(meshpath_out), coords, elements, boundaries,
+                       markerpath=str(markerpath), solpath=str(solpath_out),
+                       solution=solution)
+
+    # Assert that the files were created
+    assert meshpath_out.exists()
+    assert solpath_out.exists()
+
+def test_write_su2_binary(mesh_data, output_dir):
+    """Test reading a SU2 mesh file and solution, and writing it back with a
+    binary solution.
+    """
+    coords, elements, boundaries, markerpath, solution = mesh_data
+
+    # Output paths
+    meshpath_out = output_dir / 'naca_with_sol.su2'
+    solpath_out = output_dir / 'naca_with_sol.dat'
 
     # Write the mesh with the solution
     pymeshb.write_mesh(str(meshpath_out), coords, elements, boundaries,

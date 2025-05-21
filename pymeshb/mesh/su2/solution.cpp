@@ -157,6 +157,7 @@ py::dict process_solution_fields(const std::vector<std::string>& field_names,
     if (col_index < field_names.size() &&
         (field_names[col_index] == "PointID" || field_names[col_index] == "\"PointID\"")) {
         col_index++;
+        std::cout << "Skipping PointID" << std::endl;
     }
 
     while (col_index < field_names.size()) {
@@ -376,14 +377,6 @@ bool write_solution_binary(const std::string& solpath, py::dict sol, int num_poi
     // Prepare variable names and data
     std::vector<std::string> var_names;
     std::vector<std::vector<double>> data_columns;
-
-    // Add PointID column
-    var_names.push_back("PointID");
-    std::vector<double> point_ids(num_point);
-    for (int i = 0; i < num_point; i++) {
-        point_ids[i] = static_cast<double>(i);
-    }
-    data_columns.push_back(point_ids);
 
     // Process each field
     for (auto item : sol) {
