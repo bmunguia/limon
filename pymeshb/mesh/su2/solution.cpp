@@ -147,7 +147,7 @@ py::dict process_solution_fields(const std::vector<std::string>& field_names,
                                 int num_point, int dim) {
     int sym_size = (dim * (dim + 1)) / 2;
     std::vector<std::string> vec_suffixes = {"_x", "_y", "_z"};
-    std::vector<std::string> mat_suffixes = {"_xx", "_xy", "_xz", "_yy", "_yz", "_zz"};
+    std::vector<std::string> mat_suffixes = {"_xx", "_xy", "_yy", "_xz", "_yz", "_zz"};
 
     py::dict sol;
 
@@ -273,7 +273,7 @@ py::dict read_solution(const std::string& solpath, int num_point, int dim) {
 bool write_solution_ascii(const std::string& solpath, py::dict sol, int num_point, int dim) {
     int sym_size = (dim * (dim + 1)) / 2;
     std::vector<std::string> vec_suffixes = {"_x", "_y", "_z"};
-    std::vector<std::string> mat_suffixes = {"_xx", "_xy", "_xz", "_yy", "_yz", "_zz"};
+    std::vector<std::string> mat_suffixes = {"_xx", "_xy", "_yy", "_xz", "_yz", "_zz"};
 
     if (!pymeshb::createDirectory(solpath)) {
         return false;
@@ -363,7 +363,7 @@ bool write_solution_ascii(const std::string& solpath, py::dict sol, int num_poin
 bool write_solution_binary(const std::string& solpath, py::dict sol, int num_point, int dim) {
     int sym_size = (dim * (dim + 1)) / 2;
     std::vector<std::string> vec_suffixes = {"_x", "_y", "_z"};
-    std::vector<std::string> mat_suffixes = {"_xx", "_xy", "_xz", "_yy", "_yz", "_zz"};
+    std::vector<std::string> mat_suffixes = {"_xx", "_xy", "_yy", "_xz", "_yz", "_zz"};
 
     if (!pymeshb::createDirectory(solpath)) {
         return false;
