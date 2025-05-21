@@ -42,7 +42,6 @@ def test_write_su2(mesh_data, output_dir):
     coords, elements, boundaries, markerpath, solution = mesh_data
 
     # Output paths
-    print(solution)
     meshpath_out = output_dir / 'naca_with_sol.su2'
     solpath_out = output_dir / 'naca_with_sol.csv'
 

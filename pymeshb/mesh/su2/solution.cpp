@@ -146,15 +146,8 @@ py::dict process_solution_fields(const std::vector<std::string>& field_names,
                                 const std::vector<std::vector<double>>& data,
                                 int num_point, int dim) {
     int sym_size = (dim * (dim + 1)) / 2;
-    std::vector<std::string> vec_suffixes;
-    std::vector<std::string> mat_suffixes;
-    if (dim == 2) {
-        vec_suffixes = {"_x", "_y"};
-        mat_suffixes = {"_xx", "_xy", "_yy"};
-    } else {
-        vec_suffixes = {"_x", "_y", "_z"};
-        mat_suffixes = {"_xx", "_xy", "_xz", "_yy", "_yz", "_zz"};
-    }
+    std::vector<std::string> vec_suffixes = {"_x", "_y", "_z"};
+    std::vector<std::string> mat_suffixes = {"_xx", "_xy", "_xz", "_yy", "_yz", "_zz"};
 
     py::dict sol;
 
@@ -181,7 +174,7 @@ py::dict process_solution_fields(const std::vector<std::string>& field_names,
                 base_name = base_name.substr(0, base_name.length() - 2);
 
                 bool is_vector = true;
-                for (size_t j = 0; j < vec_suffixes.size(); j++) {
+                for (size_t j = 0; j < dim; j++) {
                     if (col_index + j >= field_names.size() ||
                         field_names[col_index + j] != base_name + vec_suffixes[j]) {
                         is_vector = false;
@@ -215,7 +208,7 @@ py::dict process_solution_fields(const std::vector<std::string>& field_names,
                 base_name = base_name.substr(0, base_name.length() - 3);
 
                 bool is_matrix = true;
-                for (size_t j = 0; j < mat_suffixes.size(); j++) {
+                for (size_t j = 0; j < sym_size; j++) {
                     if (col_index + j >= field_names.size() ||
                         field_names[col_index + j] != base_name + mat_suffixes[j]) {
                         is_matrix = false;
@@ -278,15 +271,8 @@ py::dict read_solution(const std::string& solpath, int num_point, int dim) {
 
 bool write_solution_ascii(const std::string& solpath, py::dict sol, int num_point, int dim) {
     int sym_size = (dim * (dim + 1)) / 2;
-    std::vector<std::string> vec_suffixes;
-    std::vector<std::string> mat_suffixes;
-    if (dim == 2) {
-        vec_suffixes = {"_x", "_y"};
-        mat_suffixes = {"_xx", "_xy", "_yy"};
-    } else {
-        vec_suffixes = {"_x", "_y", "_z"};
-        mat_suffixes = {"_xx", "_xy", "_xz", "_yy", "_yz", "_zz"};
-    }
+    std::vector<std::string> vec_suffixes = {"_x", "_y", "_z"};
+    std::vector<std::string> mat_suffixes = {"_xx", "_xy", "_xz", "_yy", "_yz", "_zz"};
 
     if (!pymeshb::createDirectory(solpath)) {
         return false;
@@ -375,15 +361,8 @@ bool write_solution_ascii(const std::string& solpath, py::dict sol, int num_poin
 
 bool write_solution_binary(const std::string& solpath, py::dict sol, int num_point, int dim) {
     int sym_size = (dim * (dim + 1)) / 2;
-    std::vector<std::string> vec_suffixes;
-    std::vector<std::string> mat_suffixes;
-    if (dim == 2) {
-        vec_suffixes = {"_x", "_y"};
-        mat_suffixes = {"_xx", "_xy", "_yy"};
-    } else {
-        vec_suffixes = {"_x", "_y", "_z"};
-        mat_suffixes = {"_xx", "_xy", "_xz", "_yy", "_yz", "_zz"};
-    }
+    std::vector<std::string> vec_suffixes = {"_x", "_y", "_z"};
+    std::vector<std::string> mat_suffixes = {"_xx", "_xy", "_xz", "_yy", "_yz", "_zz"};
 
     if (!pymeshb::createDirectory(solpath)) {
         return false;
