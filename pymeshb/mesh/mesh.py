@@ -5,6 +5,7 @@ from pymeshb.mesh import gmf, su2
 
 def read_mesh(
     meshpath: str,
+    markerpath: str | None = None,
     solpath: str | None = None,
     read_sol: bool = False
 ) -> tuple[NDArray, dict, dict, dict]:
@@ -12,6 +13,8 @@ def read_mesh(
 
     Args:
         meshpath (str): Path to the mesh file.
+        markerpath (str, optional): Path to the map between marker strings and
+                                    ref IDs. Defaults to None.
         solpath (str, optional): Path to the solution file. Defaults to None.
         read_sol (bool, optional): Whether to read solution data. Defaults to False.
 
@@ -27,7 +30,8 @@ def read_mesh(
         if 'mesh' in meshpath or 'meshb' in meshpath:
             msh = gmf.read_mesh(meshpath, solpath, read_sol)
         elif 'su2' in meshpath:
-            msh = su2.read_mesh(meshpath, solpath, read_sol)
+            markerpath = markerpath if markerpath is not None else ''
+            msh = su2.read_mesh(meshpath, markerpath, solpath, read_sol)
         else:
             raise ValueError(
                 f'Unsupported mesh file format: {meshpath}. '

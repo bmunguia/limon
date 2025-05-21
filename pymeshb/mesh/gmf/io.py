@@ -61,7 +61,8 @@ def write_mesh(
     try:
         sol = solution if solution is not None else {}
         solpath = solpath if solpath is not None else ''
-        success = libgmf.write_mesh(meshpath, coords, elements, boundaries, solpath, sol)
+        success = libgmf.write_mesh(meshpath, coords, elements, boundaries,
+                                    solpath, sol)
         return success
 
     except Exception as e:

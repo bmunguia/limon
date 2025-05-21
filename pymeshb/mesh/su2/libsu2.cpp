@@ -24,12 +24,14 @@
       * Read mesh data from a SU2 mesh (.su2) file.
       *
       * @param meshpath Path to the mesh file
+      * @param markerpath Path to the map between marker strings and ref IDs (optional)
       * @param solpath Path to the solution file (optional)
       * @param read_sol Whether to read solution data (default: false)
       * @return Tuple containing coordinates, elements, and optionally solution data
       */
      m.def("read_mesh", &pymeshb::su2::read_mesh,
-          py::arg("meshpath"), py::arg("solpath") = "", py::arg("read_sol") = false,
+          py::arg("meshpath"), py::arg("markerpath") = "", py::arg("solpath") = "",
+          py::arg("read_sol") = false,
           "Read a SU2 mesh file and return nodes, elements, and optionally solution data.");
 
      /**
@@ -38,6 +40,7 @@
       * @param meshpath Path to the mesh file
       * @param coords Coordinates of each node
       * @param elements Dictionary of mesh elements
+      * @param markerpath Path to the map between marker strings and ref IDs (optional)
       * @param solpath Path to the solution file (optional)
       * @param sol Dictionary of solution data (optional)
       * @return Boolean indicating success

@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <sstream>
 #include <stdexcept>
+
 #include "element.hpp"
 #include "marker_map.hpp"
 #include "../util.hpp"
@@ -243,7 +244,8 @@ void read_boundary_elements_3D(std::ifstream& file_stream, int marker_idx, int m
     read_boundary_element_type(file_stream, marker_idx, marker_elements, 9, boundaries, "Quadrilaterals");
 }
 
-bool read_boundary_elements(std::ifstream& file_stream, int boundary_count, py::dict& boundaries) {
+bool read_boundary_elements(std::ifstream& file_stream, int boundary_count, py::dict& boundaries,
+                            const std::string& markerpath) {
     if (boundary_count <= 0) {
         return true;
     }
@@ -251,6 +253,7 @@ bool read_boundary_elements(std::ifstream& file_stream, int boundary_count, py::
     std::string line;
 
     // Process each boundary marker
+    std::map<int, std::string> marker_map;
     for (int marker_idx = 0; marker_idx < boundary_count; marker_idx++) {
         // Find marker tag
         std::string marker_tag;
@@ -259,9 +262,15 @@ bool read_boundary_elements(std::ifstream& file_stream, int boundary_count, py::
                 continue;
             }
             if (line.find("MARKER_TAG=") != std::string::npos) {
-                marker_tag = pymeshb::trim(line.substr(line.find("=") + 1));
+                marker_tag = line.substr(line.find("=") + 1);
+                marker_tag = trim(marker_tag);
                 break;
             }
+        }
+
+        // Store marker tag in map with index+1 as key
+        if (!marker_tag.empty()) {
+            marker_map[marker_idx + 1] = marker_tag;
         }
 
         // Find marker elements count
@@ -300,6 +309,11 @@ bool read_boundary_elements(std::ifstream& file_stream, int boundary_count, py::
                 }
             }
         }
+    }
+
+    // Save updated marker map back to file if provided
+    if (!markerpath.empty()) {
+        MarkerMap::saveMarkerMap(marker_map, markerpath);
     }
 
     return true;

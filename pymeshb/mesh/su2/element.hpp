@@ -23,7 +23,8 @@ std::map<int, ElementTypeInfo> get_element_type_map();
 
 std::map<std::string, int> get_reverse_element_type_map();
 
-void read_element_type(std::ifstream& file_stream, int elem_type, int count, py::dict& elements, const std::string& key_name);
+void read_element_type(std::ifstream& file_stream, int elem_type, int count, py::dict& elements,
+                       const std::string& key_name);
 
 void read_elements_2D(std::ifstream& file_stream, int elem_count, py::dict& elements);
 
@@ -38,7 +39,8 @@ void read_boundary_elements_2D(std::ifstream& file_stream, int marker_idx, int m
 void read_boundary_elements_3D(std::ifstream& file_stream, int marker_idx, int marker_elements,
                               py::dict& boundaries);
 
-bool read_boundary_elements(std::ifstream& file_stream, int boundary_count, py::dict& boundaries);
+bool read_boundary_elements(std::ifstream& file_stream, int boundary_count, py::dict& boundaries,
+                            const std::string& markerpath = "");
 
 void write_element_type(std::ofstream& mesh_file, int elem_type, py::array_t<unsigned int>& element_array);
 
@@ -48,11 +50,14 @@ void write_elements_3D(std::ofstream& mesh_file, const py::dict& elements, int& 
 
 int write_elements(std::ofstream& mesh_file, const py::dict& elements);
 
-void write_boundary_elements_2D(std::ofstream& mesh_file, const py::dict& boundaries, std::map<int, std::string>& marker_map);
+void write_boundary_elements_2D(std::ofstream& mesh_file, const py::dict& boundaries,
+                                std::map<int, std::string>& marker_map);
 
-void write_boundary_elements_3D(std::ofstream& mesh_file, const py::dict& boundaries, std::map<int, std::string>& marker_map);
+void write_boundary_elements_3D(std::ofstream& mesh_file, const py::dict& boundaries,
+                                std::map<int, std::string>& marker_map);
 
-int write_boundary_elements(std::ofstream& mesh_file, const py::dict& boundaries, const std::string& markerpath = "");
+int write_boundary_elements(std::ofstream& mesh_file, const py::dict& boundaries,
+                            const std::string& markerpath = "");
 
 } // namespace su2
 } // namespace pymeshb

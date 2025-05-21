@@ -5,6 +5,7 @@ import pymeshb.mesh.su2.libsu2 as libsu2
 
 def read_mesh(
     meshpath: str,
+    markerpath: str | None = None,
     solpath: str | None = None,
     read_sol: bool = False
 ) -> tuple[NDArray, dict, dict, dict]:
@@ -12,6 +13,8 @@ def read_mesh(
 
     Args:
         meshpath (str): Path to the mesh file.
+        markerpath (str, optional): Path to the map between marker strings and
+                                    ref IDs. Defaults to None.
         solpath (str, optional): Path to the solution file. Defaults to None.
         read_sol (bool, optional): Whether to read solution data. Defaults to False.
 
@@ -23,8 +26,9 @@ def read_mesh(
         - solution: Dictionary of solution data (if read_sol is True, otherwise empty)
     """
     try:
+        markerpath = markerpath if markerpath is not None else ''
         solpath = solpath if solpath is not None else ''
-        coords, elms, bnds, sol = libsu2.read_mesh(meshpath, solpath, read_sol)
+        coords, elms, bnds, sol = libsu2.read_mesh(meshpath, markerpath, solpath, read_sol)
 
         return coords, elms, bnds, sol
 

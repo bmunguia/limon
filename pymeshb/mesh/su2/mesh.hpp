@@ -17,12 +17,13 @@ namespace su2 {
  * Read mesh data from an SU2 file.
  *
  * @param meshpath Path to the mesh file
+ * @param markerpath Path to the map between marker strings and ref IDs (optional)
  * @param solpath Path to the solution file (optional)
  * @param read_sol Whether to read solution data (default: false)
  * @return Tuple containing coordinates, elements, and optionally solution data
  */
-py::tuple read_mesh(const std::string& meshpath, const std::string& solpath = "",
-                    bool read_sol = false);
+py::tuple read_mesh(const std::string& meshpath, const std::string& markerpath = "",
+                    const std::string& solpath = "", bool read_sol = false);
 
 /**
  * Write mesh data to an SU2 mesh file.

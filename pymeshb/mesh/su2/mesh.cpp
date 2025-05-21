@@ -11,8 +11,8 @@
 namespace pymeshb {
 namespace su2 {
 
-py::tuple read_mesh(const std::string& meshpath, const std::string& solpath,
-                    bool read_sol) {
+py::tuple read_mesh(const std::string& meshpath, const std::string& markerpath,
+                    const std::string& solpath, bool read_sol) {
     // Check if file exists
     std::ifstream mesh_file(meshpath);
     if (!mesh_file.is_open()) {
@@ -106,7 +106,7 @@ py::tuple read_mesh(const std::string& meshpath, const std::string& solpath,
     }
 
     py::dict boundaries;
-    read_boundary_elements(mesh_file, boundary_count, boundaries);
+    read_boundary_elements(mesh_file, boundary_count, boundaries, markerpath);
 
     // Read solution if requested
     py::dict sol;
