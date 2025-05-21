@@ -3,7 +3,6 @@
 
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
-#include <pybind11/stl.h>
 #include <string>
 #include <vector>
 
@@ -16,22 +15,34 @@ namespace su2 {
  * Read solution data from an SU2 solution file.
  *
  * @param solpath Path to the solution file
- * @param num_ver Number of vertices
+ * @param num_point Number of vertices
  * @param dim Mesh dimension
  * @return Dictionary of solution fields
  */
-py::dict read_solution(const std::string& solpath, int num_ver, int dim);
+py::dict read_solution(const std::string& solpath, int num_point, int dim);
+
+py::dict read_solution_ascii(const std::string& solpath, int num_point, int dim);
+
+py::dict read_solution_binary(const std::string& solpath, int num_point, int dim);
+
+py::dict process_solution_fields(const std::vector<std::string>& field_names,
+                                 const std::vector<std::vector<double>>& data,
+                                 int num_point, int dim);
 
 /**
  * Write solution data to an SU2 solution file.
  *
  * @param solpath Path to the solution file
  * @param sol Dictionary of solution fields
- * @param num_ver Number of vertices
+ * @param num_point Number of vertices
  * @param dim Mesh dimension
  * @return Boolean indicating success
  */
-bool write_solution(const std::string& solpath, py::dict sol, int num_ver, int dim);
+bool write_solution(const std::string& solpath, py::dict sol, int num_point, int dim);
+
+bool write_solution_ascii(const std::string& solpath, py::dict sol, int num_ver, int dim);
+
+bool write_solution_binary(const std::string& solpath, py::dict sol, int num_point, int dim);
 
 }  // namespace su2
 }  // namespace pymeshb

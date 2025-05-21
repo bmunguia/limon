@@ -54,28 +54,28 @@ py::tuple read_mesh(const std::string& meshpath, const std::string& markerpath,
         read_elements_3D(mesh_file, elem_count, elements);
     }
 
-    // Vertices
-    int num_ver = 0;
+    // Points
+    int num_point = 0;
     while (std::getline(mesh_file, line)) {
         if (line.empty() || line[0] == '%') {
             continue;
         }
         if (line.find("NPOIN=") != std::string::npos) {
             std::istringstream iss(line.substr(line.find("=") + 1));
-            iss >> num_ver;
+            iss >> num_point;
             break;
         }
     }
 
-    if (num_ver == 0) {
-        throw std::runtime_error("No vertices found in the mesh");
+    if (num_point == 0) {
+        throw std::runtime_error("No points found in the mesh");
     }
 
     // Vertex coordinates
-    py::array_t<double> coords(std::vector<py::ssize_t>{num_ver, dim});
+    py::array_t<double> coords(std::vector<py::ssize_t>{num_point, dim});
     auto coords_ptr = coords.mutable_data();
 
-    for (int i = 0; i < num_ver && std::getline(mesh_file, line); i++) {
+    for (int i = 0; i < num_point && std::getline(mesh_file, line); i++) {
         if (line.empty() || line[0] == '%') {
             // Skip empty lines or comments
             i--;
@@ -111,7 +111,7 @@ py::tuple read_mesh(const std::string& meshpath, const std::string& markerpath,
     // Read solution if requested
     py::dict sol;
     if (read_sol && !solpath.empty()) {
-        sol = read_solution(solpath, num_ver, dim);
+        sol = read_solution(solpath, num_point, dim);
     }
 
     // Return coords, elements and solution if available
@@ -124,7 +124,7 @@ bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
                 py::dict sol) {
     // Get dimensions
     int dim = coords.shape(1);
-    int num_ver = coords.shape(0);
+    int num_point = coords.shape(0);
 
     // Create output directory if needed
     if (!pymeshb::createDirectory(meshpath)) {
@@ -159,14 +159,14 @@ bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
 
     write_elements(mesh_file, elements);
 
-    // Write vertices
+    // Write points
     auto coords_ptr = coords.data();
     mesh_file << "%" << std::endl;
     mesh_file << "% Node coordinates" << std::endl;
     mesh_file << "%" << std::endl;
-    mesh_file << "NPOIN= " << num_ver << std::endl;
+    mesh_file << "NPOIN= " << num_point << std::endl;
 
-    for (int i = 0; i < num_ver; i++) {
+    for (int i = 0; i < num_point; i++) {
         for (int j = 0; j < dim; j++) {
             mesh_file << std::fixed << coords_ptr[i * dim + j] << "\t";
         }
@@ -209,7 +209,7 @@ bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
 
     // Write solution if provided
     if (!sol.empty() && !solpath.empty()) {
-        return write_solution(solpath, sol, num_ver, dim);
+        return write_solution(solpath, sol, num_point, dim);
     }
 
     return true;

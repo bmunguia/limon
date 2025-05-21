@@ -33,7 +33,7 @@ def mesh_data_3d():
 @pytest.fixture
 def mesh_data_2d():
     """Load the 2D mesh and create a sample solution."""
-    meshpath_in = 'example/square.meshb'
+    meshpath_in = 'example/square/square.meshb'
     coords, elements, boundaries, solution = pymeshb.read_mesh(meshpath_in)
 
     num_point = coords.shape[0]

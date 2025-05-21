@@ -24,7 +24,7 @@ def print_perturb_comparison(met, met_pert):
 @pytest.fixture
 def mesh_data():
     """Load the 2D mesh and create a sample solution."""
-    meshpath_in = 'example/square.mesh'
+    meshpath_in = 'example/square/square.mesh'
     coords, elements, boundaries, solution = pymeshb.mesh.read_mesh(meshpath_in)
 
     num_point = coords.shape[0]

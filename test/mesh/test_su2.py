@@ -7,9 +7,13 @@ import pymeshb
 @pytest.fixture
 def mesh_data():
     '''Load the 2D mesh and create a sample solution.'''
-    meshpath_in = 'example/square.su2'
+    meshpath_in = 'example/naca0012/NACA0012_inv.su2'
+    solpath_in = 'example/naca0012/restart_flow.dat'
     markerpath = Path('example/markers.dat')
-    coords, elements, boundaries, solution = pymeshb.read_mesh(meshpath_in, markerpath=str(markerpath))
+    coords, elements, boundaries, solution = pymeshb.read_mesh(meshpath_in,
+                                                               markerpath=str(markerpath),
+                                                               solpath=str(solpath_in),
+                                                               read_sol=True)
 
     return coords, elements, boundaries, markerpath, solution
 
@@ -38,8 +42,9 @@ def test_write_su2(mesh_data, output_dir):
     coords, elements, boundaries, markerpath, solution = mesh_data
 
     # Output paths
-    meshpath_out = output_dir / 'square_with_sol.su2'
-    solpath_out = '' # str(output_dir / 'square_with_sol.dat'
+    print(solution)
+    meshpath_out = output_dir / 'naca_with_sol.su2'
+    solpath_out = output_dir / 'naca_with_sol.csv'
 
     # Write the mesh with the solution
     pymeshb.write_mesh(str(meshpath_out), coords, elements, boundaries,
@@ -48,4 +53,4 @@ def test_write_su2(mesh_data, output_dir):
 
     # Assert that the files were created
     assert meshpath_out.exists()
-    # assert solpath_out.exists()
+    assert solpath_out.exists()
