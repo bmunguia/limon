@@ -51,10 +51,10 @@ void write_elements_3D(std::ofstream& mesh_file, const py::dict& elements, int& 
 int write_elements(std::ofstream& mesh_file, const py::dict& elements);
 
 void write_boundary_elements_2D(std::ofstream& mesh_file, const py::dict& boundaries,
-                                std::map<int, std::string>& marker_map);
+                                std::map<int, std::string>& ref_map);
 
 void write_boundary_elements_3D(std::ofstream& mesh_file, const py::dict& boundaries,
-                                std::map<int, std::string>& marker_map);
+                                std::map<int, std::string>& ref_map);
 
 int write_boundary_elements(std::ofstream& mesh_file, const py::dict& boundaries,
                             const std::string& markerpath = "");

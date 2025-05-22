@@ -3,7 +3,7 @@
 #include <stdexcept>
 
 #include "element.hpp"
-#include "marker_map.hpp"
+#include "ref_map.hpp"
 #include "../util.hpp"
 
 namespace pymeshb {
@@ -253,7 +253,7 @@ bool read_boundary_elements(std::ifstream& file_stream, int boundary_count, py::
     std::string line;
 
     // Process each boundary marker
-    std::map<int, std::string> marker_map;
+    std::map<int, std::string> ref_map;
     for (int marker_idx = 0; marker_idx < boundary_count; marker_idx++) {
         // Find marker tag
         std::string marker_tag;
@@ -270,7 +270,7 @@ bool read_boundary_elements(std::ifstream& file_stream, int boundary_count, py::
 
         // Store marker tag in map with index+1 as key
         if (!marker_tag.empty()) {
-            marker_map[marker_idx + 1] = marker_tag;
+            ref_map[marker_idx + 1] = marker_tag;
         }
 
         // Find marker elements count
@@ -313,7 +313,7 @@ bool read_boundary_elements(std::ifstream& file_stream, int boundary_count, py::
 
     // Save updated marker map back to file if provided
     if (!markerpath.empty()) {
-        MarkerMap::saveMarkerMap(marker_map, markerpath);
+        RefMap::saveRefMap(ref_map, markerpath);
     }
 
     return true;
@@ -396,7 +396,7 @@ int write_elements(std::ofstream& mesh_file, const py::dict& elements) {
 }
 
 void write_boundary_elements_2D(std::ofstream& mesh_file, const py::dict& boundaries,
-                                std::map<int, std::string>& marker_map) {
+                                std::map<int, std::string>& ref_map) {
     if (!boundaries.contains("Edges")) {
         return;
     }
@@ -420,8 +420,8 @@ void write_boundary_elements_2D(std::ofstream& mesh_file, const py::dict& bounda
     // Write marker sections
     for (auto& [marker_id, elements] : marker_elements) {
         // Load marker name or fallback to MARKER_<marker_id>
-        std::string marker_name = MarkerMap::getMarkerName(marker_map, marker_id);
-        marker_map[marker_id] = marker_name;
+        std::string marker_name = RefMap::getMarkerName(ref_map, marker_id);
+        ref_map[marker_id] = marker_name;
 
         mesh_file << "MARKER_TAG= " << marker_name << std::endl;
         mesh_file << "MARKER_ELEMS= " << elements.size() << std::endl;
@@ -437,7 +437,7 @@ void write_boundary_elements_2D(std::ofstream& mesh_file, const py::dict& bounda
 }
 
 void write_boundary_elements_3D(std::ofstream& mesh_file, const py::dict& boundaries,
-                                std::map<int, std::string>& marker_map) {
+                                std::map<int, std::string>& ref_map) {
     std::map<unsigned int, std::vector<std::vector<unsigned int>>> triangles_by_marker;
     std::map<unsigned int, std::vector<std::vector<unsigned int>>> quads_by_marker;
 
@@ -483,8 +483,8 @@ void write_boundary_elements_3D(std::ofstream& mesh_file, const py::dict& bounda
     // Write marker sections
     for (unsigned int marker_id : all_markers) {
         // Load marker name or fallback to MARKER_<marker_id>
-        std::string marker_name = MarkerMap::getMarkerName(marker_map, marker_id);
-        marker_map[marker_id] = marker_name;
+        std::string marker_name = RefMap::getMarkerName(ref_map, marker_id);
+        ref_map[marker_id] = marker_name;
 
         // Count total elements for this marker
         size_t total_elements =
@@ -525,21 +525,21 @@ int write_boundary_elements(std::ofstream& mesh_file, const py::dict& boundaries
     }
 
     // Load marker map from file if provided
-    std::map<int, std::string> marker_map;
+    std::map<int, std::string> ref_map;
     if (!markerpath.empty()) {
-        marker_map = MarkerMap::loadMarkerMap(markerpath);
+        ref_map = RefMap::loadRefMap(markerpath);
     }
 
     // Write both 2D and 3D boundaries
-    write_boundary_elements_2D(mesh_file, boundaries, marker_map);
-    write_boundary_elements_3D(mesh_file, boundaries, marker_map);
+    write_boundary_elements_2D(mesh_file, boundaries, ref_map);
+    write_boundary_elements_3D(mesh_file, boundaries, ref_map);
 
     // Save updated marker map back to file if provided
     if (!markerpath.empty()) {
-        MarkerMap::saveMarkerMap(marker_map, markerpath);
+        RefMap::saveRefMap(ref_map, markerpath);
     }
 
-    return marker_map.size();
+    return ref_map.size();
 }
 
 } // namespace su2

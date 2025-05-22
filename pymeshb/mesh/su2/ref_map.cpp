@@ -2,13 +2,13 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 
-#include "marker_map.hpp"
+#include "ref_map.hpp"
 
 namespace pymeshb {
 namespace su2 {
 
-std::map<int, std::string> MarkerMap::loadMarkerMap(const std::string& filename) {
-    std::map<int, std::string> marker_map;
+std::map<int, std::string> RefMap::loadRefMap(const std::string& filename) {
+    std::map<int, std::string> ref_map;
 
     try {
         if (std::filesystem::exists(filename)) {
@@ -26,34 +26,34 @@ std::map<int, std::string> MarkerMap::loadMarkerMap(const std::string& filename)
                     if (pos != std::string::npos) {
                         int marker_id = std::stoi(line.substr(0, pos));
                         std::string marker_name = line.substr(pos + 1);
-                        marker_map[marker_id] = marker_name;
+                        ref_map[marker_id] = marker_name;
                     }
                 }
             }
         }
     } catch (const std::exception& e) {
         // If loading fails, return an empty map
-        marker_map.clear();
+        ref_map.clear();
     }
 
-    return marker_map;
+    return ref_map;
 }
 
-void MarkerMap::saveMarkerMap(const std::map<int, std::string>& marker_map, const std::string& filename) {
+void RefMap::saveRefMap(const std::map<int, std::string>& ref_map, const std::string& filename) {
     std::ofstream file(filename);
     if (file.is_open()) {
         file << "# SU2 Marker Map\n";
         file << "# Format: marker_id:marker_name\n";
 
-        for (const auto& [key, value] : marker_map) {
+        for (const auto& [key, value] : ref_map) {
             file << key << ":" << value << std::endl;
         }
     }
 }
 
-std::string MarkerMap::getMarkerName(const std::map<int, std::string>& marker_map, int marker_id) {
-    auto it = marker_map.find(marker_id);
-    if (it != marker_map.end()) {
+std::string RefMap::getMarkerName(const std::map<int, std::string>& ref_map, int marker_id) {
+    auto it = ref_map.find(marker_id);
+    if (it != ref_map.end()) {
         return it->second;
     }
     return "MARKER_" + std::to_string(marker_id);
