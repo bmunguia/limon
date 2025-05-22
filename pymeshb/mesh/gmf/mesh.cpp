@@ -15,7 +15,7 @@ namespace pymeshb {
 namespace gmf {
 
 py::tuple read_mesh(const std::string& meshpath, const std::string& solpath,
-                    bool read_sol) {
+                    const std::string& labelpath, bool read_sol) {
     int version;
     int dim;
 
@@ -68,7 +68,7 @@ py::tuple read_mesh(const std::string& meshpath, const std::string& solpath,
 
     py::dict sol_dict;
     if (read_sol && !solpath.empty()) {
-        sol_dict = read_solution(solpath, num_ver, dim);
+        sol_dict = read_solution(solpath, labelpath, num_ver, dim);
     }
 
     return py::make_tuple(coords, elements, boundaries, sol_dict);
@@ -76,7 +76,8 @@ py::tuple read_mesh(const std::string& meshpath, const std::string& solpath,
 
 bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
                 const py::dict& elements, const py::dict& boundaries,
-                const std::string& solpath, py::dict sol) {
+                const std::string& solpath, const std::string& labelpath,
+                py::dict sol) {
     // Get dimensions
     int version = 4;
     int dim = coords.shape(1);
@@ -125,7 +126,7 @@ bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
 
     // Write solution if provided
     if (!sol.empty() && !solpath.empty()) {
-        return write_solution(solpath, sol, num_ver, dim, version);
+        return write_solution(solpath, labelpath, sol, num_ver, dim, version);
     }
     return true;
 }

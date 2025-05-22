@@ -27,6 +27,7 @@ pybind11_add_module(libgmf MODULE
     ${PROJECT_SOURCE_DIR}/pymeshb/mesh/gmf/element.cpp
     ${PROJECT_SOURCE_DIR}/pymeshb/mesh/gmf/mesh.cpp
     ${PROJECT_SOURCE_DIR}/pymeshb/mesh/gmf/solution.cpp
+    ${PROJECT_SOURCE_DIR}/pymeshb/mesh/ref_map.cpp
     ${PYMESHB_UTIL_SOURCES})
 target_link_libraries(libgmf PRIVATE Meshb.7)
 target_include_directories(libgmf PRIVATE

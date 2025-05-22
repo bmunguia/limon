@@ -26,11 +26,13 @@ PYBIND11_MODULE(libgmf, m) {
      *
      * @param meshpath Path to the mesh file
      * @param solpath Path to the solution file (optional)
+     * @param labelpath Path to the map between solution strings and ref IDs (optional)
      * @param read_sol Whether to read solution data (default: false)
      * @return Tuple containing coordinates, elements, and optionally solution data
      */
     m.def("read_mesh", &pymeshb::gmf::read_mesh,
-          py::arg("meshpath"), py::arg("solpath") = "", py::arg("read_sol") = false,
+          py::arg("meshpath"), py::arg("solpath") = "", py::arg("labelpath") = "",
+          py::arg("read_sol") = false,
           "Read a meshb file and return nodes, elements, and optionally solution data.");
 
     /**
@@ -41,37 +43,41 @@ PYBIND11_MODULE(libgmf, m) {
      * @param elements Dictionary of mesh elements
      * @param boundaries Dictionary of mesh boundary elements
      * @param solpath Path to the solution file (optional)
+     * @param labelpath Path to the map between solution strings and ref IDs (optional)
      * @param sol Dictionary of solution data (optional)
      * @return Boolean indicating success
      */
     m.def("write_mesh", &pymeshb::gmf::write_mesh,
           py::arg("meshpath"), py::arg("coords"), py::arg("elements"),
-          py::arg("boundaries"), py::arg("solpath") = "", py::arg("sol") = py::dict(),
+          py::arg("boundaries"), py::arg("solpath") = "", py::arg("labelpath") = "",
+          py::arg("sol") = py::dict(),
           "Write nodes, elements, and optionally solution data to a meshb file.");
 
     /**
      * Read solution data from a GMF solution (.solb) file.
      *
      * @param solpath Path to the solution file
+     * @param labelpath Path to the map between solution strings and ref IDs
      * @param num_ver Number of vertices
      * @param dim Mesh dimension
      * @return Dictionary of solution fields
      */
     m.def("read_solution", &pymeshb::gmf::read_solution,
-          py::arg("solpath"), py::arg("num_ver"), py::arg("dim"),
+          py::arg("solpath"), py::arg("labelpath") = "", py::arg("num_ver"), py::arg("dim"),
           "Read a meshb solution file.");
 
     /**
      * Write solution data to a GMF solution (.solb) file.
      *
      * @param solpath Path to the solution file
+     * @param labelpath Path to the map between solution strings and ref IDs
      * @param sol Dictionary of solution fields
      * @param num_ver Number of vertices
      * @param dim Mesh dimension
      * @return Boolean indicating success
      */
     m.def("write_solution", &pymeshb::gmf::write_solution,
-          py::arg("solpath"), py::arg("sol_data"), py::arg("num_ver"),
+          py::arg("solpath"), py::arg("labelpath") = "", py::arg("sol_data"), py::arg("num_ver"),
           py::arg("dim"), py::arg("version"),
           "Write solution data to a meshb solution file.");
 }

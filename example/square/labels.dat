@@ -1,0 +1,7 @@
+# SU2 Reference ID Map
+# Format: ref_id:ref_name
+1:Temperature
+2:Velocity
+3:Metric
+4:Pressure
+5:GradientT

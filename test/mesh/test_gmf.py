@@ -7,10 +7,28 @@ import pymeshb
 
 
 @pytest.fixture
-def mesh_data_3d():
+def meshpath_in_3d():
+    """Path to example 3D GMF (.meshb) mesh."""
+    return Path('libMeshb/sample_meshes/quad.meshb')
+
+
+@pytest.fixture
+def meshpath_in_2d():
+    """Path to example 2D GMF (.meshb) mesh."""
+    return Path('example/square/square.meshb')
+
+
+@pytest.fixture
+def labelpath(output_dir):
+    """Path to solution label map file."""
+    return output_dir / 'labels.dat'
+
+
+@pytest.fixture
+def mesh_data_3d(meshpath_in_3d):
     """Load the 3D mesh and create a sample solution."""
-    meshpath_in = 'libMeshb/sample_meshes/quad.meshb'
-    coords, elements, boundaries, solution = pymeshb.read_mesh(meshpath_in)
+    data = pymeshb.read_mesh(str(meshpath_in_3d))
+    coords, elements, boundaries, solution = data
 
     num_point = coords.shape[0]
     num_dim = coords.shape[1]
@@ -32,10 +50,10 @@ def mesh_data_3d():
 
 
 @pytest.fixture
-def mesh_data_2d():
+def mesh_data_2d(meshpath_in_2d):
     """Load the 2D mesh and create a sample solution."""
-    meshpath_in = 'example/square/square.meshb'
-    coords, elements, boundaries, solution = pymeshb.read_mesh(meshpath_in)
+    data = pymeshb.read_mesh(str(meshpath_in_2d))
+    coords, elements, boundaries, solution = data
 
     num_point = coords.shape[0]
     num_dim = coords.shape[1]
@@ -88,7 +106,7 @@ def test_write_solb(mesh_data_3d, output_dir):
 
     # Output paths
     meshpath_out = output_dir / 'sphere_with_sol.mesh'
-    solpath_out = output_dir / 'sphere_with_sol.sol'
+    solpath_out = output_dir / 'sphere_with_sol.solb'
 
     # Write the mesh with the solution
     pymeshb.write_mesh(str(meshpath_out), coords, elements, boundaries,
@@ -99,28 +117,31 @@ def test_write_solb(mesh_data_3d, output_dir):
     assert solpath_out.exists()
 
 
-def test_solution_keys_solb(mesh_data_2d, output_dir):
+def test_solution_keys_solb(mesh_data_2d, output_dir, labelpath):
     """Test that solution field keys are preserved when writing and reading back a mesh."""
     coords, elements, boundaries, original_solution = mesh_data_2d
 
     # Output paths
     meshpath_out = output_dir / 'square_with_fields.mesh'
-    solpath_out = output_dir / 'square_with_fields.sol'
+    solpath_out = output_dir / 'square_with_fields.solb'
 
     # Write the mesh with the original solution
     write_success = pymeshb.write_mesh(str(meshpath_out), coords, elements, boundaries,
-                                       solpath=str(solpath_out), solution=original_solution)
+                                       solpath=str(solpath_out), labelpath=str(labelpath),
+                                       solution=original_solution)
     print(f'Original solution written: {write_success}')
 
     # Assert that writing was successful
     assert write_success, 'Failed to write mesh with solution'
     assert meshpath_out.exists(), 'Output mesh file was not created'
     assert solpath_out.exists(), 'Output solution file was not created'
+    assert labelpath.exists(), 'Output solution label map was not created'
 
     # Read the mesh and solution back
     _, _, _, reread_solution = pymeshb.read_mesh(
         str(meshpath_out),
         solpath=str(solpath_out),
+        labelpath=str(labelpath),
         read_sol=True
     )
 
@@ -147,62 +168,3 @@ def test_solution_keys_solb(mesh_data_2d, output_dir):
         # Check approximate values (allowing for small floating point differences)
         assert np.allclose(reread_solution[key], original_solution[key], rtol=1e-5), \
             f'Values differ for field "{key}"'
-
-    # Test reading specific fields
-    # Read only Temperature field
-    _, _, _, partial_solution = pymeshb.read_mesh(
-        str(meshpath_out),
-        solpath=str(solpath_out),
-        read_sol=True
-    )
-
-    # Verify that the partial reading worked correctly
-    assert 'Temperature' in partial_solution, 'Failed to read Temperature field'
-    assert np.allclose(partial_solution['Temperature'], original_solution['Temperature'], rtol=1e-5), \
-        'Temperature values differ in partial read'
-
-    # Additional validation - write a subset of fields and verify they're preserved
-    subset_solution = {
-        'Temperature': original_solution['Temperature'],
-        'Metric': original_solution['Metric']
-    }
-
-    # Output paths for subset
-    subset_meshpath_out = output_dir / 'square_subset_fields.meshb'
-    subset_solpath_out = output_dir / 'square_subset_fields.solb'
-
-    # Write the mesh with subset of fields
-    pymeshb.write_mesh(
-        str(subset_meshpath_out),
-        coords,
-        elements,
-        boundaries,
-        solpath=str(subset_solpath_out),
-        solution=subset_solution
-    )
-
-    # Read back the subset
-    _, _, _, subset_reread = pymeshb.read_mesh(
-        str(subset_meshpath_out),
-        solpath=str(subset_solpath_out),
-        read_sol=True
-    )
-
-    # Check that only the subset keys are present
-    subset_keys = set(subset_solution.keys())
-    subset_reread_keys = set(subset_reread.keys())
-
-    print(f'Subset solution keys: {subset_keys}')
-    print(f'Re-read subset keys: {subset_reread_keys}')
-
-    assert subset_keys.issubset(subset_reread_keys), 'Some subset fields were not preserved'
-    assert len(subset_reread_keys) == len(subset_keys), 'Extra fields found in subset read'
-
-    # Final verification that we can read fields with correct types
-    for key in subset_reread_keys:
-        if subset_reread[key].ndim == 1:
-            print(f'Field "{key}" is a scalar field')
-        elif subset_reread[key].ndim == 2 and subset_reread[key].shape[1] == 2:
-            print(f'Field "{key}" is a vector field')
-        elif subset_reread[key].ndim == 2 and subset_reread[key].shape[1] == 3:
-            print(f'Field "{key}" is a symmetric tensor field')

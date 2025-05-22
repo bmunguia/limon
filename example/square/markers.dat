@@ -1,0 +1,6 @@
+# SU2 Reference ID Map
+# Format: ref_id:ref_name
+1:lower
+2:right
+3:upper
+4:left

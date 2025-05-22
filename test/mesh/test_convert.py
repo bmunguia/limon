@@ -29,9 +29,27 @@ def gmf_solpath_in():
 
 
 @pytest.fixture
+def markerpath_in():
+    """Path to input marker map file."""
+    return Path('example/square/markers.dat')
+
+
+@pytest.fixture
+def labelpath_in():
+    """Path to input solution label map file."""
+    return Path('example/square/labels.dat')
+
+
+@pytest.fixture
 def markerpath(output_dir):
     """Path to marker map file."""
     return output_dir / 'markers.dat'
+
+
+@pytest.fixture
+def labelpath(output_dir):
+    """Path to solution label map file."""
+    return output_dir / 'labels.dat'
 
 
 @pytest.fixture
@@ -43,32 +61,33 @@ def output_dir(request):
 
 
 @pytest.fixture
-def su2_mesh_data(su2_meshpath_in, su2_solpath_in, markerpath):
+def su2_mesh_data(su2_meshpath_in, su2_solpath_in, markerpath, labelpath):
     """Load the 2D SU2 mesh and solution."""
     data = pymeshb.read_mesh(str(su2_meshpath_in), markerpath=str(markerpath),
-                             solpath=str(su2_solpath_in), read_sol=True)
+                             solpath=str(su2_solpath_in), labelpath=str(labelpath),
+                             read_sol=True)
     return data
 
 
 @pytest.fixture
-def gmf_mesh_data(gmf_meshpath_in, gmf_solpath_in, markerpath):
+def gmf_mesh_data(gmf_meshpath_in, gmf_solpath_in, markerpath_in, labelpath_in):
     """Load the 2D GMF mesh and binary solution."""
-    data = pymeshb.read_mesh(str(gmf_meshpath_in), markerpath=str(markerpath),
-                             solpath=str(gmf_solpath_in), read_sol=True)
+    data = pymeshb.read_mesh(str(gmf_meshpath_in), markerpath=str(markerpath_in),
+                             solpath=str(gmf_solpath_in), labelpath=str(labelpath_in),
+                             read_sol=True)
     return data
 
 
-def test_su2_to_gmf(su2_mesh_data, output_dir, markerpath):
+def test_su2_to_gmf(su2_mesh_data, output_dir):
     """Test reading a SU2 mesh file and solution, and writing it to GMF files."""
     coords, elements, boundaries, solution = su2_mesh_data
 
     # Output paths
-    meshpath_out = output_dir / 'naca_with_sol.mesh'
-    solpath_out = output_dir / 'naca_with_sol.sol'
+    meshpath_out = output_dir / 'naca_with_sol.meshb'
+    solpath_out = output_dir / 'naca_with_sol.solb'
 
     # Write the mesh with the solution
     pymeshb.write_mesh(str(meshpath_out), coords, elements, boundaries,
-                       #markerpath=str(markerpath),
                        solpath=str(solpath_out),
                        solution=solution)
 
@@ -80,7 +99,7 @@ def test_su2_to_gmf(su2_mesh_data, output_dir, markerpath):
     # assert solpath_out.read_bytes() == solpath_in_binary.read_bytes()
 
 
-def test_gmf_to_su2(gmf_mesh_data, output_dir, markerpath):
+def test_gmf_to_su2(gmf_mesh_data, output_dir, markerpath_in):
     """Test reading a GMF mesh file and solution, and writing it to SU2 files."""
     coords, elements, boundaries, solution = gmf_mesh_data
 
@@ -90,7 +109,7 @@ def test_gmf_to_su2(gmf_mesh_data, output_dir, markerpath):
 
     # Write the mesh with the solution
     pymeshb.write_mesh(str(meshpath_out), coords, elements, boundaries,
-                       markerpath=str(markerpath), solpath=str(solpath_out),
+                       markerpath=str(markerpath_in), solpath=str(solpath_out),
                        solution=solution)
 
     # Assert that the files were created

@@ -275,8 +275,7 @@ py::dict read_solution(const std::string& solpath, const std::string& labelpath,
         std::map<int, std::string> ref_map;
         int ref_id = 1;
         for (auto& [sol_id, _] : sol) {
-            ref_map[ref_id] = sol_id.cast<std::string>();
-            ref_id++;
+            ref_map[ref_id++] = sol_id.cast<std::string>();
         }
         RefMap::saveRefMap(ref_map, labelpath);
     }

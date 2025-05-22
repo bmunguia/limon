@@ -7,16 +7,24 @@ extern "C" {
 #include <libmeshb7.h>
 }
 
-#include "../util.hpp"
 #include "solution.hpp"
+#include "../ref_map.hpp"
+#include "../util.hpp"
 
 namespace pymeshb {
 namespace gmf {
 
-py::dict read_solution(const std::string& solpath, int64_t num_ver, int dim) {
+py::dict read_solution(const std::string& solpath, const std::string& labelpath,
+                       int64_t num_ver, int dim) {
     py::dict sol;
     int version;
     int dim_sol;
+
+    // Load solution label map from file if provided
+    std::map<int, std::string> ref_map;
+    if (!labelpath.empty()) {
+        ref_map = RefMap::loadRefMap(labelpath);
+    }
 
     // Open the solution
     int64_t sol_id = GmfOpenMesh(solpath.c_str(), GmfRead, &version, &dim_sol);
@@ -32,33 +40,13 @@ py::dict read_solution(const std::string& solpath, int64_t num_ver, int dim) {
     int64_t num_lin = GmfStatKwd(sol_id, GmfSolAtVertices, &num_types, &sol_size_total, types);
 
     if (num_lin > 0) {
-        // Solution field name file position
-        int num_sol_name = GmfStatKwd(sol_id, GmfReferenceStrings);
-        std::vector<std::string> sol_name_vec;
-        std::vector<int> sol_ind_vec;
-        if (num_sol_name > 0 && GmfGotoKwd(sol_id, GmfReferenceStrings)) {
-            int kwd_ref, ind_ref;
-            char bufChar[GmfMaxTyp];
-            for (auto i = 0; i < num_sol_name; i++) {
-                GmfGetLin(sol_id, GmfReferenceStrings, &kwd_ref, &ind_ref, bufChar);
-                std::string field_name_str = std::string(bufChar, strnlen(bufChar, sizeof(bufChar)));
-                field_name_str = pymeshb::trim(field_name_str);
-                sol_name_vec.push_back(field_name_str);
-                sol_ind_vec.push_back(ind_ref - 1);
-            }
-        }
-
         // Solution file position
         if (GmfGotoKwd(sol_id, GmfSolAtVertices)) {
             std::vector<double> bufDbl(sol_size_total);
             int field_start_offset = 0;
             for (auto i = 0; i < num_types; i++) {
-                std::string current_field_name = "sol_" + std::to_string(i);
-                auto it = std::find(sol_ind_vec.begin(), sol_ind_vec.end(), i);
-                if (it != sol_ind_vec.end()) {
-                    int index_in_names = std::distance(sol_ind_vec.begin(), it);
-                    current_field_name = sol_name_vec[index_in_names];
-                }
+                // Load label name or fallback to REF_<marker_id>
+                std::string field_name = RefMap::getRefName(ref_map, i + 1);
 
                 if (types[i] == GmfSca) {
                     py::array_t<double> scalar_field(num_ver);
@@ -68,7 +56,7 @@ py::dict read_solution(const std::string& solpath, int64_t num_ver, int dim) {
                         GmfGetLin(sol_id, GmfSolAtVertices, bufDbl.data());
                         scalar_ptr[j] = bufDbl[field_start_offset];
                     }
-                    sol[current_field_name.c_str()] = scalar_field;
+                    sol[field_name.c_str()] = scalar_field;
                     field_start_offset += 1;
                 } else if (types[i] == GmfVec) {
                     py::array_t<double> vector_field(std::vector<py::ssize_t>{num_ver, (long)dim});
@@ -80,7 +68,7 @@ py::dict read_solution(const std::string& solpath, int64_t num_ver, int dim) {
                             vector_ptr[j * dim + k] = bufDbl[field_start_offset + k];
                         }
                     }
-                    sol[current_field_name.c_str()] = vector_field;
+                    sol[field_name.c_str()] = vector_field;
                     field_start_offset += dim;
                 } else if (types[i] == GmfSymMat) {
                     py::array_t<double> matrix_field(std::vector<py::ssize_t>{num_ver, (long)sym_size});
@@ -92,7 +80,7 @@ py::dict read_solution(const std::string& solpath, int64_t num_ver, int dim) {
                             matrix_ptr[j * sym_size + k] = bufDbl[field_start_offset + k];
                         }
                     }
-                    sol[current_field_name.c_str()] = matrix_field;
+                    sol[field_name.c_str()] = matrix_field;
                     field_start_offset += sym_size;
                 }
             }
@@ -105,8 +93,8 @@ py::dict read_solution(const std::string& solpath, int64_t num_ver, int dim) {
     return sol;
 }
 
-bool write_solution(const std::string& solpath, py::dict sol_data, int64_t num_ver,
-                    int dim, int version) {
+bool write_solution(const std::string& solpath, const std::string& labelpath, py::dict sol_data,
+                    int64_t num_ver, int dim, int version) {
     if (sol_data.empty()) {
         return true;
     }
@@ -118,11 +106,12 @@ bool write_solution(const std::string& solpath, py::dict sol_data, int64_t num_v
     }
 
     std::vector<int> sol_types;
-    std::vector<std::string> sol_field_names;
     std::vector<py::array_t<double>> sol_field_arrays;
+    std::map<int, std::string> ref_map;
 
     int sym_size = (dim * (dim + 1)) / 2;
 
+    int ref_id = 1;
     for (auto item : sol_data) {
         auto key = item.first.cast<std::string>();
         auto field_array = item.second.cast<py::array_t<double>>();
@@ -141,18 +130,12 @@ bool write_solution(const std::string& solpath, py::dict sol_data, int64_t num_v
             GmfCloseMesh(sol_id);
             throw std::runtime_error("Unsupported solution field shape for: " + key);
         }
-        sol_field_names.push_back(key);
+        ref_map[ref_id++] = key;
         sol_field_arrays.push_back(field_array);
     }
 
     // Write solution if any valid fields were found
     if (!sol_types.empty()) {
-        // Set solution field names
-        GmfSetKwd(sol_id, GmfReferenceStrings, sol_field_names.size());
-        for (size_t i = 0; i < sol_field_names.size(); i++) {
-            GmfSetLin(sol_id, GmfReferenceStrings, GmfSolAtVertices, i + 1, sol_field_names[i].c_str());
-        }
-
         // Set solution keyword with field types
         GmfSetKwd(sol_id, GmfSolAtVertices, num_ver, sol_types.size(), sol_types.data());
 
@@ -184,6 +167,11 @@ bool write_solution(const std::string& solpath, py::dict sol_data, int64_t num_v
 
     // Close the solution
     GmfCloseMesh(sol_id);
+
+    // Save updated solution label map back to file if provided
+    if (!labelpath.empty()) {
+        RefMap::saveRefMap(ref_map, labelpath);
+    }
 
     return true;
 }

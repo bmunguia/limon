@@ -32,7 +32,7 @@
       */
      m.def("read_mesh", &pymeshb::su2::read_mesh,
           py::arg("meshpath"), py::arg("markerpath") = "", py::arg("solpath") = "",
-          py::arg("labelpath") = "",py::arg("read_sol") = false,
+          py::arg("labelpath") = "", py::arg("read_sol") = false,
           "Read a SU2 mesh file and return nodes, elements, and optionally solution data.");
 
      /**
@@ -77,6 +77,7 @@
    * @return Boolean indicating success
    */
   m.def("write_solution", &pymeshb::su2::write_solution,
-        py::arg("solpath"), py::arg("labelpath") = "", py::arg("sol"), py::arg("num_ver"), py::arg("dim"),
+        py::arg("solpath"), py::arg("labelpath") = "", py::arg("sol"), py::arg("num_ver"),
+        py::arg("dim"),
         "Write solution fields to a SU2 solution file");
  }
