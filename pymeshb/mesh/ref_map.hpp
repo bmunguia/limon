@@ -6,7 +6,6 @@
 #include <stdexcept>
 
 namespace pymeshb {
-namespace su2 {
 
 class RefMap {
 public:
@@ -17,5 +16,4 @@ public:
     static std::string getRefName(const std::map<int, std::string>& ref_map, int marker_id);
 };
 
-} // namespace su2
 } // namespace pymeshb

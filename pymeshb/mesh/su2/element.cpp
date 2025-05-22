@@ -3,7 +3,7 @@
 #include <stdexcept>
 
 #include "element.hpp"
-#include "ref_map.hpp"
+#include "../ref_map.hpp"
 #include "../util.hpp"
 
 namespace pymeshb {

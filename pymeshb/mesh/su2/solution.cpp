@@ -6,8 +6,8 @@
 #include <string>
 #include <vector>
 
-#include "ref_map.hpp"
 #include "solution.hpp"
+#include "../ref_map.hpp"
 #include "../util.hpp"
 
 namespace pymeshb {

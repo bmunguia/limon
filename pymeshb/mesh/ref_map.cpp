@@ -1,11 +1,9 @@
 #include <filesystem>
 #include <fstream>
-#include <nlohmann/json.hpp>
 
 #include "ref_map.hpp"
 
 namespace pymeshb {
-namespace su2 {
 
 std::map<int, std::string> RefMap::loadRefMap(const std::string& filename) {
     std::map<int, std::string> ref_map;
@@ -59,5 +57,4 @@ std::string RefMap::getRefName(const std::map<int, std::string>& ref_map, int re
     return "REF_" + std::to_string(ref_id);
 }
 
-} // namespace su2
 } // namespace pymeshb
