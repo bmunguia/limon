@@ -48,7 +48,8 @@ void read_element_type(int64_t mesh_id, int kwd, int num_node, py::dict& element
                 }
 
                 for (auto j = 0; j < num_node; j++) {
-                    elm_ptr[i * (num_node + 1) + j] = bufInt[j];
+                    // GMF uses 1-indexing, so subtract 1 from all indices
+                    elm_ptr[i * (num_node + 1) + j] = bufInt[j] - 1;
                 }
                 elm_ptr[i * (num_node + 1) + num_node] = ref;
             }
@@ -87,55 +88,56 @@ void write_element_type(int64_t mesh_id, int kwd, py::array_t<unsigned int>& elm
     for (auto i = 0; i < num_elm; i++) {
         int base_idx = i * (num_node + 1);
         switch (kwd) {
+            // GMF uses 1-indexing, so add 1 to all indices
             case GmfEdges:
                 GmfSetLin(mesh_id, kwd,
-                          static_cast<int>(elm_ptr[base_idx]),
-                          static_cast<int>(elm_ptr[base_idx + 1]),
+                          static_cast<int>(elm_ptr[base_idx + 0] + 1),
+                          static_cast<int>(elm_ptr[base_idx + 1] + 1),
                           static_cast<int>(elm_ptr[base_idx + 2]));
                 break;
             case GmfTriangles:
                 GmfSetLin(mesh_id, kwd,
-                          static_cast<int>(elm_ptr[base_idx]),
-                          static_cast<int>(elm_ptr[base_idx + 1]),
-                          static_cast<int>(elm_ptr[base_idx + 2]),
+                          static_cast<int>(elm_ptr[base_idx + 0] + 1),
+                          static_cast<int>(elm_ptr[base_idx + 1] + 1),
+                          static_cast<int>(elm_ptr[base_idx + 2] + 1),
                           static_cast<int>(elm_ptr[base_idx + 3]));
                 break;
             case GmfQuadrilaterals:
                 GmfSetLin(mesh_id, kwd,
-                          static_cast<int>(elm_ptr[base_idx]),
-                          static_cast<int>(elm_ptr[base_idx + 1]),
-                          static_cast<int>(elm_ptr[base_idx + 2]),
-                          static_cast<int>(elm_ptr[base_idx + 3]),
+                          static_cast<int>(elm_ptr[base_idx + 0] + 1),
+                          static_cast<int>(elm_ptr[base_idx + 1] + 1),
+                          static_cast<int>(elm_ptr[base_idx + 2] + 1),
+                          static_cast<int>(elm_ptr[base_idx + 3] + 1),
                           static_cast<int>(elm_ptr[base_idx + 4]));
                 break;
             case GmfTetrahedra:
                 GmfSetLin(mesh_id, kwd,
-                          static_cast<int>(elm_ptr[base_idx]),
-                          static_cast<int>(elm_ptr[base_idx + 1]),
-                          static_cast<int>(elm_ptr[base_idx + 2]),
-                          static_cast<int>(elm_ptr[base_idx + 3]),
+                          static_cast<int>(elm_ptr[base_idx + 0] + 1),
+                          static_cast<int>(elm_ptr[base_idx + 1] + 1),
+                          static_cast<int>(elm_ptr[base_idx + 2] + 1),
+                          static_cast<int>(elm_ptr[base_idx + 3] + 1),
                           static_cast<int>(elm_ptr[base_idx + 4]));
                 break;
             case GmfPrisms:
                 GmfSetLin(mesh_id, kwd,
-                          static_cast<int>(elm_ptr[base_idx]),
-                          static_cast<int>(elm_ptr[base_idx + 1]),
-                          static_cast<int>(elm_ptr[base_idx + 2]),
-                          static_cast<int>(elm_ptr[base_idx + 3]),
-                          static_cast<int>(elm_ptr[base_idx + 4]),
-                          static_cast<int>(elm_ptr[base_idx + 5]),
+                          static_cast<int>(elm_ptr[base_idx + 0] + 1),
+                          static_cast<int>(elm_ptr[base_idx + 1] + 1),
+                          static_cast<int>(elm_ptr[base_idx + 2] + 1),
+                          static_cast<int>(elm_ptr[base_idx + 3] + 1),
+                          static_cast<int>(elm_ptr[base_idx + 4] + 1),
+                          static_cast<int>(elm_ptr[base_idx + 5] + 1),
                           static_cast<int>(elm_ptr[base_idx + 6]));
                 break;
             case GmfHexahedra:
                 GmfSetLin(mesh_id, kwd,
-                          static_cast<int>(elm_ptr[base_idx]),
-                          static_cast<int>(elm_ptr[base_idx + 1]),
-                          static_cast<int>(elm_ptr[base_idx + 2]),
-                          static_cast<int>(elm_ptr[base_idx + 3]),
-                          static_cast<int>(elm_ptr[base_idx + 4]),
-                          static_cast<int>(elm_ptr[base_idx + 5]),
-                          static_cast<int>(elm_ptr[base_idx + 6]),
-                          static_cast<int>(elm_ptr[base_idx + 7]),
+                          static_cast<int>(elm_ptr[base_idx + 0] + 1),
+                          static_cast<int>(elm_ptr[base_idx + 1] + 1),
+                          static_cast<int>(elm_ptr[base_idx + 2] + 1),
+                          static_cast<int>(elm_ptr[base_idx + 3] + 1),
+                          static_cast<int>(elm_ptr[base_idx + 4] + 1),
+                          static_cast<int>(elm_ptr[base_idx + 5] + 1),
+                          static_cast<int>(elm_ptr[base_idx + 6] + 1),
+                          static_cast<int>(elm_ptr[base_idx + 7] + 1),
                           static_cast<int>(elm_ptr[base_idx + 8]));
                 break;
             default:

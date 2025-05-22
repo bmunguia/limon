@@ -92,7 +92,6 @@ void read_element_type(std::ifstream& file_stream, int elem_type, int count, py:
 
                 // Read reference value
                 int ref = 0;
-                iss >> ref;
                 elm_ptr[curr_idx * (num_node + 1) + num_node] = ref;
                 curr_idx++;
             }
