@@ -14,7 +14,7 @@ public:
 
     static void saveRefMap(const std::map<int, std::string>& ref_map, const std::string& filename);
 
-    static std::string getMarkerName(const std::map<int, std::string>& ref_map, int marker_id);
+    static std::string getRefName(const std::map<int, std::string>& ref_map, int marker_id);
 };
 
 } // namespace su2

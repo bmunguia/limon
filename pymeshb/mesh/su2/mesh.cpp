@@ -12,7 +12,8 @@ namespace pymeshb {
 namespace su2 {
 
 py::tuple read_mesh(const std::string& meshpath, const std::string& markerpath,
-                    const std::string& solpath, bool read_sol) {
+                    const std::string& solpath, const std::string& labelpath,
+                    bool read_sol) {
     // Check if file exists
     std::ifstream mesh_file(meshpath);
     if (!mesh_file.is_open()) {
@@ -111,7 +112,7 @@ py::tuple read_mesh(const std::string& meshpath, const std::string& markerpath,
     // Read solution if requested
     py::dict sol;
     if (read_sol && !solpath.empty()) {
-        sol = read_solution(solpath, num_point, dim);
+        sol = read_solution(solpath, labelpath, num_point, dim);
     }
 
     // Return coords, elements and solution if available
@@ -121,7 +122,7 @@ py::tuple read_mesh(const std::string& meshpath, const std::string& markerpath,
 bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
                 const py::dict& elements, const py::dict& boundaries,
                 const std::string& markerpath, const std::string& solpath,
-                py::dict sol) {
+                const std::string& labelpath, py::dict sol) {
     // Get dimensions
     int dim = coords.shape(1);
     int num_point = coords.shape(0);
@@ -209,7 +210,7 @@ bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
 
     // Write solution if provided
     if (!sol.empty() && !solpath.empty()) {
-        return write_solution(solpath, sol, num_point, dim);
+        return write_solution(solpath, labelpath, sol, num_point, dim);
     }
 
     return true;

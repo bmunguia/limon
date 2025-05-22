@@ -26,12 +26,13 @@
       * @param meshpath Path to the mesh file
       * @param markerpath Path to the map between marker strings and ref IDs (optional)
       * @param solpath Path to the solution file (optional)
+      * @param labelpath Path to the map between solution strings and ref IDs (optional)
       * @param read_sol Whether to read solution data (default: false)
       * @return Tuple containing coordinates, elements, and optionally solution data
       */
      m.def("read_mesh", &pymeshb::su2::read_mesh,
           py::arg("meshpath"), py::arg("markerpath") = "", py::arg("solpath") = "",
-          py::arg("read_sol") = false,
+          py::arg("labelpath") = "",py::arg("read_sol") = false,
           "Read a SU2 mesh file and return nodes, elements, and optionally solution data.");
 
      /**
@@ -42,37 +43,40 @@
       * @param elements Dictionary of mesh elements
       * @param markerpath Path to the map between marker strings and ref IDs (optional)
       * @param solpath Path to the solution file (optional)
+      * @param labelpath Path to the map between solution strings and ref IDs (optional)
       * @param sol Dictionary of solution data (optional)
       * @return Boolean indicating success
       */
      m.def("write_mesh", &pymeshb::su2::write_mesh,
           py::arg("meshpath"), py::arg("coords"), py::arg("elements"),
-          py::arg("boundaries"), py::arg("markerpath") = "", py::arg("solpath") = "",
-          py::arg("sol") = py::dict(),
+          py::arg("boundaries"), py::arg("markerpath") = "", py::arg("labelpath") = "",
+          py::arg("solpath") = "", py::arg("sol") = py::dict(),
           "Write nodes, elements, and optionally solution data to a SU2 mesh file.");
 
     /**
      * Read solution data from a SU2 solution (.dat) file.
      *
      * @param solpath Path to the solution file
+     * @param labelpath Path to the map between solution strings and ref IDs
      * @param num_ver Number of vertices
      * @param dim Mesh dimension
      * @return Dictionary of solution fields
      */
     m.def("read_solution", &pymeshb::su2::read_solution,
-        py::arg("solpath"), py::arg("num_ver"), py::arg("dim"),
+        py::arg("solpath"), py::arg("labelpath") = "", py::arg("num_ver"), py::arg("dim"),
         "Read a SU2 solution file and return solution fields as a dictionary");
 
   /**
    * Write solution data to a SU2 solution (.dat) file.
    *
    * @param solpath Path to the solution file
+   * @param labelpath Path to the map between solution strings and ref IDs
    * @param sol Dictionary of solution fields
    * @param num_ver Number of vertices
    * @param dim Mesh dimension
    * @return Boolean indicating success
    */
   m.def("write_solution", &pymeshb::su2::write_solution,
-        py::arg("solpath"), py::arg("sol"), py::arg("num_ver"), py::arg("dim"),
+        py::arg("solpath"), py::arg("labelpath") = "", py::arg("sol"), py::arg("num_ver"), py::arg("dim"),
         "Write solution fields to a SU2 solution file");
  }

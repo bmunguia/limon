@@ -15,11 +15,12 @@ namespace su2 {
  * Read solution data from an SU2 solution file.
  *
  * @param solpath Path to the solution file
+ * @param labelpath Path to the map between solution strings and ref IDs
  * @param num_point Number of vertices
  * @param dim Mesh dimension
  * @return Dictionary of solution fields
  */
-py::dict read_solution(const std::string& solpath, int num_point, int dim);
+py::dict read_solution(const std::string& solpath, const std::string& labelpath, int num_point, int dim);
 
 py::dict read_solution_ascii(const std::string& solpath, int num_point, int dim);
 
@@ -33,12 +34,13 @@ py::dict process_solution_fields(const std::vector<std::string>& field_names,
  * Write solution data to an SU2 solution file.
  *
  * @param solpath Path to the solution file
+ * @param labelpath Path to the map between solution strings and ref IDs
  * @param sol Dictionary of solution fields
  * @param num_point Number of vertices
  * @param dim Mesh dimension
  * @return Boolean indicating success
  */
-bool write_solution(const std::string& solpath, py::dict sol, int num_point, int dim);
+bool write_solution(const std::string& solpath, const std::string& labelpath, py::dict sol, int num_point, int dim);
 
 bool write_solution_ascii(const std::string& solpath, py::dict sol, int num_ver, int dim);
 

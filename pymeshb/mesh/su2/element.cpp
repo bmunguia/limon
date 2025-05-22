@@ -420,7 +420,7 @@ void write_boundary_elements_2D(std::ofstream& mesh_file, const py::dict& bounda
     // Write marker sections
     for (auto& [marker_id, elements] : marker_elements) {
         // Load marker name or fallback to MARKER_<marker_id>
-        std::string marker_name = RefMap::getMarkerName(ref_map, marker_id);
+        std::string marker_name = RefMap::getRefName(ref_map, marker_id);
         ref_map[marker_id] = marker_name;
 
         mesh_file << "MARKER_TAG= " << marker_name << std::endl;
@@ -483,7 +483,7 @@ void write_boundary_elements_3D(std::ofstream& mesh_file, const py::dict& bounda
     // Write marker sections
     for (unsigned int marker_id : all_markers) {
         // Load marker name or fallback to MARKER_<marker_id>
-        std::string marker_name = RefMap::getMarkerName(ref_map, marker_id);
+        std::string marker_name = RefMap::getRefName(ref_map, marker_id);
         ref_map[marker_id] = marker_name;
 
         // Count total elements for this marker
@@ -533,11 +533,6 @@ int write_boundary_elements(std::ofstream& mesh_file, const py::dict& boundaries
     // Write both 2D and 3D boundaries
     write_boundary_elements_2D(mesh_file, boundaries, ref_map);
     write_boundary_elements_3D(mesh_file, boundaries, ref_map);
-
-    // Save updated marker map back to file if provided
-    if (!markerpath.empty()) {
-        RefMap::saveRefMap(ref_map, markerpath);
-    }
 
     return ref_map.size();
 }

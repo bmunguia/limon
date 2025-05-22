@@ -105,7 +105,7 @@ py::dict read_solution(const std::string& solpath, int64_t num_ver, int dim) {
     return sol;
 }
 
-bool write_solution(const std::string& solpath, py::dict sol_data, int64_t num_ver, 
+bool write_solution(const std::string& solpath, py::dict sol_data, int64_t num_ver,
                     int dim, int version) {
     if (sol_data.empty()) {
         return true;

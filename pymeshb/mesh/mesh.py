@@ -7,6 +7,7 @@ def read_mesh(
     meshpath: str,
     markerpath: str | None = None,
     solpath: str | None = None,
+    labelpath: str | None = None,
     read_sol: bool = False
 ) -> tuple[NDArray, dict, dict, dict]:
     r"""Read a mesh file and return nodes and coordinates as numpy arrays.
@@ -16,6 +17,8 @@ def read_mesh(
         markerpath (str, optional): Path to the map between marker strings and
                                     ref IDs. Defaults to None.
         solpath (str, optional): Path to the solution file. Defaults to None.
+        labelpath (str, optional): Path to the map between solution strings and
+                                   ref IDs. Defaults to None.
         read_sol (bool, optional): Whether to read solution data. Defaults to False.
 
     Returns:
@@ -26,12 +29,13 @@ def read_mesh(
         - solution: Dictionary of solution data (if read_sol is True, otherwise empty)
     """
     try:
+        markerpath = markerpath if markerpath is not None else ''
         solpath = solpath if solpath is not None else ''
+        labelpath = labelpath if labelpath is not None else ''
         if 'mesh' in meshpath or 'meshb' in meshpath:
             msh = gmf.read_mesh(meshpath, solpath, read_sol)
         elif 'su2' in meshpath:
-            markerpath = markerpath if markerpath is not None else ''
-            msh = su2.read_mesh(meshpath, markerpath, solpath, read_sol)
+            msh = su2.read_mesh(meshpath, markerpath, solpath, labelpath, read_sol)
         else:
             raise ValueError(
                 f'Unsupported mesh file format: {meshpath}. '
@@ -52,6 +56,7 @@ def write_mesh(
     boundaries: dict[str, NDArray],
     markerpath: str | None = None,
     solpath: str | None = None,
+    labelpath: str | None = None,
     solution: dict[str, NDArray] | None = None,
 ) -> bool:
     r"""Write nodes and coordinates to a meshb file.
@@ -67,6 +72,8 @@ def write_mesh(
         markerpath (str, optional): Path to the map between marker strings and
                                     ref IDs. Defaults to None.
         solpath (str, optional): Path to the solution file. Defaults to None.
+        labelpath (str, optional): Path to the map between solution strings and
+                                   ref IDs. Defaults to None.
         solution (dict, optional): Dictionary of solution data. Keys are
                                    field names, values are numpy arrays.
 
@@ -74,15 +81,16 @@ def write_mesh(
         bool: True if successful, False otherwise
     """
     try:
+        markerpath = markerpath if markerpath is not None else ''
         solpath = solpath if solpath is not None else ''
+        labelpath = labelpath if labelpath is not None else ''
         sol = solution if solution is not None else {}
         if 'mesh' in meshpath or 'meshb' in meshpath:
             success = gmf.write_mesh(meshpath, coords, elements, boundaries,
                                      solpath, sol)
         elif 'su2' in meshpath:
-            markerpath = markerpath if markerpath is not None else ''
             success = su2.write_mesh(meshpath, coords, elements, boundaries,
-                                     markerpath, solpath, sol)
+                                     markerpath, solpath, labelpath, sol)
         else:
             raise ValueError(
                 f'Unsupported mesh file format: {meshpath}. '

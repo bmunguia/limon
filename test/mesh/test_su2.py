@@ -1,7 +1,7 @@
-import pytest
 from pathlib import Path
 
 import numpy.testing as npt
+import pytest
 
 import pymeshb
 
@@ -31,6 +31,12 @@ def markerpath(output_dir):
 
 
 @pytest.fixture
+def labelpath(output_dir):
+    """Path to solution label map file."""
+    return output_dir / 'labels.dat'
+
+
+@pytest.fixture
 def output_dir(request):
     """Create a persistent output directory for test files."""
     out_dir = Path('output') / request.node.name
@@ -39,22 +45,24 @@ def output_dir(request):
 
 
 @pytest.fixture
-def mesh_data_binary(meshpath_in, solpath_in_binary, markerpath):
+def mesh_data_binary(meshpath_in, solpath_in_binary, markerpath, labelpath):
     """Load the 2D mesh and binary solution."""
     data = pymeshb.read_mesh(str(meshpath_in), markerpath=str(markerpath),
-                             solpath=str(solpath_in_binary), read_sol=True)
+                             solpath=str(solpath_in_binary), labelpath=str(labelpath),
+                             read_sol=True)
     return data
 
 
 @pytest.fixture
-def mesh_data_ascii(meshpath_in, solpath_in_ascii, markerpath):
+def mesh_data_ascii(meshpath_in, solpath_in_ascii, markerpath, labelpath):
     """Load the 2D mesh and ASCII solution."""
     data = pymeshb.read_mesh(str(meshpath_in), markerpath=str(markerpath),
-                             solpath=str(solpath_in_ascii), read_sol=True)
+                             solpath=str(solpath_in_ascii), labelpath=str(labelpath),
+                             read_sol=True)
     return data
 
 
-def test_read_su2_binary(mesh_data_binary, markerpath):
+def test_read_su2_binary(mesh_data_binary, markerpath, labelpath):
     """Test reading a binary (.dat) SU2 mesh file."""
     coords, elements, boundaries, solution = mesh_data_binary
 
@@ -62,10 +70,11 @@ def test_read_su2_binary(mesh_data_binary, markerpath):
     assert coords.shape[0] > 0  # Ensure there are points
     assert len(elements) > 0  # Ensure there are elements
     assert markerpath.exists()  # Ensure that the marker file exists
+    assert labelpath.exists()  # Ensure that the solution label file exists
     assert isinstance(solution, dict)  # Ensure solution is a dictionary
 
 
-def test_read_su2_ascii(mesh_data_ascii, markerpath):
+def test_read_su2_ascii(mesh_data_ascii, markerpath, labelpath):
     """Test reading an ASCII (.csv) SU2 mesh file."""
     coords, elements, boundaries, solution = mesh_data_ascii
 
@@ -73,10 +82,12 @@ def test_read_su2_ascii(mesh_data_ascii, markerpath):
     assert coords.shape[0] > 0  # Ensure there are points
     assert len(elements) > 0  # Ensure there are elements
     assert markerpath.exists()  # Ensure that the marker file exists
+    assert labelpath.exists()  # Ensure that the solution label file exists
     assert isinstance(solution, dict)  # Ensure solution is a dictionary
 
 
-def test_su2_binary_to_binary(mesh_data_binary, output_dir, markerpath, solpath_in_binary):
+def test_su2_binary_to_binary(mesh_data_binary, output_dir, markerpath,
+                              labelpath, solpath_in_binary):
     """Test reading a SU2 mesh file and binary solution, and writing it back
     with a binary solution.
     """
@@ -99,7 +110,8 @@ def test_su2_binary_to_binary(mesh_data_binary, output_dir, markerpath, solpath_
     assert solpath_out.read_bytes() == solpath_in_binary.read_bytes()
 
 
-def test_su2_binary_to_ascii(mesh_data_binary, output_dir, markerpath, solpath_in_ascii):
+def test_su2_binary_to_ascii(mesh_data_binary, output_dir, markerpath,
+                             labelpath, solpath_in_ascii):
     """Test reading a SU2 mesh file and binary solution, and writing it back
     with an ASCII solution.
     """
@@ -112,7 +124,7 @@ def test_su2_binary_to_ascii(mesh_data_binary, output_dir, markerpath, solpath_i
     # Write the mesh with the solution
     pymeshb.write_mesh(str(meshpath_out), coords, elements, boundaries,
                        markerpath=str(markerpath), solpath=str(solpath_out),
-                       solution=solution)
+                       labelpath=str(labelpath), solution=solution)
 
     # Assert that the files were created
     assert meshpath_out.exists()
@@ -122,7 +134,8 @@ def test_su2_binary_to_ascii(mesh_data_binary, output_dir, markerpath, solpath_i
     assert solpath_out.read_bytes() == solpath_in_ascii.read_bytes()
 
 
-def test_su2_ascii_to_ascii(mesh_data_ascii, output_dir, markerpath, solpath_in_ascii):
+def test_su2_ascii_to_ascii(mesh_data_ascii, output_dir, markerpath,
+                            labelpath, solpath_in_ascii):
     """Test reading a SU2 mesh file and ASCII solution, and writing it back
     with an ASCII solution.
     """
@@ -135,7 +148,7 @@ def test_su2_ascii_to_ascii(mesh_data_ascii, output_dir, markerpath, solpath_in_
     # Write the mesh with the solution
     pymeshb.write_mesh(str(meshpath_out), coords, elements, boundaries,
                        markerpath=str(markerpath), solpath=str(solpath_out),
-                       solution=solution)
+                       labelpath=str(labelpath), solution=solution)
 
     # Assert that the files were created
     assert meshpath_out.exists()
@@ -145,7 +158,8 @@ def test_su2_ascii_to_ascii(mesh_data_ascii, output_dir, markerpath, solpath_in_
     assert solpath_out.read_bytes() == solpath_in_ascii.read_bytes()
 
 
-def test_su2_ascii_to_binary(mesh_data_ascii, output_dir, markerpath, meshpath_in, solpath_in_binary):
+def test_su2_ascii_to_binary(mesh_data_ascii, output_dir, markerpath,
+                             labelpath, meshpath_in, solpath_in_binary):
     """Test reading a SU2 mesh file and ASCII solution, and writing it back
     with a binary solution.
     """
@@ -158,7 +172,7 @@ def test_su2_ascii_to_binary(mesh_data_ascii, output_dir, markerpath, meshpath_i
     # Write the mesh with the solution
     pymeshb.write_mesh(str(meshpath_out), coords, elements, boundaries,
                        markerpath=str(markerpath), solpath=str(solpath_out),
-                       solution=solution)
+                       labelpath=str(labelpath), solution=solution)
 
     # Assert that the files were created
     assert meshpath_out.exists()

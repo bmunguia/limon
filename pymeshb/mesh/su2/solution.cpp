@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include "ref_map.hpp"
 #include "solution.hpp"
 #include "../util.hpp"
 
@@ -250,11 +251,12 @@ py::dict process_solution_fields(const std::vector<std::string>& field_names,
     return sol;
 }
 
-py::dict read_solution(const std::string& solpath, int num_point, int dim) {
+py::dict read_solution(const std::string& solpath, const std::string& labelpath, int num_point, int dim) {
+    py::dict sol;
+
     std::ifstream file_check(solpath, std::ios::in | std::ios::binary);
     if (!file_check.is_open()) {
-        py::dict empty_dict;
-        return empty_dict;
+        return sol;
     }
 
     // Check for the SU2 magic number
@@ -263,10 +265,23 @@ py::dict read_solution(const std::string& solpath, int num_point, int dim) {
     file_check.close();
 
     if (magic_number == SU2_MAGIC_NUMBER) {
-        return read_solution_binary(solpath, num_point, dim);
+        sol = read_solution_binary(solpath, num_point, dim);
     } else {
-        return read_solution_ascii(solpath, num_point, dim);
+        sol = read_solution_ascii(solpath, num_point, dim);
     }
+
+    // Save updated marker map back to file if provided
+    if (!labelpath.empty()) {
+        std::map<int, std::string> ref_map;
+        int ref_id = 1;
+        for (auto& [sol_id, _] : sol) {
+            ref_map[ref_id] = sol_id.cast<std::string>();
+            ref_id++;
+        }
+        RefMap::saveRefMap(ref_map, labelpath);
+    }
+
+    return sol;
 }
 
 bool write_solution_ascii(const std::string& solpath, py::dict sol, int num_point, int dim) {
@@ -451,7 +466,7 @@ bool write_solution_binary(const std::string& solpath, py::dict sol, int num_poi
     return true;
 }
 
-bool write_solution(const std::string& solpath, py::dict sol, int num_point, int dim) {
+bool write_solution(const std::string& solpath, const std::string& labelpath, py::dict sol, int num_point, int dim) {
     // Check file extension to determine format
     std::string extension;
     size_t dot_pos = solpath.find_last_of('.');

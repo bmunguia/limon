@@ -1,6 +1,7 @@
+from pathlib import Path
+
 import numpy as np
 import pytest
-from pathlib import Path
 
 import pymeshb
 from pymeshb.metric import perturb_metric_field

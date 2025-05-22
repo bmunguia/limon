@@ -21,12 +21,12 @@ std::map<int, std::string> RefMap::loadRefMap(const std::string& filename) {
                         continue;
                     }
 
-                    // Parse line as "marker_id:marker_name"
+                    // Parse line as "ref_id:ref_name"
                     size_t pos = line.find(':');
                     if (pos != std::string::npos) {
-                        int marker_id = std::stoi(line.substr(0, pos));
-                        std::string marker_name = line.substr(pos + 1);
-                        ref_map[marker_id] = marker_name;
+                        int ref_id = std::stoi(line.substr(0, pos));
+                        std::string ref_name = line.substr(pos + 1);
+                        ref_map[ref_id] = ref_name;
                     }
                 }
             }
@@ -42,8 +42,8 @@ std::map<int, std::string> RefMap::loadRefMap(const std::string& filename) {
 void RefMap::saveRefMap(const std::map<int, std::string>& ref_map, const std::string& filename) {
     std::ofstream file(filename);
     if (file.is_open()) {
-        file << "# SU2 Marker Map\n";
-        file << "# Format: marker_id:marker_name\n";
+        file << "# SU2 Reference ID Map\n";
+        file << "# Format: ref_id:ref_name\n";
 
         for (const auto& [key, value] : ref_map) {
             file << key << ":" << value << std::endl;
@@ -51,12 +51,12 @@ void RefMap::saveRefMap(const std::map<int, std::string>& ref_map, const std::st
     }
 }
 
-std::string RefMap::getMarkerName(const std::map<int, std::string>& ref_map, int marker_id) {
-    auto it = ref_map.find(marker_id);
+std::string RefMap::getRefName(const std::map<int, std::string>& ref_map, int ref_id) {
+    auto it = ref_map.find(ref_id);
     if (it != ref_map.end()) {
         return it->second;
     }
-    return "MARKER_" + std::to_string(marker_id);
+    return "REF_" + std::to_string(ref_id);
 }
 
 } // namespace su2
