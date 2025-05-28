@@ -26,11 +26,11 @@ pymeshb is a Python API to handle the *.meshb file format, and to handle various
 4. From the top-level directory of the repo, install the package:
 
     ```
-    poetry install
+    pip install .
     ```
     
-   Optional: to be able to run the tests, install with extras:
+   Optional: to be able to run the tests, install with optional dependencies:
 
     ```
-    poetry install -E test
+    pip install ".[test]"
     ```
