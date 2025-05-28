@@ -61,8 +61,8 @@ def test_write_mesh_with_metric(mesh_data, output_dir):
     solpath_out = output_dir / 'sphere_with_met.solb'
 
     # Write the mesh with the solution
-    pymeshb.write_mesh(str(meshpath_out), coords, elements, boundaries,
-                       solpath=str(solpath_out), solution=solution)
+    write_mesh(str(meshpath_out), coords, elements, boundaries,
+               solpath=str(solpath_out), solution=solution)
 
     # Assert that the files were created
     assert meshpath_out.exists()
@@ -108,8 +108,8 @@ def test_perturb_eigenvalues(mesh_data, output_dir):
     pert_solpath_out = output_dir / 'sphere_with_eig_pert_only.solb'
 
     # Write the mesh with perturbed metrics
-    pymeshb.write_mesh(str(pert_meshpath_out), coords, elements, boundaries,
-                      solpath=str(pert_solpath_out), solution=perturbed_solution)
+    write_mesh(str(pert_meshpath_out), coords, elements, boundaries,
+               solpath=str(pert_solpath_out), solution=perturbed_solution)
 
     # Assert that the files were created
     assert pert_meshpath_out.exists()
@@ -154,8 +154,8 @@ def test_perturb_orientation(mesh_data, output_dir):
     pert_solpath_out = output_dir / 'sphere_with_rot_pert_only.solb'
 
     # Write the mesh with perturbed metrics
-    pymeshb.write_mesh(str(pert_meshpath_out), coords, elements, boundaries,
-                      solpath=str(pert_solpath_out), solution=perturbed_solution)
+    write_mesh(str(pert_meshpath_out), coords, elements, boundaries,
+               solpath=str(pert_solpath_out), solution=perturbed_solution)
 
     # Assert that the files were created
     assert pert_meshpath_out.exists()
@@ -203,8 +203,8 @@ def test_perturb_metric_field(mesh_data, output_dir):
     pert_solpath_out = output_dir / 'sphere_with_combined_pert_met.solb'
 
     # Write the mesh with perturbed metrics
-    pymeshb.write_mesh(str(pert_meshpath_out), coords, elements, boundaries,
-                       solpath=str(pert_solpath_out), solution=perturbed_solution)
+    write_mesh(str(pert_meshpath_out), coords, elements, boundaries,
+               solpath=str(pert_solpath_out), solution=perturbed_solution)
 
     # Assert that the files were created
     assert pert_meshpath_out.exists()
