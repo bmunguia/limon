@@ -1,10 +1,7 @@
 import numpy as np
 from numpy.typing import NDArray
 
-from pymeshb.metric._metric import decompose as _decompose
-from pymeshb.metric._metric import recompose as _recompose
-from pymeshb.metric._metric import perturb as _perturb
-from pymeshb.metric._metric import perturb_metric_field as _perturb_metric_field
+from . import _metric
 
 
 def decompose(lower_tri: NDArray) -> tuple[NDArray, NDArray]:
@@ -34,7 +31,7 @@ def decompose(lower_tri: NDArray) -> tuple[NDArray, NDArray]:
         >>> lower_tri = np.array([3.0, 1.0, 2.0])  # [a00, a10, a11]
         >>> eigenvalues, eigenvectors = decompose(lower_tri)
     """
-    return _decompose(np.asarray(lower_tri, dtype=np.float64))
+    return _metric.decompose(np.asarray(lower_tri, dtype=np.float64))
 
 
 def recompose(eigenvalues: NDArray, eigenvectors: NDArray) -> NDArray:
@@ -65,7 +62,7 @@ def recompose(eigenvalues: NDArray, eigenvectors: NDArray) -> NDArray:
         >>> eigenvectors = np.array([[0.8944, -0.4472], [0.4472, 0.8944]])
         >>> tensor = recompose(eigenvalues, eigenvectors)
     """
-    return _recompose(
+    return _metric.recompose(
         np.asarray(eigenvalues, dtype=np.float64),
         np.asarray(eigenvectors, dtype=np.float64)
     )
@@ -105,7 +102,7 @@ def perturb(
         >>> rot_angles = np.array([0.05, 0.02, 0.03])  # xy, yz, xz rotations
         >>> pert_vals, pert_vecs = perturb(eigenvalues, eigenvectors, delta_vals, rot_angles)
     """
-    return _perturb(
+    return _metric.perturb(
         np.asarray(eigenvalues, dtype=np.float64),
         np.asarray(eigenvectors, dtype=np.float64),
         np.asarray(delta_eigenvals, dtype=np.float64),
@@ -161,7 +158,7 @@ def perturb_metric_field(
         ... ])
         >>> perturbed_metrics = perturb_metric_field(metrics, val_pert, rot_angles)
     """
-    return _perturb_metric_field(
+    return _metric.perturb_metric_field(
         np.asarray(metrics, dtype=np.float64),
         np.asarray(delta_eigenvals, dtype=np.float64),
         np.asarray(rotation_angles, dtype=np.float64)

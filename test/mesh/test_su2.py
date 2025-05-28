@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy.testing as npt
 import pytest
 
-import pymeshb
+from pymeshb.mesh import read_mesh, write_mesh
 
 
 @pytest.fixture
@@ -47,7 +47,7 @@ def output_dir(request):
 @pytest.fixture
 def mesh_data_binary(meshpath_in, solpath_in_binary, markerpath, labelpath):
     """Load the 2D mesh and binary solution."""
-    data = pymeshb.read_mesh(str(meshpath_in), markerpath=str(markerpath),
+    data = read_mesh(str(meshpath_in), markerpath=str(markerpath),
                              solpath=str(solpath_in_binary), labelpath=str(labelpath),
                              read_sol=True)
     return data
@@ -56,7 +56,7 @@ def mesh_data_binary(meshpath_in, solpath_in_binary, markerpath, labelpath):
 @pytest.fixture
 def mesh_data_ascii(meshpath_in, solpath_in_ascii, markerpath, labelpath):
     """Load the 2D mesh and ASCII solution."""
-    data = pymeshb.read_mesh(str(meshpath_in), markerpath=str(markerpath),
+    data = read_mesh(str(meshpath_in), markerpath=str(markerpath),
                              solpath=str(solpath_in_ascii), labelpath=str(labelpath),
                              read_sol=True)
     return data
@@ -98,7 +98,7 @@ def test_su2_binary_to_binary(mesh_data_binary, output_dir, markerpath,
     solpath_out = output_dir / 'naca_with_sol.dat'
 
     # Write the mesh with the solution
-    pymeshb.write_mesh(str(meshpath_out), coords, elements, boundaries,
+    write_mesh(str(meshpath_out), coords, elements, boundaries,
                        markerpath=str(markerpath), solpath=str(solpath_out),
                        solution=solution)
 
@@ -122,7 +122,7 @@ def test_su2_binary_to_ascii(mesh_data_binary, output_dir, markerpath,
     solpath_out = output_dir / 'naca_with_sol.csv'
 
     # Write the mesh with the solution
-    pymeshb.write_mesh(str(meshpath_out), coords, elements, boundaries,
+    write_mesh(str(meshpath_out), coords, elements, boundaries,
                        markerpath=str(markerpath), solpath=str(solpath_out),
                        labelpath=str(labelpath), solution=solution)
 
@@ -146,7 +146,7 @@ def test_su2_ascii_to_ascii(mesh_data_ascii, output_dir, markerpath,
     solpath_out = output_dir / 'naca_with_sol.csv'
 
     # Write the mesh with the solution
-    pymeshb.write_mesh(str(meshpath_out), coords, elements, boundaries,
+    write_mesh(str(meshpath_out), coords, elements, boundaries,
                        markerpath=str(markerpath), solpath=str(solpath_out),
                        labelpath=str(labelpath), solution=solution)
 
@@ -170,7 +170,7 @@ def test_su2_ascii_to_binary(mesh_data_ascii, output_dir, markerpath,
     solpath_out = output_dir / 'naca_with_sol.dat'
 
     # Write the mesh with the solution
-    pymeshb.write_mesh(str(meshpath_out), coords, elements, boundaries,
+    write_mesh(str(meshpath_out), coords, elements, boundaries,
                        markerpath=str(markerpath), solpath=str(solpath_out),
                        labelpath=str(labelpath), solution=solution)
 
@@ -188,11 +188,11 @@ def test_su2_ascii_to_binary(mesh_data_ascii, output_dir, markerpath,
 def compare_solutions(meshpath_in, solpath_in, meshpath_out, solpath_out):
     """Read the new solution and compare it to the original."""
     # Read the original solution
-    _, _, _, sol_in = pymeshb.read_mesh(str(meshpath_in), solpath=str(solpath_in),
+    _, _, _, sol_in = read_mesh(str(meshpath_in), solpath=str(solpath_in),
                                         read_sol=True)
 
     # Read the rewritten solution
-    _, _, _, sol_out = pymeshb.read_mesh(str(meshpath_out), solpath=str(solpath_out),
+    _, _, _, sol_out = read_mesh(str(meshpath_out), solpath=str(solpath_out),
                                          read_sol=True)
 
     assert sol_out.keys() == sol_in.keys(), 'Solution fields mismatch'

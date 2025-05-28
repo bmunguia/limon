@@ -1,6 +1,6 @@
 from numpy.typing import NDArray
 
-import pymeshb.mesh.gmf.libgmf as libgmf
+from . import libgmf
 
 
 def read_mesh(

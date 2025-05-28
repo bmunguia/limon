@@ -48,6 +48,7 @@ requires = [
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
+name = "pymeshb"
 packages = [
     { include = "pymeshb" }
 ]

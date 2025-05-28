@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-import pymeshb
+from pymeshb.mesh import read_mesh, write_mesh
 
 
 @pytest.fixture
@@ -27,7 +27,7 @@ def labelpath(output_dir):
 @pytest.fixture
 def mesh_data_3d(meshpath_in_3d):
     """Load the 3D mesh and create a sample solution."""
-    data = pymeshb.read_mesh(str(meshpath_in_3d))
+    data = read_mesh(str(meshpath_in_3d))
     coords, elements, boundaries, solution = data
 
     num_point = coords.shape[0]
@@ -52,7 +52,7 @@ def mesh_data_3d(meshpath_in_3d):
 @pytest.fixture
 def mesh_data_2d(meshpath_in_2d):
     """Load the 2D mesh and create a sample solution."""
-    data = pymeshb.read_mesh(str(meshpath_in_2d))
+    data = read_mesh(str(meshpath_in_2d))
     coords, elements, boundaries, solution = data
 
     num_point = coords.shape[0]
@@ -109,7 +109,7 @@ def test_write_solb(mesh_data_3d, output_dir):
     solpath_out = output_dir / 'sphere_with_sol.solb'
 
     # Write the mesh with the solution
-    pymeshb.write_mesh(str(meshpath_out), coords, elements, boundaries,
+    write_mesh(str(meshpath_out), coords, elements, boundaries,
                        solpath=str(solpath_out), solution=solution)
 
     # Assert that the files were created
@@ -126,7 +126,7 @@ def test_solution_keys_solb(mesh_data_2d, output_dir, labelpath):
     solpath_out = output_dir / 'square_with_fields.solb'
 
     # Write the mesh with the original solution
-    write_success = pymeshb.write_mesh(str(meshpath_out), coords, elements, boundaries,
+    write_success = write_mesh(str(meshpath_out), coords, elements, boundaries,
                                        solpath=str(solpath_out), labelpath=str(labelpath),
                                        solution=original_solution)
     print(f'Original solution written: {write_success}')
@@ -138,7 +138,7 @@ def test_solution_keys_solb(mesh_data_2d, output_dir, labelpath):
     assert labelpath.exists(), 'Output solution label map was not created'
 
     # Read the mesh and solution back
-    _, _, _, reread_solution = pymeshb.read_mesh(
+    _, _, _, reread_solution = read_mesh(
         str(meshpath_out),
         solpath=str(solpath_out),
         labelpath=str(labelpath),

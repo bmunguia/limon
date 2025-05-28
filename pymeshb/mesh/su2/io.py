@@ -1,6 +1,6 @@
 from numpy.typing import NDArray
 
-import pymeshb.mesh.su2.libsu2 as libsu2
+from . import libsu2
 
 
 def read_mesh(

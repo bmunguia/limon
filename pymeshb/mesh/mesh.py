@@ -1,6 +1,6 @@
 from numpy.typing import NDArray
 
-from pymeshb.mesh import gmf, su2
+from . import gmf, su2
 
 
 def read_mesh(

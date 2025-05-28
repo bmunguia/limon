@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-import pymeshb
+from pymeshb.mesh import read_mesh, write_mesh
 from pymeshb.metric import perturb_metric_field
 
 
@@ -26,7 +26,7 @@ def print_perturb_comparison(met, met_pert):
 def mesh_data():
     """Load the 3D mesh and create a sample solution."""
     meshpath_in = 'libMeshb/sample_meshes/quad.meshb'
-    coords, elements, boundaries, solution = pymeshb.read_mesh(meshpath_in)
+    coords, elements, boundaries, solution = read_mesh(meshpath_in)
 
     num_point = coords.shape[0]
     num_dim = coords.shape[1]
