@@ -39,27 +39,27 @@ repository = "https://github.com/bmunguia/pymeshb.git"
 
 [build-system]
 requires = [
-    "cmake>=4.0",
-    "poetry-core>=2.1",
-    "pybind11",
-    "setuptools",
+    "hatchling>=1.27.0",
+    "scikit-build-core>=0.11.0",
+    "pybind11>=2.11",
     "numpy",
 ]
-build-backend = "poetry.core.masonry.api"
+build-backend = "hatchling.build"
 
-[tool.poetry]
-name = "pymeshb"
-packages = [
-    { include = "pymeshb" }
+[tool.hatch.build]
+packages = ["pymeshb"]
+exclude = [
+    "build",
+    "dist",
+    ".git",
+    ".vscode",
+    "__pycache__",
+    "*.pyc",
+    "*.so",
 ]
 
-[tool.poetry.build]
-script = "build.py"
-generate-setup-file = true
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["pymeshb"]
+[tool.hatch.build.targets.wheel.hooks.scikit-build]
+experimental = true
 
 [tool.pytest.ini_options]
 addopts = [
@@ -80,7 +80,7 @@ split_before_named_assigns = false
 blank_line_before_nested_class_or_def = false
 
 [tool.ruff]
-src = ["su2gym"]
+src = ["pymeshb"]
 line-length = 80
 indent-width = 4
 target-version = "py312"

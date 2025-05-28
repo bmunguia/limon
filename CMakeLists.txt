@@ -33,6 +33,7 @@ target_link_libraries(libgmf PRIVATE Meshb.7)
 target_include_directories(libgmf PRIVATE
     ${PROJECT_SOURCE_DIR}/libMeshb/sources
     ${PROJECT_SOURCE_DIR}/pymeshb/mesh)
+install(TARGETS libgmf DESTINATION pymeshb/mesh/gmf)
 
 # Build libsu2 submodule
 pybind11_add_module(libsu2 MODULE
@@ -44,7 +45,9 @@ pybind11_add_module(libsu2 MODULE
     ${PYMESHB_UTIL_SOURCES})
 target_include_directories(libsu2 PRIVATE
     ${PROJECT_SOURCE_DIR}/pymeshb/mesh)
+install(TARGETS libsu2 DESTINATION pymeshb/mesh/su2)
 
 # Build metric module
 pybind11_add_module(_metric MODULE ${PROJECT_SOURCE_DIR}/pymeshb/metric/metric.cpp)
 target_link_libraries(_metric PRIVATE Eigen3::Eigen)
+install(TARGETS _metric DESTINATION pymeshb/metric)
