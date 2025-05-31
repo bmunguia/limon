@@ -53,7 +53,7 @@ def mesh_data_3d(meshpath_in_3d):
 def mesh_data_2d(meshpath_in_2d):
     """Load the 2D mesh and create a sample solution."""
     data = read_mesh(str(meshpath_in_2d))
-    coords, elements, boundaries, solution = data
+    coords, elements, boundaries, _ = data
 
     num_point = coords.shape[0]
     num_dim = coords.shape[1]

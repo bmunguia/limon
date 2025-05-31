@@ -1,7 +1,6 @@
 from numpy.typing import NDArray
 
-from pymeshb.mesh.su2.libsu2 import read_mesh as _read_mesh
-from pymeshb.mesh.su2.libsu2 import write_mesh as _write_mesh
+from . import libsu2
 
 
 def read_mesh(
@@ -33,7 +32,7 @@ def read_mesh(
         markerpath = markerpath if markerpath is not None else ''
         solpath = solpath if solpath is not None else ''
         labelpath = labelpath if labelpath is not None else ''
-        coords, elms, bnds, sol = _read_mesh(meshpath, markerpath, solpath,
+        coords, elms, bnds, sol = libsu2.read_mesh(meshpath, markerpath, solpath,
                                                    labelpath, read_sol)
 
         return coords, elms, bnds, sol
@@ -79,7 +78,7 @@ def write_mesh(
         solpath = solpath if solpath is not None else ''
         labelpath = labelpath if labelpath is not None else ''
         sol = solution if solution is not None else {}
-        success = _write_mesh(meshpath, coords, elements, boundaries,
+        success = libsu2.write_mesh(meshpath, coords, elements, boundaries,
                                     markerpath, solpath, labelpath, sol)
         return success
 

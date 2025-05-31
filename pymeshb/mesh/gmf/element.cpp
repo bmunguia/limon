@@ -15,10 +15,10 @@ void read_element_type(int64_t mesh_id, int kwd, int num_node, py::dict& element
         py::array_t<unsigned int> element_array(std::vector<py::ssize_t>{num_elm,
                                                 static_cast<py::ssize_t>(num_node) + 1});
         auto elm_ptr = element_array.mutable_data();
+        std::vector<int> bufInt(num_node);
 
         if (GmfGotoKwd(mesh_id, kwd)) {
             for (auto i = 0; i < num_elm; i++) {
-                std::vector<int> bufInt(num_node);
                 int ref;
                 switch (kwd) {
                     case GmfEdges:

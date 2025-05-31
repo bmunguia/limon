@@ -1,7 +1,6 @@
 from numpy.typing import NDArray
 
-from pymeshb.mesh.gmf.libgmf import read_mesh as _read_mesh
-from pymeshb.mesh.gmf.libgmf import write_mesh as _write_mesh
+from . import libgmf
 
 
 def read_mesh(
@@ -28,7 +27,7 @@ def read_mesh(
     """
     try:
         solpath = solpath if solpath is not None else ''
-        coords, elms, bnds, sol = _read_mesh(meshpath, solpath, labelpath,
+        coords, elms, bnds, sol = libgmf.read_mesh(meshpath, solpath, labelpath,
                                                    read_sol)
 
         return coords, elms, bnds, sol
@@ -69,7 +68,7 @@ def write_mesh(
     try:
         sol = solution if solution is not None else {}
         solpath = solpath if solpath is not None else ''
-        success = _write_mesh(meshpath, coords, elements, boundaries,
+        success = libgmf.write_mesh(meshpath, coords, elements, boundaries,
                                     solpath, labelpath, sol)
         return success
 

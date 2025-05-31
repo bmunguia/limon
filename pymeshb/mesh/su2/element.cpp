@@ -90,7 +90,7 @@ void read_element_type(std::ifstream& file_stream, int elem_type, int count, py:
                     iss >> elm_ptr[curr_idx * (num_node + 1) + j];
                 }
 
-                // Read reference value
+                // Hard-code volume reference ID
                 int ref = 0;
                 elm_ptr[curr_idx * (num_node + 1) + num_node] = ref;
                 curr_idx++;
@@ -215,7 +215,7 @@ void read_boundary_element_type(std::ifstream& file_stream, int marker_idx, int 
                     iss >> elm_ptr[curr_idx * (num_node + 1) + j];
                 }
 
-                // Set reference value to marker index + 1
+                // Set reference ID to marker index + 1
                 elm_ptr[curr_idx * (num_node + 1) + num_node] = marker_idx + 1;
                 curr_idx++;
             }
@@ -267,9 +267,9 @@ bool read_boundary_elements(std::ifstream& file_stream, int boundary_count, py::
             }
         }
 
-        // Store marker tag in map with index+1 as key
+        // Store marker tag in map with index + 2 as key
         if (!marker_tag.empty()) {
-            ref_map[marker_idx + 1] = marker_tag;
+            ref_map[marker_idx + 2] = marker_tag;
         }
 
         // Find marker elements count

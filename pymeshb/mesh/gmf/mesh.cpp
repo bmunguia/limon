@@ -79,7 +79,7 @@ bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
                 const std::string& solpath, const std::string& labelpath,
                 py::dict sol) {
     // Get dimensions
-    int version = 4;
+    int version = 2;
     int dim = coords.shape(1);
     int64_t num_ver = coords.shape(0);
 
