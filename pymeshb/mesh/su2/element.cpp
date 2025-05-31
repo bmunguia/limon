@@ -267,9 +267,9 @@ bool read_boundary_elements(std::ifstream& file_stream, int boundary_count, py::
             }
         }
 
-        // Store marker tag in map with index + 2 as key
+        // Store marker tag in map with index + 1 as key
         if (!marker_tag.empty()) {
-            ref_map[marker_idx + 2] = marker_tag;
+            ref_map[marker_idx + 1] = marker_tag;
         }
 
         // Find marker elements count
