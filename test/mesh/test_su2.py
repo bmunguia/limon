@@ -2,7 +2,6 @@ from pathlib import Path
 
 import numpy.testing as npt
 import pytest
-
 from pymeshb.mesh import read_mesh, write_mesh
 
 

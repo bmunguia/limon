@@ -2,7 +2,6 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-
 from pymeshb.mesh import read_mesh, write_mesh
 from pymeshb.metric import perturb_metric_field
 
