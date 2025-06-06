@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from numpy.typing import NDArray
 
 from . import gmf, su2
@@ -32,13 +34,15 @@ def read_mesh(
         markerpath = markerpath if markerpath is not None else ''
         solpath = solpath if solpath is not None else ''
         labelpath = labelpath if labelpath is not None else ''
-        if 'mesh' in meshpath or 'meshb' in meshpath:
+
+        suffix = Path(meshpath).suffix
+        if suffix in ['.mesh', '.meshb']:
             msh = gmf.read_mesh(meshpath, solpath, labelpath, read_sol)
-        elif 'su2' in meshpath:
+        elif suffix == '.su2':
             msh = su2.read_mesh(meshpath, markerpath, solpath, labelpath, read_sol)
         else:
             raise ValueError(
-                f'Unsupported mesh file format: {meshpath}. '
+                f'Unsupported mesh file format: {suffix}. '
                 'Supported formats are .mesh, .meshb, and .su2'
             )
 
@@ -85,15 +89,17 @@ def write_mesh(
         solpath = solpath if solpath is not None else ''
         labelpath = labelpath if labelpath is not None else ''
         sol = solution if solution is not None else {}
-        if 'mesh' in meshpath or 'meshb' in meshpath:
+
+        suffix = Path(meshpath).suffix
+        if suffix in ['.mesh', '.meshb']:
             success = gmf.write_mesh(meshpath, coords, elements, boundaries,
                                      solpath, labelpath, sol)
-        elif 'su2' in meshpath:
+        elif suffix == '.su2':
             success = su2.write_mesh(meshpath, coords, elements, boundaries,
                                      markerpath, solpath, labelpath, sol)
         else:
             raise ValueError(
-                f'Unsupported mesh file format: {meshpath}. '
+                f'Unsupported mesh file format: {suffix}. '
                 'Supported formats are .mesh, .meshb, and .su2'
             )
 
