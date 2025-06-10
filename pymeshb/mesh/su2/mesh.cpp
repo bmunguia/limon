@@ -6,14 +6,11 @@
 #include "../util.hpp"
 #include "element.hpp"
 #include "mesh.hpp"
-#include "solution.hpp"
 
 namespace pymeshb {
 namespace su2 {
 
-py::tuple read_mesh(const std::string& meshpath, const std::string& markerpath,
-                    const std::string& solpath, const std::string& labelpath,
-                    bool read_sol) {
+py::tuple read_mesh(const std::string& meshpath, const std::string& markerpath) {
     // Check if file exists
     std::ifstream mesh_file(meshpath);
     if (!mesh_file.is_open()) {
@@ -109,20 +106,12 @@ py::tuple read_mesh(const std::string& meshpath, const std::string& markerpath,
     py::dict boundaries;
     read_boundary_elements(mesh_file, boundary_count, boundaries, markerpath);
 
-    // Read solution if requested
-    py::dict sol;
-    if (read_sol && !solpath.empty()) {
-        sol = read_solution(solpath, labelpath, num_point, dim);
-    }
-
-    // Return coords, elements and solution if available
-    return py::make_tuple(coords, elements, boundaries, sol);
+    return py::make_tuple(coords, elements, boundaries);
 }
 
 bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
                 const py::dict& elements, const py::dict& boundaries,
-                const std::string& markerpath, const std::string& solpath,
-                const std::string& labelpath, py::dict sol) {
+                const std::string& markerpath) {
     // Get dimensions
     int dim = coords.shape(1);
     int num_point = coords.shape(0);
@@ -207,11 +196,6 @@ bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
     write_boundary_elements(mesh_file, boundaries, markerpath);
 
     mesh_file.close();
-
-    // Write solution if provided
-    if (!sol.empty() && !solpath.empty()) {
-        return write_solution(solpath, labelpath, sol, num_point, dim);
-    }
 
     return true;
 }

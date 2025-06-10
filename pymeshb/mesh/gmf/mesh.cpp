@@ -9,13 +9,11 @@ extern "C" {
 #include "../util.hpp"
 #include "element.hpp"
 #include "mesh.hpp"
-#include "solution.hpp"
 
 namespace pymeshb {
 namespace gmf {
 
-py::tuple read_mesh(const std::string& meshpath, const std::string& solpath,
-                    const std::string& labelpath, bool read_sol) {
+py::tuple read_mesh(const std::string& meshpath) {
     int version;
     int dim;
 
@@ -66,20 +64,12 @@ py::tuple read_mesh(const std::string& meshpath, const std::string& solpath,
     // Close the mesh
     GmfCloseMesh(mesh_id);
 
-    py::dict sol_dict;
-    if (read_sol && !solpath.empty()) {
-        sol_dict = read_solution(solpath, labelpath, num_ver, dim);
-    }
-
-    return py::make_tuple(coords, elements, boundaries, sol_dict);
+    return py::make_tuple(coords, elements, boundaries);
 }
 
 bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
-                const py::dict& elements, const py::dict& boundaries,
-                const std::string& solpath, const std::string& labelpath,
-                py::dict sol) {
+                const py::dict& elements, const py::dict& boundaries) {
     // Get dimensions
-    int version = 2;
     int dim = coords.shape(1);
     int64_t num_ver = coords.shape(0);
 
@@ -89,6 +79,7 @@ bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
     }
 
     // Open the mesh
+    int version = 2;
     int64_t mesh_id = GmfOpenMesh(meshpath.c_str(), GmfWrite, version, dim);
     if (mesh_id == 0) {
         throw std::runtime_error("Failed to open mesh for writing: " + meshpath);
@@ -124,10 +115,6 @@ bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
     // Close the mesh
     GmfCloseMesh(mesh_id);
 
-    // Write solution if provided
-    if (!sol.empty() && !solpath.empty()) {
-        return write_solution(solpath, labelpath, sol, num_ver, dim, version);
-    }
     return true;
 }
 

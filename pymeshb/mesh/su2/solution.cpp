@@ -251,7 +251,7 @@ py::dict process_solution_fields(const std::vector<std::string>& field_names,
     return sol;
 }
 
-py::dict read_solution(const std::string& solpath, const std::string& labelpath, int num_point, int dim) {
+py::dict read_solution(const std::string& solpath, int num_point, int dim, const std::string& labelpath) {
     py::dict sol;
 
     std::ifstream file_check(solpath, std::ios::in | std::ios::binary);
@@ -465,7 +465,8 @@ bool write_solution_binary(const std::string& solpath, py::dict sol, int num_poi
     return true;
 }
 
-bool write_solution(const std::string& solpath, const std::string& labelpath, py::dict sol, int num_point, int dim) {
+bool write_solution(const std::string& solpath, py::dict sol, int num_point, int dim,
+                    const std::string& labelpath) {
     // Check file extension to determine format
     std::string extension;
     size_t dot_pos = solpath.find_last_of('.');

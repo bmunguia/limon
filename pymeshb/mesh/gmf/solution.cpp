@@ -14,8 +14,8 @@ extern "C" {
 namespace pymeshb {
 namespace gmf {
 
-py::dict read_solution(const std::string& solpath, const std::string& labelpath,
-                       int64_t num_ver, int dim) {
+py::dict read_solution(const std::string& solpath, int64_t num_ver, int dim, 
+                       const std::string& labelpath) {
     py::dict sol;
     int version;
     int dim_sol;
@@ -93,13 +93,14 @@ py::dict read_solution(const std::string& solpath, const std::string& labelpath,
     return sol;
 }
 
-bool write_solution(const std::string& solpath, const std::string& labelpath, py::dict sol_data,
-                    int64_t num_ver, int dim, int version) {
+bool write_solution(const std::string& solpath, py::dict sol_data, int64_t num_ver, 
+                    int dim, const std::string& labelpath) {
     if (sol_data.empty()) {
         return true;
     }
 
     // Open the solution
+    int version = 2;
     int64_t sol_id = GmfOpenMesh(solpath.c_str(), GmfWrite, version, dim);
     if (sol_id == 0) {
         throw std::runtime_error("Failed to open solution for writing: " + solpath);

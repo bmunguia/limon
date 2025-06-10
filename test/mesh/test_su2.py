@@ -47,8 +47,8 @@ def output_dir(request):
 def mesh_data_binary(meshpath_in, solpath_in_binary, markerpath, labelpath):
     """Load the 2D mesh and binary solution."""
     data = read_mesh(str(meshpath_in), markerpath=str(markerpath),
-                             solpath=str(solpath_in_binary), labelpath=str(labelpath),
-                             read_sol=True)
+                     solpath=str(solpath_in_binary), labelpath=str(labelpath),
+                     read_sol=True)
     return data
 
 
@@ -56,8 +56,8 @@ def mesh_data_binary(meshpath_in, solpath_in_binary, markerpath, labelpath):
 def mesh_data_ascii(meshpath_in, solpath_in_ascii, markerpath, labelpath):
     """Load the 2D mesh and ASCII solution."""
     data = read_mesh(str(meshpath_in), markerpath=str(markerpath),
-                             solpath=str(solpath_in_ascii), labelpath=str(labelpath),
-                             read_sol=True)
+                     solpath=str(solpath_in_ascii), labelpath=str(labelpath),
+                     read_sol=True)
     return data
 
 
@@ -98,8 +98,8 @@ def test_su2_binary_to_binary(mesh_data_binary, output_dir, markerpath,
 
     # Write the mesh with the solution
     write_mesh(str(meshpath_out), coords, elements, boundaries,
-                       markerpath=str(markerpath), solpath=str(solpath_out),
-                       solution=solution)
+               markerpath=str(markerpath), solpath=str(solpath_out),
+               solution=solution, write_sol=True)
 
     # Assert that the files were created
     assert meshpath_out.exists()
@@ -122,8 +122,9 @@ def test_su2_binary_to_ascii(mesh_data_binary, output_dir, markerpath,
 
     # Write the mesh with the solution
     write_mesh(str(meshpath_out), coords, elements, boundaries,
-                       markerpath=str(markerpath), solpath=str(solpath_out),
-                       labelpath=str(labelpath), solution=solution)
+               markerpath=str(markerpath), solpath=str(solpath_out),
+               labelpath=str(labelpath), solution=solution,
+               write_sol=True)
 
     # Assert that the files were created
     assert meshpath_out.exists()
@@ -146,8 +147,9 @@ def test_su2_ascii_to_ascii(mesh_data_ascii, output_dir, markerpath,
 
     # Write the mesh with the solution
     write_mesh(str(meshpath_out), coords, elements, boundaries,
-                       markerpath=str(markerpath), solpath=str(solpath_out),
-                       labelpath=str(labelpath), solution=solution)
+               markerpath=str(markerpath), solpath=str(solpath_out),
+               labelpath=str(labelpath), solution=solution,
+               write_sol=True)
 
     # Assert that the files were created
     assert meshpath_out.exists()
@@ -170,8 +172,9 @@ def test_su2_ascii_to_binary(mesh_data_ascii, output_dir, markerpath,
 
     # Write the mesh with the solution
     write_mesh(str(meshpath_out), coords, elements, boundaries,
-                       markerpath=str(markerpath), solpath=str(solpath_out),
-                       labelpath=str(labelpath), solution=solution)
+               markerpath=str(markerpath), solpath=str(solpath_out),
+               labelpath=str(labelpath), solution=solution,
+               write_sol=True)
 
     # Assert that the files were created
     assert meshpath_out.exists()
@@ -188,11 +191,11 @@ def compare_solutions(meshpath_in, solpath_in, meshpath_out, solpath_out):
     """Read the new solution and compare it to the original."""
     # Read the original solution
     _, _, _, sol_in = read_mesh(str(meshpath_in), solpath=str(solpath_in),
-                                        read_sol=True)
+                                read_sol=True)
 
     # Read the rewritten solution
     _, _, _, sol_out = read_mesh(str(meshpath_out), solpath=str(solpath_out),
-                                         read_sol=True)
+                                 read_sol=True)
 
     assert sol_out.keys() == sol_in.keys(), 'Solution fields mismatch'
 

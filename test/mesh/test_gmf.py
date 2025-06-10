@@ -2,7 +2,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from pymeshb.mesh import read_mesh, write_mesh
+from pymeshb.mesh import read_mesh, write_mesh, write_solution
 
 
 @pytest.fixture
@@ -27,7 +27,7 @@ def labelpath(output_dir):
 def mesh_data_3d(meshpath_in_3d):
     """Load the 3D mesh and create a sample solution."""
     data = read_mesh(str(meshpath_in_3d))
-    coords, elements, boundaries, solution = data
+    coords, elements, boundaries = data
 
     num_point = coords.shape[0]
     num_dim = coords.shape[1]
@@ -52,7 +52,7 @@ def mesh_data_3d(meshpath_in_3d):
 def mesh_data_2d(meshpath_in_2d):
     """Load the 2D mesh and create a sample solution."""
     data = read_mesh(str(meshpath_in_2d))
-    coords, elements, boundaries, _ = data
+    coords, elements, boundaries = data
 
     num_point = coords.shape[0]
     num_dim = coords.shape[1]
@@ -99,7 +99,37 @@ def test_read_meshb(mesh_data_3d):
     assert isinstance(solution, dict)  # Ensure solution is a dictionary
 
 
+def test_write_meshb(mesh_data_3d, output_dir):
+    """Test writing a mesh."""
+    coords, elements, boundaries, _ = mesh_data_3d
+
+    # Output paths
+    meshpath_out = output_dir / 'sphere_with_sol.mesh'
+
+    # Write the mesh with the solution
+    write_mesh(str(meshpath_out), coords, elements, boundaries)
+
+    # Assert that the files were created
+    assert meshpath_out.exists()
+
+
 def test_write_solb(mesh_data_3d, output_dir):
+    """Test writing a mesh with a solution."""
+    coords, _, _, solution = mesh_data_3d
+
+    # Output paths
+    solpath_out = output_dir / 'sphere_with_sol.solb'
+
+    # Write the mesh with the solution
+    num_point = coords.shape[0]
+    dim = coords.shape[1]
+    write_solution(str(solpath_out), solution, num_point, dim)
+
+    # Assert that the files were created
+    assert solpath_out.exists()
+
+
+def test_write_meshb_and_solb(mesh_data_3d, output_dir):
     """Test writing a mesh with a solution."""
     coords, elements, boundaries, solution = mesh_data_3d
 
@@ -109,7 +139,8 @@ def test_write_solb(mesh_data_3d, output_dir):
 
     # Write the mesh with the solution
     write_mesh(str(meshpath_out), coords, elements, boundaries,
-                       solpath=str(solpath_out), solution=solution)
+               solpath=str(solpath_out), solution=solution,
+               write_sol=True)
 
     # Assert that the files were created
     assert meshpath_out.exists()
@@ -126,8 +157,8 @@ def test_solution_keys_solb(mesh_data_2d, output_dir, labelpath):
 
     # Write the mesh with the original solution
     write_success = write_mesh(str(meshpath_out), coords, elements, boundaries,
-                                       solpath=str(solpath_out), labelpath=str(labelpath),
-                                       solution=original_solution)
+                               solpath=str(solpath_out), labelpath=str(labelpath),
+                               solution=original_solution, write_sol=True)
     print(f'Original solution written: {write_success}')
 
     # Assert that writing was successful
@@ -141,7 +172,7 @@ def test_solution_keys_solb(mesh_data_2d, output_dir, labelpath):
         str(meshpath_out),
         solpath=str(solpath_out),
         labelpath=str(labelpath),
-        read_sol=True
+        read_sol=True,
     )
 
     # Check that the solution was read correctly

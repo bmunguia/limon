@@ -18,14 +18,9 @@ namespace su2 {
  *
  * @param meshpath Path to the mesh file
  * @param markerpath Path to the map between marker strings and ref IDs (optional)
- * @param solpath Path to the solution file (optional)
- * @param labelpath Path to the map between solution strings and ref IDs (optional)
- * @param read_sol Whether to read solution data (default: false)
- * @return Tuple containing coordinates, elements, and optionally solution data
+ * @return Tuple containing coordinates and element data
  */
-py::tuple read_mesh(const std::string& meshpath, const std::string& markerpath = "",
-                    const std::string& solpath = "", const std::string& labelpath = "",
-                    bool read_sol = false);
+py::tuple read_mesh(const std::string& meshpath, const std::string& markerpath = "");
 
 /**
  * Write mesh data to an SU2 mesh file.
@@ -35,15 +30,11 @@ py::tuple read_mesh(const std::string& meshpath, const std::string& markerpath =
  * @param elements Dictionary of mesh elements
  * @param boundaries Dictionary of mesh boundary elements
  * @param markerpath Path to the map between marker strings and ref IDs (optional)
- * @param labelpath Path to the map between solution strings and ref IDs (optional)
- * @param solpath Path to the solution file (optional)
- * @param sol Dictionary of solution data (optional)
  * @return Boolean indicating success
  */
 bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
                 const py::dict& elements, const py::dict& boundaries,
-                const std::string& markerpath = "", const std::string& solpath = "",
-                const std::string& labelpath = "", py::dict sol = py::dict());
+                const std::string& markerpath = "");
 
 }  // namespace su2
 }  // namespace pymeshb

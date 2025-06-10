@@ -15,13 +15,9 @@ namespace gmf {
  * Read mesh data from a GMF mesh (.meshb) file.
  *
  * @param meshpath Path to the mesh file
- * @param solpath Path to the solution file (optional)
- * @param labelpath Path to the map between solution strings and ref IDs (optional)
- * @param read_sol Whether to read solution data (default: false)
  * @return Tuple containing coordinates, elements, and optionally solution data
  */
-py::tuple read_mesh(const std::string& meshpath, const std::string& solpath = "",
-                    const std::string& labelpath = "", bool read_sol = false);
+py::tuple read_mesh(const std::string& meshpath);
 
 /**
  * Write mesh data to a GMF mesh (.meshb) file.
@@ -30,16 +26,10 @@ py::tuple read_mesh(const std::string& meshpath, const std::string& solpath = ""
  * @param coords Coordinates of each node
  * @param elements Dictionary of mesh elements
  * @param boundaries Dictionary of mesh boundary elements
- * @param markerpath Path to the map between marker strings and ref IDs (optional)
- * @param solpath Path to the solution file (optional)
- * @param labelpath Path to the map between solution strings and ref IDs (optional)
- * @param sol Dictionary of solution data (optional)
  * @return Boolean indicating success
  */
 bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
-                const py::dict& elements, const py::dict& boundaries,
-                const std::string& solpath = "", const std::string& labelpath = "",
-                py::dict sol = py::dict());
+                const py::dict& elements, const py::dict& boundaries);
 
 } // namespace gmf
 } // namespace pymeshb

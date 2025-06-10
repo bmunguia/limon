@@ -26,7 +26,7 @@ def print_perturb_comparison(met, met_pert):
 def mesh_data():
     """Load the 2D mesh and create a sample solution."""
     meshpath_in = 'example/square/square.mesh'
-    coords, elements, boundaries, solution = read_mesh(meshpath_in)
+    coords, elements, boundaries = read_mesh(meshpath_in)
 
     num_point = coords.shape[0]
     num_dim = coords.shape[1]
@@ -61,7 +61,8 @@ def test_write_mesh_with_metric(mesh_data, output_dir):
 
     # Write the mesh with the solution
     write_mesh(str(meshpath_out), coords, elements, boundaries,
-               solpath=str(solpath_out), solution=solution)
+               solpath=str(solpath_out), solution=solution,
+               write_sol=True)
 
     # Assert that the files were created
     assert meshpath_out.exists()
@@ -108,7 +109,8 @@ def test_perturb_eigenvalues(mesh_data, output_dir):
 
     # Write the mesh with perturbed metrics
     write_mesh(str(pert_meshpath_out), coords, elements, boundaries,
-               solpath=str(pert_solpath_out), solution=perturbed_solution)
+               solpath=str(pert_solpath_out), solution=perturbed_solution,
+               write_sol=True)
 
     # Assert that the files were created
     assert pert_meshpath_out.exists()
@@ -154,7 +156,8 @@ def test_perturb_orientation(mesh_data, output_dir):
 
     # Write the mesh with perturbed metrics
     write_mesh(str(pert_meshpath_out), coords, elements, boundaries,
-               solpath=str(pert_solpath_out), solution=perturbed_solution)
+               solpath=str(pert_solpath_out), solution=perturbed_solution,
+               write_sol=True)
 
     # Assert that the files were created
     assert pert_meshpath_out.exists()
@@ -202,7 +205,8 @@ def test_perturb_metric_field(mesh_data, output_dir):
 
     # Write the mesh with perturbed metrics
     write_mesh(str(pert_meshpath_out), coords, elements, boundaries,
-               solpath=str(pert_solpath_out), solution=perturbed_solution)
+               solpath=str(pert_solpath_out), solution=perturbed_solution,
+               write_sol=True)
 
     # Assert that the files were created
     assert pert_meshpath_out.exists()
@@ -255,7 +259,8 @@ def test_nonuniform_perturb_metric_field(mesh_data, output_dir):
 
     # Write the mesh with perturbed metrics
     write_mesh(str(pert_meshpath_out), coords, elements, boundaries,
-               solpath=str(pert_solpath_out), solution=perturbed_solution)
+               solpath=str(pert_solpath_out), solution=perturbed_solution,
+               write_sol=True)
 
     # Assert that the files were created
     assert pert_meshpath_out.exists()

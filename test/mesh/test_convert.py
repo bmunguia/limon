@@ -87,8 +87,8 @@ def test_su2_to_gmf(su2_mesh_data, output_dir):
 
     # Write the mesh with the solution
     write_mesh(str(meshpath_out), coords, elements, boundaries,
-               solpath=str(solpath_out),
-               solution=solution)
+               solpath=str(solpath_out), solution=solution,
+               write_sol=True)
 
     # Assert that the files were created
     assert meshpath_out.exists()
@@ -109,7 +109,7 @@ def test_gmf_to_su2(gmf_mesh_data, output_dir, markerpath_in):
     # Write the mesh with the solution
     write_mesh(str(meshpath_out), coords, elements, boundaries,
                markerpath=str(markerpath_in), solpath=str(solpath_out),
-               solution=solution)
+               solution=solution, write_sol=True)
 
     # Assert that the files were created
     assert meshpath_out.exists()
