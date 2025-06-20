@@ -330,7 +330,7 @@ void write_element_type(std::ofstream& mesh_file, int elem_type, py::array_t<uns
         for (int j = 0; j < num_node; j++) {
             mesh_file << elem_ptr[i * (num_node + 1) + j] << "\t";
         }
-        mesh_file << elem_ptr[i * (num_node + 1) + num_node] << std::endl;
+        mesh_file << i << std::endl;
     }
 }
 
