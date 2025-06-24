@@ -163,3 +163,53 @@ def perturb_metric_field(
         np.asarray(delta_eigenvals, dtype=np.float64),
         np.asarray(rotation_angles, dtype=np.float64)
     )
+
+def integrate_metric_field(
+    metrics: NDArray,
+    volumes: NDArray
+) -> float:
+    r"""
+    Integrate the determinant of metric tensors over volumes.
+
+    For each tensor in the input array, this function:
+    1. Reconstructs the full tensor from lower triangular elements
+    2. Computes the determinant of the tensor
+    3. Multiplies by the corresponding volume and adds to the integral
+
+    Args:
+        metrics (numpy.ndarray): Array of shape (num_point, num_met) where each row
+                                contains the lower triangular elements of a tensor.
+                                num_met is 1, 3, or 6 for 1D, 2D, or 3D tensors.
+        volumes (numpy.ndarray): Array of shape (num_point,) containing volumes for 
+                                each point.
+
+    Returns:
+        float: Scalar value representing the integrated determinant ∑(det(M_i) * volume_i).
+
+    Raises:
+        RuntimeError: If input arrays have incompatible shapes
+        RuntimeError: If tensor size is not 1, 3, or 6 elements
+        RuntimeError: If volumes shape is not (num_point,)
+
+    Examples:
+        >>> # Integrate determinants of a field of 2D tensors
+        >>> metrics = np.array([
+        ...     [2.0, 0.5, 1.0],  # First 2D tensor [a00, a10, a11]
+        ...     [3.0, 0.0, 1.0],  # Second 2D tensor
+        ...     [1.5, 0.2, 2.0],  # Third 2D tensor
+        ... ])
+        >>> volumes = np.array([0.1, 0.2, 0.15])  # Volume for each point
+        >>> integral = integrate_metric_field(metrics, volumes)
+        
+        >>> # Integrate determinants of a field of 3D tensors
+        >>> metrics_3d = np.array([
+        ...     [2.0, 0.5, 1.0, 0.1, 0.2, 3.0],  # 3D tensor [a00, a10, a11, a20, a21, a22]
+        ...     [3.0, 0.0, 1.0, 0.3, 0.1, 2.0],  # Second 3D tensor
+        ... ])
+        >>> volumes_3d = np.array([0.05, 0.08])
+        >>> integral_3d = integrate_metric_field(metrics_3d, volumes_3d)
+    """
+    return _metric.integrate_metric_field(
+        np.asarray(metrics, dtype=np.float64),
+        np.asarray(volumes, dtype=np.float64)
+    )
