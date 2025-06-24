@@ -410,11 +410,13 @@ py::array_t<double> perturb_metric_field(
  * @param metrics Array of shape (num_point, num_met) where each row
  *                contains the lower triangular elements of a tensor
  * @param volumes Array of shape (num_point,) containing volumes for each point
+ * @param norm Choice of norm for Lp-norm normalization
  * @return Scalar value representing the integrated determinant
  */
 double integrate_metric_field(
     py::array_t<double> metrics,
-    py::array_t<double> volumes) {
+    py::array_t<double> volumes,
+    double norm) {
 
     auto metrics_info = metrics.request();
     auto volumes_info = volumes.request();
@@ -440,6 +442,9 @@ double integrate_metric_field(
     double* volumes_ptr = static_cast<double*>(volumes_info.ptr);
 
     double integral = 0.0;
+
+    // Exponent for global normalization term
+    double norm_exp = norm / (2.0 * norm + dim);
 
     // Process each tensor
     for (unsigned int i = 0; i < num_point; i++) {
@@ -471,7 +476,7 @@ double integrate_metric_field(
         double volume = volumes_ptr[i];
 
         // Add to integral
-        integral += det * volume;
+        integral += std::pow(det, norm_exp) * volume;
     }
 
     return integral;
@@ -502,5 +507,5 @@ PYBIND11_MODULE(_metric, m) {
 
     m.def("integrate_metric_field", &integrate_metric_field,
           "Integrate determinant of metric tensors over volumes",
-          py::arg("metrics"), py::arg("volumes"));
+          py::arg("metrics"), py::arg("volumes"), py::arg("norm"));
 }

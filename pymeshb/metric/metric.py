@@ -166,7 +166,8 @@ def perturb_metric_field(
 
 def integrate_metric_field(
     metrics: NDArray,
-    volumes: NDArray
+    volumes: NDArray,
+    norm: float = 2.0,
 ) -> float:
     r"""
     Integrate the determinant of metric tensors over volumes.
@@ -182,6 +183,7 @@ def integrate_metric_field(
                                 num_met is 1, 3, or 6 for 1D, 2D, or 3D tensors.
         volumes (numpy.ndarray): Array of shape (num_point,) containing volumes for 
                                 each point.
+        norm (float): Choice of norm for Lp-norm normalization.
 
     Returns:
         float: Scalar value representing the integrated determinant ∑(det(M_i) * volume_i).
@@ -199,7 +201,7 @@ def integrate_metric_field(
         ...     [1.5, 0.2, 2.0],  # Third 2D tensor
         ... ])
         >>> volumes = np.array([0.1, 0.2, 0.15])  # Volume for each point
-        >>> integral = integrate_metric_field(metrics, volumes)
+        >>> integral = integrate_metric_field(metrics, volumes, norm=2.0)
         
         >>> # Integrate determinants of a field of 3D tensors
         >>> metrics_3d = np.array([
@@ -207,9 +209,10 @@ def integrate_metric_field(
         ...     [3.0, 0.0, 1.0, 0.3, 0.1, 2.0],  # Second 3D tensor
         ... ])
         >>> volumes_3d = np.array([0.05, 0.08])
-        >>> integral_3d = integrate_metric_field(metrics_3d, volumes_3d)
+        >>> integral_3d = integrate_metric_field(metrics_3d, volumes_3d, norm=2.0)
     """
     return _metric.integrate_metric_field(
         np.asarray(metrics, dtype=np.float64),
-        np.asarray(volumes, dtype=np.float64)
+        np.asarray(volumes, dtype=np.float64),
+        norm,
     )
