@@ -216,3 +216,62 @@ def integrate_metric_field(
         np.asarray(volumes, dtype=np.float64),
         norm,
     )
+
+def normalize_metric_field(
+    metrics: NDArray,
+    norm: float,
+    metric_integral: float,
+    complexity: int,
+) -> NDArray:
+    r"""
+    Normalize a field of metric tensors.
+
+    For each tensor in the input array, this function:
+    1. Reconstructs the full tensor from lower triangular elements
+    2. Computes the determinant of the tensor
+    3. Scales the tensor by the normalization factor
+
+    The normalization applies the scaling factor:
+    (complexity / metric_integral)^(2/dim) * det(M)^(-1/(2*norm + dim))
+
+    Args:
+        metrics (numpy.ndarray): Array of shape (num_point, num_met) where each row
+                                contains the lower triangular elements of a tensor.
+                                num_met is 1, 3, or 6 for 1D, 2D, or 3D tensors.
+        norm (float): Choice of norm for Lp-norm normalization.
+        metric_integral (float): Integral of metric determinants over the domain.
+        complexity (int): Target complexity for normalization.
+
+    Returns:
+        numpy.ndarray: Array of normalized metric tensors in lower triangular form.
+
+    Raises:
+        RuntimeError: If input arrays have incompatible shapes
+        RuntimeError: If tensor size is not 1, 3, or 6 elements
+
+    Examples:
+        >>> # Normalize a field of 2D tensors
+        >>> metrics = np.array([
+        ...     [2.0, 0.5, 1.0],  # First 2D tensor [a00, a10, a11]
+        ...     [3.0, 0.0, 1.0],  # Second 2D tensor
+        ...     [1.5, 0.2, 2.0],  # Third 2D tensor
+        ... ])
+        >>> norm = 2.0
+        >>> metric_integral = 15.5  # Previously computed integral
+        >>> complexity = 1000.0    # Target complexity
+        >>> normalized = normalize_metric_field(metrics, norm, metric_integral, complexity)
+        
+        >>> # Normalize a field of 3D tensors
+        >>> metrics_3d = np.array([
+        ...     [2.0, 0.5, 1.0, 0.1, 0.2, 3.0],  # 3D tensor
+        ...     [3.0, 0.0, 1.0, 0.3, 0.1, 2.0],  # Second 3D tensor
+        ... ])
+        >>> normalized_3d = normalize_metric_field(metrics_3d, norm=2.0, metric_integral=25.8, 
+                                                   complexity=5000)
+    """
+    return _metric.normalize_metric_field(
+        np.asarray(metrics, dtype=np.float64),
+        norm,
+        metric_integral,
+        complexity,
+    )
