@@ -167,7 +167,7 @@ def perturb_metric_field(
 def integrate_metric_field(
     metrics: NDArray,
     volumes: NDArray,
-    norm: float = 2.0,
+    norm: int = 2,
 ) -> float:
     r"""
     Integrate the determinant of metric tensors over volumes.
@@ -183,7 +183,7 @@ def integrate_metric_field(
                                 num_met is 1, 3, or 6 for 1D, 2D, or 3D tensors.
         volumes (numpy.ndarray): Array of shape (num_point,) containing volumes for 
                                 each point.
-        norm (float): Choice of norm for Lp-norm normalization.
+        norm (int): Choice of norm for Lp-norm normalization.
 
     Returns:
         float: Scalar value representing the integrated determinant ∑(det(M_i) * volume_i).
@@ -201,7 +201,7 @@ def integrate_metric_field(
         ...     [1.5, 0.2, 2.0],  # Third 2D tensor
         ... ])
         >>> volumes = np.array([0.1, 0.2, 0.15])  # Volume for each point
-        >>> integral = integrate_metric_field(metrics, volumes, norm=2.0)
+        >>> integral = integrate_metric_field(metrics, volumes, norm=2)
         
         >>> # Integrate determinants of a field of 3D tensors
         >>> metrics_3d = np.array([
@@ -209,7 +209,7 @@ def integrate_metric_field(
         ...     [3.0, 0.0, 1.0, 0.3, 0.1, 2.0],  # Second 3D tensor
         ... ])
         >>> volumes_3d = np.array([0.05, 0.08])
-        >>> integral_3d = integrate_metric_field(metrics_3d, volumes_3d, norm=2.0)
+        >>> integral_3d = integrate_metric_field(metrics_3d, volumes_3d, norm=2)
     """
     return _metric.integrate_metric_field(
         np.asarray(metrics, dtype=np.float64),
@@ -219,9 +219,9 @@ def integrate_metric_field(
 
 def normalize_metric_field(
     metrics: NDArray,
-    norm: float,
     metric_integral: float,
     complexity: int,
+    norm: float,
 ) -> NDArray:
     r"""
     Normalize a field of metric tensors.
@@ -238,9 +238,9 @@ def normalize_metric_field(
         metrics (numpy.ndarray): Array of shape (num_point, num_met) where each row
                                 contains the lower triangular elements of a tensor.
                                 num_met is 1, 3, or 6 for 1D, 2D, or 3D tensors.
-        norm (float): Choice of norm for Lp-norm normalization.
         metric_integral (float): Integral of metric determinants over the domain.
         complexity (int): Target complexity for normalization.
+        norm (int): Choice of norm for Lp-norm normalization.
 
     Returns:
         numpy.ndarray: Array of normalized metric tensors in lower triangular form.
@@ -256,22 +256,22 @@ def normalize_metric_field(
         ...     [3.0, 0.0, 1.0],  # Second 2D tensor
         ...     [1.5, 0.2, 2.0],  # Third 2D tensor
         ... ])
-        >>> norm = 2.0
+        >>> norm = 2
         >>> metric_integral = 15.5  # Previously computed integral
         >>> complexity = 1000.0    # Target complexity
-        >>> normalized = normalize_metric_field(metrics, norm, metric_integral, complexity)
+        >>> normalized = normalize_metric_field(metrics, metric_integral, complexity, norm)
         
         >>> # Normalize a field of 3D tensors
         >>> metrics_3d = np.array([
         ...     [2.0, 0.5, 1.0, 0.1, 0.2, 3.0],  # 3D tensor
         ...     [3.0, 0.0, 1.0, 0.3, 0.1, 2.0],  # Second 3D tensor
         ... ])
-        >>> normalized_3d = normalize_metric_field(metrics_3d, norm=2.0, metric_integral=25.8, 
-                                                   complexity=5000)
+        >>> normalized_3d = normalize_metric_field(metrics_3d, metric_integral=25.8, 
+                                                   complexity=5000, norm=2)
     """
     return _metric.normalize_metric_field(
         np.asarray(metrics, dtype=np.float64),
-        norm,
         metric_integral,
         complexity,
+        norm,
     )

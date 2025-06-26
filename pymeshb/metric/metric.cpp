@@ -416,7 +416,7 @@ py::array_t<double> perturb_metric_field(
 double integrate_metric_field(
     py::array_t<double> metrics,
     py::array_t<double> volumes,
-    double norm) {
+    int norm) {
 
     auto metrics_info = metrics.request();
     auto volumes_info = volumes.request();
@@ -492,16 +492,16 @@ double integrate_metric_field(
  *
  * @param metrics Array of shape (num_point, num_met) where each row
  *                contains the lower triangular elements of a tensor
- * @param norm Choice of norm for Lp-norm normalization
  * @param metric_integral Integral of metric determinants over the domain
  * @param complexity Target complexity for normalization
+ * @param norm Choice of norm for Lp-norm normalization
  * @return Array of normalized metric tensors in lower triangular form
  */
 py::array_t<double> normalize_metric_field(
     py::array_t<double> metrics,
-    double norm,
     double metric_integral,
-    int complexity) {
+    int complexity,
+    int norm) {
 
     auto metrics_info = metrics.request();
 
@@ -614,6 +614,6 @@ PYBIND11_MODULE(_metric, m) {
 
     m.def("normalize_metric_field", &normalize_metric_field,
           "Normalize a field of metric tensors",
-          py::arg("metrics"), py::arg("norm"), 
-          py::arg("metric_integral"), py::arg("complexity"));
+          py::arg("metrics"), py::arg("metric_integral"), 
+          py::arg("complexity"), py::arg("norm"));
 }
