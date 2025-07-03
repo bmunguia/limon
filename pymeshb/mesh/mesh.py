@@ -39,11 +39,8 @@ def read_mesh(
         elif suffix == '.su2':
             coords, elms, bnds = su2.read_mesh(meshpath, markerpath)
         else:
-            raise ValueError(
-                f'Unsupported mesh file format: {suffix}. '
-                'Supported formats are .mesh, .meshb, and .su2'
-            )
-        
+            raise ValueError(f'Unsupported mesh file format: {suffix}. Supported formats are .mesh, .meshb, and .su2')
+
         if read_sol and solpath is not None:
             labelpath = labelpath if labelpath is not None else ''
             num_point = coords.shape[0]
@@ -59,7 +56,7 @@ def read_mesh(
         return coords, elms, bnds
 
     except Exception as e:
-        print(f"Error reading mesh: {e}")
+        print(f'Error reading mesh: {e}')
         return None, None, None, None
 
 
@@ -91,7 +88,7 @@ def write_mesh(
                                    ref IDs. Defaults to None.
         solution (dict, optional): Dictionary of solution data. Keys are
                                    field names, values are numpy arrays.
-        read_sol (bool, optional): Whether to write solution data. Defaults to False.
+        write_sol (bool, optional): Whether to write solution data. Defaults to False.
 
     Returns:
         bool: True if successful, False otherwise
@@ -103,14 +100,10 @@ def write_mesh(
         if suffix in ['.mesh', '.meshb']:
             success = gmf.write_mesh(meshpath, coords, elements, boundaries)
         elif suffix == '.su2':
-            success = su2.write_mesh(meshpath, coords, elements, boundaries,
-                                     markerpath)
+            success = su2.write_mesh(meshpath, coords, elements, boundaries, markerpath)
         else:
-            raise ValueError(
-                f'Unsupported mesh file format: {suffix}. '
-                'Supported formats are .mesh, .meshb, and .su2'
-            )
-        
+            raise ValueError(f'Unsupported mesh file format: {suffix}. Supported formats are .mesh, .meshb, and .su2')
+
         if success and write_sol and solpath is not None and solution is not None:
             labelpath = labelpath if labelpath is not None else ''
             num_point = coords.shape[0]
@@ -124,8 +117,9 @@ def write_mesh(
         return success
 
     except Exception as e:
-        print(f"Error writing mesh: {e}")
+        print(f'Error writing mesh: {e}')
         return False
+
 
 def read_solution(
     solpath: str,
@@ -133,7 +127,7 @@ def read_solution(
     dim: int,
     labelpath: str | None = None,
 ) -> dict[str, NDArray]:
-    """Read solution data from a solution file.
+    r"""Read solution data from a solution file.
 
     Args:
         solpath (str): Path to the solution file.
@@ -153,11 +147,10 @@ def read_solution(
             return su2.read_solution(solpath, num_point, dim, labelpath)
         else:
             raise ValueError(
-                f'Unsupported solution file format: {suffix}. '
-                'Supported formats are .sol, .solb, .dat, and .csv'
+                f'Unsupported solution file format: {suffix}. Supported formats are .sol, .solb, .dat, and .csv'
             )
     except Exception as e:
-        print(f"Error reading solution: {e}")
+        print(f'Error reading solution: {e}')
         return {}
 
 
@@ -189,9 +182,8 @@ def write_solution(
             return su2.write_solution(solpath, solution, num_point, dim, labelpath)
         else:
             raise ValueError(
-                f'Unsupported solution file format: {suffix}. '
-                'Supported formats are .sol, .solb, .dat, and .csv'
+                f'Unsupported solution file format: {suffix}. Supported formats are .sol, .solb, .dat, and .csv'
             )
     except Exception as e:
-        print(f"Error writing solution: {e}")
+        print(f'Error writing solution: {e}')
         return False

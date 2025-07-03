@@ -56,13 +56,13 @@ def write_mesh(
     """
     try:
         markerpath = markerpath if markerpath is not None else ''
-        success = libsu2.write_mesh(meshpath, coords, elements, boundaries,
-                                    markerpath)
+        success = libsu2.write_mesh(meshpath, coords, elements, boundaries, markerpath)
         return success
 
     except Exception as e:
         print(f'Error writing mesh: {e}')
         return False
+
 
 def read_solution(
     solpath: str,
@@ -116,4 +116,3 @@ def write_solution(
     except Exception as e:
         print(f'Error writing solution: {e}')
         return False
-    

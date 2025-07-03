@@ -32,9 +32,7 @@ def mesh_data():
     num_dim = coords.shape[1]
 
     # Create a sample solution dictionary
-    solution = {
-        'Metric': np.zeros((num_point, (num_dim * (num_dim + 1)) // 2))
-    }
+    solution = {'Metric': np.zeros((num_point, (num_dim * (num_dim + 1)) // 2))}
 
     # Make sample metric diagonal
     solution['Metric'][:, 0] = 1e3
@@ -60,9 +58,9 @@ def test_write_mesh_with_metric(mesh_data, output_dir):
     solpath_out = output_dir / 'square_with_met.solb'
 
     # Write the mesh with the solution
-    write_mesh(str(meshpath_out), coords, elements, boundaries,
-               solpath=str(solpath_out), solution=solution,
-               write_sol=True)
+    write_mesh(
+        str(meshpath_out), coords, elements, boundaries, solpath=str(solpath_out), solution=solution, write_sol=True
+    )
 
     # Assert that the files were created
     assert meshpath_out.exists()
@@ -99,18 +97,22 @@ def test_perturb_eigenvalues(mesh_data, output_dir):
     assert not np.allclose(perturbed_metrics_eig, solution['Metric'])
 
     # Create a new solution dictionary for perturbed metrics
-    perturbed_solution = {
-        'Metric': perturbed_metrics_eig
-    }
+    perturbed_solution = {'Metric': perturbed_metrics_eig}
 
     # Output paths
     pert_meshpath_out = output_dir / 'square_with_eig_pert_only.meshb'
     pert_solpath_out = output_dir / 'square_with_eig_pert_only.solb'
 
     # Write the mesh with perturbed metrics
-    write_mesh(str(pert_meshpath_out), coords, elements, boundaries,
-               solpath=str(pert_solpath_out), solution=perturbed_solution,
-               write_sol=True)
+    write_mesh(
+        str(pert_meshpath_out),
+        coords,
+        elements,
+        boundaries,
+        solpath=str(pert_solpath_out),
+        solution=perturbed_solution,
+        write_sol=True,
+    )
 
     # Assert that the files were created
     assert pert_meshpath_out.exists()
@@ -146,18 +148,22 @@ def test_perturb_orientation(mesh_data, output_dir):
     assert not np.allclose(perturbed_metrics_rot, solution['Metric'])
 
     # Create a new solution dictionary for perturbed metrics
-    perturbed_solution = {
-        'Metric': perturbed_metrics_rot
-    }
+    perturbed_solution = {'Metric': perturbed_metrics_rot}
 
     # Output paths
     pert_meshpath_out = output_dir / 'square_with_rot_pert_only.meshb'
     pert_solpath_out = output_dir / 'square_with_rot_pert_only.solb'
 
     # Write the mesh with perturbed metrics
-    write_mesh(str(pert_meshpath_out), coords, elements, boundaries,
-               solpath=str(pert_solpath_out), solution=perturbed_solution,
-               write_sol=True)
+    write_mesh(
+        str(pert_meshpath_out),
+        coords,
+        elements,
+        boundaries,
+        solpath=str(pert_solpath_out),
+        solution=perturbed_solution,
+        write_sol=True,
+    )
 
     # Assert that the files were created
     assert pert_meshpath_out.exists()
@@ -195,18 +201,22 @@ def test_perturb_metric_field(mesh_data, output_dir):
     assert not np.allclose(perturbed_metrics, solution['Metric'])
 
     # Create a new solution dictionary for perturbed metrics
-    perturbed_solution = {
-        'Metric': perturbed_metrics
-    }
+    perturbed_solution = {'Metric': perturbed_metrics}
 
     # Output paths
     pert_meshpath_out = output_dir / 'square_with_combined_pert.meshb'
     pert_solpath_out = output_dir / 'square_with_combined_pert.solb'
 
     # Write the mesh with perturbed metrics
-    write_mesh(str(pert_meshpath_out), coords, elements, boundaries,
-               solpath=str(pert_solpath_out), solution=perturbed_solution,
-               write_sol=True)
+    write_mesh(
+        str(pert_meshpath_out),
+        coords,
+        elements,
+        boundaries,
+        solpath=str(pert_solpath_out),
+        solution=perturbed_solution,
+        write_sol=True,
+    )
 
     # Assert that the files were created
     assert pert_meshpath_out.exists()
@@ -249,18 +259,22 @@ def test_nonuniform_perturb_metric_field(mesh_data, output_dir):
     assert not np.allclose(perturbed_metrics, solution['Metric'])
 
     # Create a new solution dictionary for perturbed metrics
-    perturbed_solution = {
-        'Metric': perturbed_metrics
-    }
+    perturbed_solution = {'Metric': perturbed_metrics}
 
     # Output paths
     pert_meshpath_out = output_dir / 'square_with_nonuniform_pert.meshb'
     pert_solpath_out = output_dir / 'square_with_nonuniform_pert.solb'
 
     # Write the mesh with perturbed metrics
-    write_mesh(str(pert_meshpath_out), coords, elements, boundaries,
-               solpath=str(pert_solpath_out), solution=perturbed_solution,
-               write_sol=True)
+    write_mesh(
+        str(pert_meshpath_out),
+        coords,
+        elements,
+        boundaries,
+        solpath=str(pert_solpath_out),
+        solution=perturbed_solution,
+        write_sol=True,
+    )
 
     # Assert that the files were created
     assert pert_meshpath_out.exists()

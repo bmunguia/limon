@@ -1,8 +1,8 @@
 from .metric import (
-    decompose, 
+    decompose,
     integrate_metric_field,
     normalize_metric_field,
-    perturb, 
-    perturb_metric_field, 
+    perturb,
+    perturb_metric_field,
     recompose,
 )

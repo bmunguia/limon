@@ -70,7 +70,7 @@ addopts = [
 testpaths = ["test"]
 
 [tool.flake8]
-max-line-length = 80
+max-line-length = 120
 indent-size = 4
 per-file-ignores = ["__init__.py:F401"]
 
@@ -81,7 +81,7 @@ blank_line_before_nested_class_or_def = false
 
 [tool.ruff]
 src = ["pymeshb"]
-line-length = 80
+line-length = 120
 indent-width = 4
 target-version = "py312"
 

@@ -138,9 +138,9 @@ def test_write_meshb_and_solb(mesh_data_3d, output_dir):
     solpath_out = output_dir / 'sphere_with_sol.solb'
 
     # Write the mesh with the solution
-    write_mesh(str(meshpath_out), coords, elements, boundaries,
-               solpath=str(solpath_out), solution=solution,
-               write_sol=True)
+    write_mesh(
+        str(meshpath_out), coords, elements, boundaries, solpath=str(solpath_out), solution=solution, write_sol=True
+    )
 
     # Assert that the files were created
     assert meshpath_out.exists()
@@ -156,9 +156,16 @@ def test_solution_keys_solb(mesh_data_2d, output_dir, labelpath):
     solpath_out = output_dir / 'square_with_fields.solb'
 
     # Write the mesh with the original solution
-    write_success = write_mesh(str(meshpath_out), coords, elements, boundaries,
-                               solpath=str(solpath_out), labelpath=str(labelpath),
-                               solution=original_solution, write_sol=True)
+    write_success = write_mesh(
+        str(meshpath_out),
+        coords,
+        elements,
+        boundaries,
+        solpath=str(solpath_out),
+        labelpath=str(labelpath),
+        solution=original_solution,
+        write_sol=True,
+    )
     print(f'Original solution written: {write_success}')
 
     # Assert that writing was successful
@@ -192,9 +199,7 @@ def test_solution_keys_solb(mesh_data_2d, output_dir, labelpath):
         assert key in reread_solution, f'Field "{key}" missing in reread solution'
 
         # Check shape
-        assert reread_solution[key].shape == original_solution[key].shape, \
-            f'Shape mismatch for field "{key}"'
+        assert reread_solution[key].shape == original_solution[key].shape, f'Shape mismatch for field "{key}"'
 
         # Check approximate values (allowing for small floating point differences)
-        assert np.allclose(reread_solution[key], original_solution[key], rtol=1e-5), \
-            f'Values differ for field "{key}"'
+        assert np.allclose(reread_solution[key], original_solution[key], rtol=1e-5), f'Values differ for field "{key}"'
