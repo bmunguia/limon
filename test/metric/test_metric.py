@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 from pymeshb.mesh import read_mesh, write_mesh
-from pymeshb.metric import perturb_metric_field
+from pymeshb.metric import perturb_metric_field, metric_edge_length, metric_edge_length_at_endpoints
 
 
 def print_perturb_comparison(met, met_pert):
@@ -328,3 +328,123 @@ def test_nonuniform_perturb_metric_field(mesh_data_2d, output_dir):
     # Assert that the files were created
     assert pert_meshpath_out.exists()
     assert pert_solpath_out.exists()
+
+
+def test_edge_length(mesh_data_2d, output_dir):
+    """Test the computation of edge lengths for the 2D metric field."""
+    coords, elements, boundaries, solution, num_point, num_dim = mesh_data_2d
+
+    # Extract edges from triangular elements (first 4 triangles, first 2 vertices of each)
+    print(elements.keys())
+    edges = elements['Triangles'][:4, :2]
+    print('Using edges:', edges)
+
+    # Compute edge lengths using the metric field
+    edge_lengths = metric_edge_length(edges, coords, solution['Metric'])
+
+    # Assert that the edge lengths have the expected shape
+    assert edge_lengths.shape[0] == edges.shape[0]
+    assert edge_lengths.ndim == 1
+
+    # Optionally, print the edge lengths for inspection
+    print('Computed edge lengths:', edge_lengths)
+
+
+def test_edge_length_at_endpoints(mesh_data_2d, output_dir):
+    """Test the computation of edge lengths at the endpoints of the 2D metric field."""
+    coords, elements, boundaries, solution, num_point, num_dim = mesh_data_2d
+
+    # Extract edges from triangular elements (first 4 triangles, first 2 vertices of each)
+    edges = elements['Triangles'][:4, :2]
+    print('Using edges:', edges)
+
+    # Compute edge lengths at endpoints using the metric field
+    edge_lengths_endpoints = metric_edge_length_at_endpoints(edges, coords, solution['Metric'])
+
+    # Assert that the edge lengths at endpoints have the expected shape
+    assert edge_lengths_endpoints.shape[0] == edges.shape[0]
+    assert edge_lengths_endpoints.ndim == 2
+
+    # Optionally, print the edge lengths at endpoints for inspection
+    print('Computed edge lengths at endpoints:', edge_lengths_endpoints)
+
+
+def test_metric_edge_length():
+    """Test metric edge length functions with basic cases."""
+    # Test case 1: Identity metric should give Euclidean edge length
+    # 2D case
+    coords_2d = np.array([[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]])
+    edges_2d = np.array([[0, 1], [0, 2], [1, 2]], dtype=np.int32)
+
+    # Identity metric in 2D (lower triangular storage: [m00, m01, m11])
+    identity_2d = np.array([1.0, 0.0, 1.0])
+    metrics_2d = np.tile(identity_2d, (3, 1))  # Same metric at all points
+
+    # Expected Euclidean lengths
+    expected_lengths_2d = np.array([1.0, 1.0, np.sqrt(2)])
+
+    # Test both functions
+    lengths_endpoints_2d = metric_edge_length_at_endpoints(edges_2d, coords_2d, metrics_2d)
+    lengths_integrated_2d = metric_edge_length(edges_2d, coords_2d, metrics_2d)
+
+    # metric_edge_length_at_endpoints returns lengths at both endpoints (2D array)
+    # For identity metric, both endpoints should give same length
+    assert lengths_endpoints_2d.shape == (3, 2), f'Expected shape (3,2), got {lengths_endpoints_2d.shape}'
+    assert np.allclose(lengths_endpoints_2d[:, 0], expected_lengths_2d, atol=1e-12), (
+        f'2D endpoints start: expected {expected_lengths_2d}, got {lengths_endpoints_2d[:, 0]}'
+    )
+    assert np.allclose(lengths_endpoints_2d[:, 1], expected_lengths_2d, atol=1e-12), (
+        f'2D endpoints end: expected {expected_lengths_2d}, got {lengths_endpoints_2d[:, 1]}'
+    )
+
+    # metric_edge_length returns integrated length (1D array)
+    assert np.allclose(lengths_integrated_2d, expected_lengths_2d, atol=1e-6), (
+        f'2D integrated: expected {expected_lengths_2d}, got {lengths_integrated_2d}'
+    )
+
+    # Test case 2: 3D identity metric
+    coords_3d = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]])
+    edges_3d = np.array([[0, 1], [0, 2], [0, 3], [1, 2]], dtype=np.int32)
+
+    # Identity metric in 3D (lower triangular storage: [m00, m01, m11, m02, m12, m22])
+    identity_3d = np.array([1.0, 0.0, 1.0, 0.0, 0.0, 1.0])
+    metrics_3d = np.tile(identity_3d, (4, 1))  # Same metric at all points
+
+    # Expected Euclidean lengths
+    expected_lengths_3d = np.array([1.0, 1.0, 1.0, np.sqrt(2)])
+
+    # Test both functions
+    lengths_endpoints_3d = metric_edge_length_at_endpoints(edges_3d, coords_3d, metrics_3d)
+    lengths_integrated_3d = metric_edge_length(edges_3d, coords_3d, metrics_3d)
+
+    # metric_edge_length_at_endpoints returns lengths at both endpoints (2D array)
+    assert lengths_endpoints_3d.shape == (4, 2), f'Expected shape (4,2), got {lengths_endpoints_3d.shape}'
+    assert np.allclose(lengths_endpoints_3d[:, 0], expected_lengths_3d, atol=1e-12), (
+        f'3D endpoints start: expected {expected_lengths_3d}, got {lengths_endpoints_3d[:, 0]}'
+    )
+    assert np.allclose(lengths_endpoints_3d[:, 1], expected_lengths_3d, atol=1e-12), (
+        f'3D endpoints end: expected {expected_lengths_3d}, got {lengths_endpoints_3d[:, 1]}'
+    )
+
+    # metric_edge_length returns integrated length (1D array)
+    assert np.allclose(lengths_integrated_3d, expected_lengths_3d, atol=1e-6), (
+        f'3D integrated: expected {expected_lengths_3d}, got {lengths_integrated_3d}'
+    )
+
+    # Test case 3: Scaled metric (should scale edge lengths)
+    scale_factor = 4.0
+    scaled_2d = np.array([scale_factor, 0.0, scale_factor])
+    scaled_metrics_2d = np.tile(scaled_2d, (3, 1))
+
+    expected_scaled_2d = expected_lengths_2d * np.sqrt(scale_factor)
+
+    lengths_scaled_2d = metric_edge_length_at_endpoints(edges_2d, coords_2d, scaled_metrics_2d)
+
+    assert np.allclose(lengths_scaled_2d[:, 0], expected_scaled_2d, atol=1e-12), (
+        f'2D scaled start: expected {expected_scaled_2d}, got {lengths_scaled_2d[:, 0]}'
+    )
+    assert np.allclose(lengths_scaled_2d[:, 1], expected_scaled_2d, atol=1e-12), (
+        f'2D scaled end: expected {expected_scaled_2d}, got {lengths_scaled_2d[:, 1]}'
+    )
+
+    print('All edge length tests passed!')
