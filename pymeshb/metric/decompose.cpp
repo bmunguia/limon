@@ -70,7 +70,7 @@ py::tuple decompose(py::array_t<double> lower_tri) {
     py::array_t<double> eigenvalues(dim);
     auto eig_vals_ptr = eigenvalues.mutable_unchecked<1>();
 
-    py::array_t<double> eigenvectors({(ptrdiff_t)dim, (ptrdiff_t)dim});
+    py::array_t<double> eigenvectors(std::vector<py::ssize_t>{dim, dim});
     auto eig_vecs_ptr = eigenvectors.mutable_unchecked<2>();
 
     // Eigen returns eigenvalues in ascending order. We need descending.
@@ -128,8 +128,8 @@ py::tuple decompose_metric_field(py::array_t<double> metrics) {
     }
 
     // Create output arrays
-    py::array_t<double> all_eigenvalues({num_point, dim});
-    py::array_t<double> all_eigenvectors({num_point, dim, dim});
+    py::array_t<double> all_eigenvalues(std::vector<py::ssize_t>{num_point, dim});
+    py::array_t<double> all_eigenvectors(std::vector<py::ssize_t>{num_point, dim, dim});
     auto eigenvals_info = all_eigenvalues.request();
     auto eigenvecs_info = all_eigenvectors.request();
 
@@ -141,7 +141,7 @@ py::tuple decompose_metric_field(py::array_t<double> metrics) {
     // Process each tensor
     for (unsigned int i = 0; i < num_point; i++) {
         // Create view for current tensor
-        py::array_t<double> metric({num_met}, {sizeof(double)},
+        py::array_t<double> metric(std::vector<py::ssize_t>{num_met}, std::vector<py::ssize_t>{sizeof(double)},
                                    metrics_ptr + i * num_met);
 
         // Decompose current tensor

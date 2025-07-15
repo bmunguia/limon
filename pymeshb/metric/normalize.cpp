@@ -59,7 +59,7 @@ py::array_t<double> normalize_metric_field(
     double* metrics_ptr = static_cast<double*>(metrics_info.ptr);
 
     // Create output array
-    py::array_t<double> normalized_metrics({num_point, num_met});
+    py::array_t<double> normalized_metrics(std::vector<py::ssize_t>{num_point, num_met});
     auto result_info = normalized_metrics.request();
     double* result_ptr = static_cast<double*>(result_info.ptr);
 
