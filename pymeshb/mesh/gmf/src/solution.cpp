@@ -7,14 +7,14 @@ extern "C" {
 #include <libmeshb7.h>
 }
 
-#include "solution.hpp"
-#include "../ref_map.hpp"
-#include "../util.hpp"
+#include "../include/solution.hpp"
+#include "../../ref_map.hpp"
+#include "../../util.hpp"
 
 namespace pymeshb {
 namespace gmf {
 
-py::dict read_solution(const std::string& solpath, int64_t num_ver, int dim, 
+py::dict read_solution(const std::string& solpath, int64_t num_ver, int dim,
                        const std::string& labelpath) {
     py::dict sol;
     int version;
@@ -93,7 +93,7 @@ py::dict read_solution(const std::string& solpath, int64_t num_ver, int dim,
     return sol;
 }
 
-bool write_solution(const std::string& solpath, py::dict sol_data, int64_t num_ver, 
+bool write_solution(const std::string& solpath, py::dict sol_data, int64_t num_ver,
                     int dim, const std::string& labelpath) {
     if (sol_data.empty()) {
         return true;

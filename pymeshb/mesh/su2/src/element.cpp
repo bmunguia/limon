@@ -2,9 +2,9 @@
 #include <sstream>
 #include <stdexcept>
 
-#include "element.hpp"
-#include "../ref_map.hpp"
-#include "../util.hpp"
+#include "../include/element.hpp"
+#include "../../ref_map.hpp"
+#include "../../util.hpp"
 
 namespace pymeshb {
 namespace su2 {

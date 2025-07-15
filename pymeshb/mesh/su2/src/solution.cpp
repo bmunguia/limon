@@ -6,9 +6,9 @@
 #include <string>
 #include <vector>
 
-#include "solution.hpp"
-#include "../ref_map.hpp"
-#include "../util.hpp"
+#include "../include/solution.hpp"
+#include "../../ref_map.hpp"
+#include "../../util.hpp"
 
 namespace pymeshb {
 namespace su2 {

@@ -12,8 +12,8 @@
  #include <pybind11/numpy.h>
  #include <pybind11/stl.h>
 
- #include "mesh.hpp"
- #include "solution.hpp"
+ #include "include/mesh.hpp"
+ #include "include/solution.hpp"
 
  namespace py = pybind11;
 
@@ -28,7 +28,7 @@
       * @return Tuple containing coordinates and element data
       */
      m.def("read_mesh", &pymeshb::su2::read_mesh,
-          py::arg("meshpath"), 
+          py::arg("meshpath"),
           py::arg("markerpath") = "",
           "Read a SU2 mesh file, and return nodes and element data.");
 
@@ -43,11 +43,11 @@
       * @return Boolean indicating success
       */
      m.def("write_mesh", &pymeshb::su2::write_mesh,
-          py::arg("meshpath"), 
-          py::arg("coords"), 
+          py::arg("meshpath"),
+          py::arg("coords"),
           py::arg("elements"),
-          py::arg("boundaries"), 
-          py::arg("markerpath") = "", 
+          py::arg("boundaries"),
+          py::arg("markerpath") = "",
           "Write nodes and element data to a SU2 mesh file.");
 
     /**
@@ -60,10 +60,10 @@
      * @return Dictionary of solution fields
      */
     m.def("read_solution", &pymeshb::su2::read_solution,
-        py::arg("solpath"), 
-        py::arg("num_ver"), 
+        py::arg("solpath"),
+        py::arg("num_ver"),
         py::arg("dim"),
-        py::arg("labelpath") = "", 
+        py::arg("labelpath") = "",
         "Read a SU2 solution file and return solution fields as a dictionary");
 
   /**
@@ -77,10 +77,10 @@
    * @return Boolean indicating success
    */
   m.def("write_solution", &pymeshb::su2::write_solution,
-        py::arg("solpath"), 
-        py::arg("sol"), 
+        py::arg("solpath"),
+        py::arg("sol"),
         py::arg("num_ver"),
         py::arg("dim"),
-        py::arg("labelpath") = "", 
+        py::arg("labelpath") = "",
         "Write solution fields to a SU2 solution file");
  }

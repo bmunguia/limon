@@ -220,7 +220,7 @@ py::array_t<double> perturb_metric_field(
     // Process each tensor
     for (auto i = 0; i < num_point; i++) {
         // Create view for current tensor
-        py::array_t<double> metric(std::vector<py::ssize_t>{num_met}, std::vector<py::ssize_t>{sizeof(double)},
+        py::array_t<double> metric(std::vector<py::ssize_t>{num_met}, std::vector<py::ssize_t>{static_cast<py::ssize_t>(sizeof(double))},
                                    metrics_ptr + i * num_met);
 
         // Diagonalize
@@ -229,9 +229,9 @@ py::array_t<double> perturb_metric_field(
         py::array_t<double> eigenvectors = diag_result[1].cast<py::array_t<double>>();
 
         // Create views for current perturbations
-        py::array_t<double> delta_vals(std::vector<py::ssize_t>{dim}, std::vector<py::ssize_t>{sizeof(double)},
+        py::array_t<double> delta_vals(std::vector<py::ssize_t>{dim}, std::vector<py::ssize_t>{static_cast<py::ssize_t>(sizeof(double))},
                                        delta_vals_ptr + i * dim);
-        py::array_t<double> rot_angles(std::vector<py::ssize_t>{num_angle}, std::vector<py::ssize_t>{sizeof(double)},
+        py::array_t<double> rot_angles(std::vector<py::ssize_t>{num_angle}, std::vector<py::ssize_t>{static_cast<py::ssize_t>(sizeof(double))},
                                        rot_angles_ptr + i * num_angle);
 
         // Apply perturbations

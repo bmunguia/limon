@@ -24,9 +24,9 @@ set(PYMESHB_UTIL_SOURCES
 # Build libgmf submodule
 pybind11_add_module(libgmf MODULE
     ${PROJECT_SOURCE_DIR}/pymeshb/mesh/gmf/libgmf.cpp
-    ${PROJECT_SOURCE_DIR}/pymeshb/mesh/gmf/element.cpp
-    ${PROJECT_SOURCE_DIR}/pymeshb/mesh/gmf/mesh.cpp
-    ${PROJECT_SOURCE_DIR}/pymeshb/mesh/gmf/solution.cpp
+    ${PROJECT_SOURCE_DIR}/pymeshb/mesh/gmf/src/element.cpp
+    ${PROJECT_SOURCE_DIR}/pymeshb/mesh/gmf/src/mesh.cpp
+    ${PROJECT_SOURCE_DIR}/pymeshb/mesh/gmf/src/solution.cpp
     ${PROJECT_SOURCE_DIR}/pymeshb/mesh/ref_map.cpp
     ${PYMESHB_UTIL_SOURCES})
 target_link_libraries(libgmf PRIVATE Meshb.7)
@@ -38,9 +38,9 @@ install(TARGETS libgmf DESTINATION pymeshb/mesh/gmf)
 # Build libsu2 submodule
 pybind11_add_module(libsu2 MODULE
     ${PROJECT_SOURCE_DIR}/pymeshb/mesh/su2/libsu2.cpp
-    ${PROJECT_SOURCE_DIR}/pymeshb/mesh/su2/element.cpp
-    ${PROJECT_SOURCE_DIR}/pymeshb/mesh/su2/mesh.cpp
-    ${PROJECT_SOURCE_DIR}/pymeshb/mesh/su2/solution.cpp
+    ${PROJECT_SOURCE_DIR}/pymeshb/mesh/su2/src/element.cpp
+    ${PROJECT_SOURCE_DIR}/pymeshb/mesh/su2/src/mesh.cpp
+    ${PROJECT_SOURCE_DIR}/pymeshb/mesh/su2/src/solution.cpp
     ${PROJECT_SOURCE_DIR}/pymeshb/mesh/ref_map.cpp
     ${PYMESHB_UTIL_SOURCES})
 target_include_directories(libsu2 PRIVATE
@@ -50,11 +50,11 @@ install(TARGETS libsu2 DESTINATION pymeshb/mesh/su2)
 # Build metric module
 pybind11_add_module(_metric MODULE
     ${PROJECT_SOURCE_DIR}/pymeshb/metric/metric.cpp
-    ${PROJECT_SOURCE_DIR}/pymeshb/metric/decompose.cpp
-    ${PROJECT_SOURCE_DIR}/pymeshb/metric/recompose.cpp
-    ${PROJECT_SOURCE_DIR}/pymeshb/metric/integrate.cpp
-    ${PROJECT_SOURCE_DIR}/pymeshb/metric/normalize.cpp
-    ${PROJECT_SOURCE_DIR}/pymeshb/metric/perturb.cpp
-    ${PROJECT_SOURCE_DIR}/pymeshb/metric/edge_length.cpp)
+    ${PROJECT_SOURCE_DIR}/pymeshb/metric/src/decompose.cpp
+    ${PROJECT_SOURCE_DIR}/pymeshb/metric/src/recompose.cpp
+    ${PROJECT_SOURCE_DIR}/pymeshb/metric/src/integrate.cpp
+    ${PROJECT_SOURCE_DIR}/pymeshb/metric/src/normalize.cpp
+    ${PROJECT_SOURCE_DIR}/pymeshb/metric/src/perturb.cpp
+    ${PROJECT_SOURCE_DIR}/pymeshb/metric/src/edge_length.cpp)
 target_link_libraries(_metric PRIVATE Eigen3::Eigen)
 install(TARGETS _metric DESTINATION pymeshb/metric)

@@ -13,8 +13,8 @@
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
 
-#include "mesh.hpp"
-#include "solution.hpp"
+#include "include/mesh.hpp"
+#include "include/solution.hpp"
 
 namespace py = pybind11;
 
@@ -44,8 +44,8 @@ PYBIND11_MODULE(libgmf, m) {
      * @return Boolean indicating success
      */
     m.def("write_mesh", &pymeshb::gmf::write_mesh,
-          py::arg("meshpath"), 
-          py::arg("coords"), 
+          py::arg("meshpath"),
+          py::arg("coords"),
           py::arg("elements"),
           py::arg("boundaries"),
           "Write nodes and element data to a meshb file.");
@@ -60,10 +60,10 @@ PYBIND11_MODULE(libgmf, m) {
      * @return Dictionary of solution fields
      */
     m.def("read_solution", &pymeshb::gmf::read_solution,
-          py::arg("solpath"), 
-          py::arg("num_ver"), 
+          py::arg("solpath"),
+          py::arg("num_ver"),
           py::arg("dim"),
-          py::arg("labelpath") = "", 
+          py::arg("labelpath") = "",
           "Read a solb solution file.");
 
     /**
@@ -77,10 +77,10 @@ PYBIND11_MODULE(libgmf, m) {
      * @return Boolean indicating success
      */
     m.def("write_solution", &pymeshb::gmf::write_solution,
-          py::arg("solpath"), 
-          py::arg("sol_data"), 
+          py::arg("solpath"),
+          py::arg("sol_data"),
           py::arg("num_ver"),
-          py::arg("dim"), 
-          py::arg("labelpath") = "", 
+          py::arg("dim"),
+          py::arg("labelpath") = "",
           "Write solution data to a solb solution file.");
 }

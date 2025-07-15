@@ -6,9 +6,9 @@ extern "C" {
 #include <libmeshb7.h>
 }
 
-#include "../util.hpp"
-#include "element.hpp"
-#include "mesh.hpp"
+#include "../../util.hpp"
+#include "../include/element.hpp"
+#include "../include/mesh.hpp"
 
 namespace pymeshb {
 namespace gmf {

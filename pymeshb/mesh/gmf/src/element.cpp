@@ -4,7 +4,7 @@
 extern "C" {
 #include <libmeshb7.h>
 }
-#include "element.hpp"
+#include "../include/element.hpp"
 
 namespace pymeshb {
 namespace gmf {
