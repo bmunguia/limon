@@ -350,3 +350,130 @@ def recompose_metric_field(eigenvalues: NDArray, eigenvectors: NDArray) -> NDArr
     return _metric.recompose_metric_field(
         np.asarray(eigenvalues, dtype=np.float64), np.asarray(eigenvectors, dtype=np.float64)
     )
+
+
+def metric_edge_length_at_endpoints(edges: NDArray, coords: NDArray, metrics: NDArray) -> NDArray:
+    r"""Calculate edge length in Riemannian metric space evaluated at endpoints.
+
+    For each edge, computes the metric length ||e||_M at both endpoints,
+    where e is the edge vector and M is the metric tensor.
+
+    Args:
+        edges (numpy.ndarray): Array of shape (num_edge, 2) containing node indices
+                              for each edge.
+        coords (numpy.ndarray): Array of shape (num_node, dim) containing node
+                               coordinates.
+        metrics (numpy.ndarray): Array of shape (num_node, num_met) containing
+                                metric tensors at each node in lower triangular form.
+                                num_met is 1, 3, or 6 for 1D, 2D, or 3D tensors.
+
+    Returns:
+        numpy.ndarray: Array of shape (num_edge, 2) containing metric lengths
+                      at both endpoints of each edge.
+
+    Raises:
+        RuntimeError: If input arrays have incompatible shapes
+        RuntimeError: If tensor size is not 1, 3, or 6 elements
+        RuntimeError: If edge contains invalid node index
+
+    Examples:
+        >>> # Calculate metric edge lengths for 2D mesh
+        >>> edges = np.array([
+        ...     [0, 1],  # Edge from node 0 to node 1
+        ...     [1, 2],  # Edge from node 1 to node 2
+        ...     [0, 2],  # Edge from node 0 to node 2
+        ... ])
+        >>> coords = np.array([
+        ...     [0.0, 0.0],  # Node 0 coordinates
+        ...     [1.0, 0.0],  # Node 1 coordinates
+        ...     [0.0, 1.0],  # Node 2 coordinates
+        ... ])
+        >>> metrics = np.array([
+        ...     [2.0, 0.0, 1.0],  # Metric at node 0 [M00, M10, M11]
+        ...     [1.0, 0.0, 2.0],  # Metric at node 1
+        ...     [1.5, 0.1, 1.5],  # Metric at node 2
+        ... ])
+        >>> lengths = metric_edge_length_at_endpoints(edges, coords, metrics)
+        >>> print(lengths.shape)  # (3, 2)
+
+        >>> # For 3D case
+        >>> coords_3d = np.array([
+        ...     [0.0, 0.0, 0.0],
+        ...     [1.0, 0.0, 0.0],
+        ...     [0.0, 1.0, 0.0],
+        ... ])
+        >>> metrics_3d = np.array([
+        ...     [2.0, 0.0, 1.0, 0.0, 0.0, 1.0],  # 3D metric [M00, M10, M11, M20, M21, M22]
+        ...     [1.0, 0.0, 2.0, 0.0, 0.0, 1.0],
+        ...     [1.5, 0.1, 1.5, 0.0, 0.0, 1.0],
+        ... ])
+        >>> lengths_3d = metric_edge_length_at_endpoints(edges, coords_3d, metrics_3d)
+    """
+    return _metric.metric_edge_length_at_endpoints(
+        np.asarray(edges, dtype=np.int32), np.asarray(coords, dtype=np.float64), np.asarray(metrics, dtype=np.float64)
+    )
+
+
+def metric_edge_length(edges: NDArray, coords: NDArray, metrics: NDArray, eps: float = 1e-12) -> NDArray:
+    r"""Calculate integrated edge length in Riemannian metric space.
+
+    Uses geometric integration approach based on Alauzet, Loseille, et al. at Inria.
+    For each edge, computes the integrated metric length using the formula:
+    - If ratio r ≈ 1: l_M = l_a
+    - Otherwise: l_M = l_a * (r - 1) / ln(r)
+    where r = l_b / l_a and l_a, l_b are metric lengths at endpoints.
+
+    Args:
+        edges (numpy.ndarray): Array of shape (num_edge, 2) containing node indices
+                              for each edge.
+        coords (numpy.ndarray): Array of shape (num_node, dim) containing node
+                               coordinates.
+        metrics (numpy.ndarray): Array of shape (num_node, num_met) containing
+                                metric tensors at each node in lower triangular form.
+                                num_met is 1, 3, or 6 for 1D, 2D, or 3D tensors.
+        eps (float): Tolerance for ratio comparison to determine when to use
+                    geometric integration vs. simple average (default: 1e-12).
+
+    Returns:
+        numpy.ndarray: Array of shape (num_edge,) containing integrated metric
+                      lengths for each edge.
+
+    Raises:
+        RuntimeError: If input arrays have incompatible shapes
+        RuntimeError: If tensor size is not 1, 3, or 6 elements
+        RuntimeError: If edge contains invalid node index
+
+    Examples:
+        >>> # Calculate integrated metric edge lengths for 2D mesh
+        >>> edges = np.array([
+        ...     [0, 1],  # Edge from node 0 to node 1
+        ...     [1, 2],  # Edge from node 1 to node 2
+        ...     [0, 2],  # Edge from node 0 to node 2
+        ... ])
+        >>> coords = np.array([
+        ...     [0.0, 0.0],  # Node 0 coordinates
+        ...     [1.0, 0.0],  # Node 1 coordinates
+        ...     [0.0, 1.0],  # Node 2 coordinates
+        ... ])
+        >>> metrics = np.array([
+        ...     [2.0, 0.0, 1.0],  # Metric at node 0 [M00, M10, M11]
+        ...     [1.0, 0.0, 2.0],  # Metric at node 1
+        ...     [1.5, 0.1, 1.5],  # Metric at node 2
+        ... ])
+        >>> integrated_lengths = metric_edge_length(edges, coords, metrics)
+        >>> print(integrated_lengths.shape)  # (3,)
+
+        >>> # Use custom tolerance for ratio comparison
+        >>> lengths_custom = metric_edge_length(edges, coords, metrics, eps=1e-10)
+
+        >>> # For anisotropic metrics, the integrated length differs from Euclidean
+        >>> euclidean_lengths = np.linalg.norm(coords[edges[:, 1]] - coords[edges[:, 0]], axis=1)
+        >>> print("Euclidean lengths:", euclidean_lengths)
+        >>> print("Metric lengths:", integrated_lengths)
+    """
+    return _metric.metric_edge_length(
+        np.asarray(edges, dtype=np.int32),
+        np.asarray(coords, dtype=np.float64),
+        np.asarray(metrics, dtype=np.float64),
+        eps,
+    )

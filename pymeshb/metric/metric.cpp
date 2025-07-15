@@ -35,6 +35,15 @@ py::array_t<double> normalize_metric_field(
     double metric_integral,
     int complexity,
     int norm);
+py::array_t<double> metric_edge_length_at_endpoints(
+    py::array_t<int> edges,
+    py::array_t<double> coords,
+    py::array_t<double> metrics);
+py::array_t<double> metric_edge_length(
+    py::array_t<int> edges,
+    py::array_t<double> coords,
+    py::array_t<double> metrics,
+    double eps = 1e-12);
 
 /**
  * Python module definition for metric tensor operations.
@@ -75,4 +84,13 @@ PYBIND11_MODULE(_metric, m) {
           "Normalize a field of metric tensors",
           py::arg("metrics"), py::arg("metric_integral"),
           py::arg("complexity"), py::arg("norm"));
+
+    m.def("metric_edge_length_at_endpoints", &metric_edge_length_at_endpoints,
+          "Compute the metric edge length at the endpoints of the edges",
+          py::arg("edges"), py::arg("coords"), py::arg("metrics"));
+
+    m.def("metric_edge_length", &metric_edge_length,
+          "Compute the metric edge length for the given edges",
+          py::arg("edges"), py::arg("coords"), py::arg("metrics"),
+          py::arg("eps") = 1e-12);
 }

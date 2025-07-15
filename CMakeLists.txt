@@ -54,6 +54,7 @@ pybind11_add_module(_metric MODULE
     ${PROJECT_SOURCE_DIR}/pymeshb/metric/recompose.cpp
     ${PROJECT_SOURCE_DIR}/pymeshb/metric/integrate.cpp
     ${PROJECT_SOURCE_DIR}/pymeshb/metric/normalize.cpp
-    ${PROJECT_SOURCE_DIR}/pymeshb/metric/perturb.cpp)
+    ${PROJECT_SOURCE_DIR}/pymeshb/metric/perturb.cpp
+    ${PROJECT_SOURCE_DIR}/pymeshb/metric/edge_length.cpp)
 target_link_libraries(_metric PRIVATE Eigen3::Eigen)
 install(TARGETS _metric DESTINATION pymeshb/metric)
