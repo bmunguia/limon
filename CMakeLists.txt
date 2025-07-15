@@ -48,6 +48,12 @@ target_include_directories(libsu2 PRIVATE
 install(TARGETS libsu2 DESTINATION pymeshb/mesh/su2)
 
 # Build metric module
-pybind11_add_module(_metric MODULE ${PROJECT_SOURCE_DIR}/pymeshb/metric/metric.cpp)
+pybind11_add_module(_metric MODULE
+    ${PROJECT_SOURCE_DIR}/pymeshb/metric/metric.cpp
+    ${PROJECT_SOURCE_DIR}/pymeshb/metric/decompose.cpp
+    ${PROJECT_SOURCE_DIR}/pymeshb/metric/recompose.cpp
+    ${PROJECT_SOURCE_DIR}/pymeshb/metric/integrate.cpp
+    ${PROJECT_SOURCE_DIR}/pymeshb/metric/normalize.cpp
+    ${PROJECT_SOURCE_DIR}/pymeshb/metric/perturb.cpp)
 target_link_libraries(_metric PRIVATE Eigen3::Eigen)
 install(TARGETS _metric DESTINATION pymeshb/metric)

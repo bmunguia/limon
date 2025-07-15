@@ -261,3 +261,92 @@ def normalize_metric_field(
         complexity,
         norm,
     )
+
+
+def decompose_metric_field(metrics: NDArray) -> tuple[NDArray, NDArray]:
+    r"""Decompose a field of metric tensors.
+
+    For each tensor in the input array, this function:
+    1. Diagonalizes the tensor into eigenvalues and eigenvectors
+    2. Returns the eigenvalues and eigenvectors for all points
+
+    Args:
+        metrics (numpy.ndarray): Array of shape (num_point, num_met) where each row
+                                contains the lower triangular elements of a tensor.
+                                num_met is 1, 3, or 6 for 1D, 2D, or 3D tensors.
+
+    Returns:
+        tuple[numpy.ndarray, numpy.ndarray]: A tuple containing:
+            - eigenvalues: Array of shape (num_point, dim) with eigenvalues for each point
+            - eigenvectors: Array of shape (num_point, dim, dim) with eigenvectors for each point
+
+    Raises:
+        RuntimeError: If input arrays have incompatible shapes
+        RuntimeError: If tensor size is not 1, 3, or 6 elements
+
+    Examples:
+        >>> # Decompose a field of 2D tensors
+        >>> metrics = np.array([
+        ...     [2.0, 0.5, 1.0],  # First 2D tensor [a00, a10, a11]
+        ...     [3.0, 0.0, 1.0],  # Second 2D tensor
+        ...     [1.5, 0.2, 2.0],  # Third 2D tensor
+        ... ])
+        >>> eigenvalues, eigenvectors = decompose_metric_field(metrics)
+        >>> print(eigenvalues.shape)  # (3, 2)
+        >>> print(eigenvectors.shape)  # (3, 2, 2)
+
+        >>> # Decompose a field of 3D tensors
+        >>> metrics_3d = np.array([
+        ...     [2.0, 0.5, 1.0, 0.1, 0.2, 3.0],  # 3D tensor
+        ...     [3.0, 0.0, 1.0, 0.3, 0.1, 2.0],  # Second 3D tensor
+        ... ])
+        >>> eigenvals_3d, eigenvecs_3d = decompose_metric_field(metrics_3d)
+        >>> print(eigenvals_3d.shape)  # (2, 3)
+        >>> print(eigenvecs_3d.shape)  # (2, 3, 3)
+    """
+    return _metric.decompose_metric_field(np.asarray(metrics, dtype=np.float64))
+
+
+def recompose_metric_field(eigenvalues: NDArray, eigenvectors: NDArray) -> NDArray:
+    r"""Recompose a field of metric tensors from eigenvalues and eigenvectors.
+
+    For each set of eigenvalues and eigenvectors in the input arrays, this function:
+    1. Reconstructs the tensor from eigenvalues and eigenvectors
+    2. Returns the lower triangular elements for all points
+
+    Args:
+        eigenvalues (numpy.ndarray): Array of shape (num_point, dim) containing
+                                    eigenvalues for each point
+        eigenvectors (numpy.ndarray): Array of shape (num_point, dim, dim) containing
+                                     eigenvectors for each point
+
+    Returns:
+        numpy.ndarray: Array of shape (num_point, num_met) containing recomposed
+                      metric tensors in lower triangular form.
+
+    Raises:
+        RuntimeError: If input arrays have incompatible shapes
+        RuntimeError: If dimension is not 1, 2, or 3
+
+    Examples:
+        >>> # Recompose a field of 2D tensors
+        >>> eigenvalues = np.array([
+        ...     [3.5, 1.5],  # Eigenvalues for first tensor
+        ...     [4.0, 1.0],  # Eigenvalues for second tensor
+        ... ])
+        >>> eigenvectors = np.array([
+        ...     [[0.8, -0.6], [0.6, 0.8]],  # Eigenvectors for first tensor
+        ...     [[1.0, 0.0], [0.0, 1.0]],   # Eigenvectors for second tensor
+        ... ])
+        >>> recomposed = recompose_metric_field(eigenvalues, eigenvectors)
+        >>> print(recomposed.shape)  # (2, 3)
+
+        >>> # Workflow: decompose then recompose should give original tensors
+        >>> metrics = np.array([[2.0, 0.5, 1.0], [3.0, 0.0, 1.0]])
+        >>> eigenvals, eigenvecs = decompose_metric_field(metrics)
+        >>> reconstructed = recompose_metric_field(eigenvals, eigenvecs)
+        >>> np.allclose(metrics, reconstructed)  # Should be True
+    """
+    return _metric.recompose_metric_field(
+        np.asarray(eigenvalues, dtype=np.float64), np.asarray(eigenvectors, dtype=np.float64)
+    )
