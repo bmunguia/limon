@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import numpy as np
-import pymeshb
 import pytest
 from pymeshb.mesh import read_mesh, write_mesh
 from pymeshb.metric import perturb_metric_field
@@ -23,25 +22,6 @@ def print_perturb_comparison(met, met_pert):
 
 
 @pytest.fixture
-def mesh_data():
-    """Load the 2D mesh and create a sample solution."""
-    meshpath_in = 'example/square/square.mesh'
-    coords, elements, boundaries = read_mesh(meshpath_in)
-
-    num_point = coords.shape[0]
-    num_dim = coords.shape[1]
-
-    # Create a sample solution dictionary
-    solution = {'Metric': np.zeros((num_point, (num_dim * (num_dim + 1)) // 2))}
-
-    # Make sample metric diagonal
-    solution['Metric'][:, 0] = 1e3
-    solution['Metric'][:, 2] = 1e4
-
-    return coords, elements, boundaries, solution, num_point, num_dim
-
-
-@pytest.fixture
 def output_dir(request):
     """Create a persistent output directory for test files."""
     out_dir = Path('output') / request.node.name
@@ -49,13 +29,51 @@ def output_dir(request):
     return out_dir
 
 
+@pytest.fixture(
+    params=[
+        {
+            'dim': 2,
+            'meshpath': 'example/square/square.mesh',
+            'file_prefix': 'square',
+            'metric_values': {'diag_indices': [0, 2], 'values': [1e3, 1e4]},
+        },
+        {
+            'dim': 3,
+            'meshpath': 'libMeshb/sample_meshes/quad.meshb',
+            'file_prefix': 'sphere',
+            'metric_values': {'diag_indices': [0, 2, 5], 'values': [1e1, 1e2, 1e3]},
+        },
+    ],
+    ids=['2D-mesh', '3D-mesh'],
+)
+def mesh_data(request):
+    """Load mesh and create sample solution for different dimensions."""
+    config = request.param
+    coords, elements, boundaries = read_mesh(config['meshpath'])
+
+    num_point = coords.shape[0]
+    num_dim = coords.shape[1]
+
+    # Verify dimension matches expectation
+    assert num_dim == config['dim'], f'Expected {config["dim"]}D mesh, got {num_dim}D'
+
+    # Create a sample solution dictionary
+    solution = {'Metric': np.zeros((num_point, (num_dim * (num_dim + 1)) // 2))}
+
+    # Set diagonal metric values
+    for idx, value in zip(config['metric_values']['diag_indices'], config['metric_values']['values']):
+        solution['Metric'][:, idx] = value
+
+    return coords, elements, boundaries, solution, num_point, num_dim, config
+
+
 def test_write_mesh_with_metric(mesh_data, output_dir):
-    """Test writing a 2D mesh with a metric."""
-    coords, elements, boundaries, solution, _, _ = mesh_data
+    """Test writing mesh with a metric for different dimensions."""
+    coords, elements, boundaries, solution, _, _, config = mesh_data
 
     # Output paths
-    meshpath_out = output_dir / 'square_with_met.meshb'
-    solpath_out = output_dir / 'square_with_met.solb'
+    meshpath_out = output_dir / f'{config["file_prefix"]}_with_met.meshb'
+    solpath_out = output_dir / f'{config["file_prefix"]}_with_met.solb'
 
     # Write the mesh with the solution
     write_mesh(
@@ -68,18 +86,22 @@ def test_write_mesh_with_metric(mesh_data, output_dir):
 
 
 def test_perturb_eigenvalues(mesh_data, output_dir):
-    """Test perturbing only the eigenvalues of the 2D metric field."""
-    coords, elements, boundaries, solution, num_point, num_dim = mesh_data
-
-    assert num_dim == 2, 'This test is specifically for 2D meshes'
+    """Test perturbing only the eigenvalues of the metric field."""
+    coords, elements, boundaries, solution, num_point, num_dim, config = mesh_data
 
     # Create perturbation arrays for eigenvalues (in log space)
     delta_eigenvals = np.zeros((num_point, num_dim))
-    delta_eigenvals[:, 0] = -np.log(10)
-    delta_eigenvals[:, 1] = np.log(10)
+    if num_dim == 2:
+        delta_eigenvals[:, 0] = -np.log(10)
+        delta_eigenvals[:, 1] = np.log(10)
+    else:  # 3D
+        delta_eigenvals[:, 0] = -np.log(100)
+        delta_eigenvals[:, 1] = np.log(10)
+        delta_eigenvals[:, 2] = np.log(10)
 
     # Use zero rotation angles to isolate eigenvalue effects
-    rotation_angles = np.zeros((num_point, 1))
+    num_angle = 1 if num_dim == 2 else 3
+    rotation_angles = np.zeros((num_point, num_angle))
 
     # Perturb the metric field (eigenvalues only)
     perturbed_metrics_eig = perturb_metric_field(
@@ -100,8 +122,8 @@ def test_perturb_eigenvalues(mesh_data, output_dir):
     perturbed_solution = {'Metric': perturbed_metrics_eig}
 
     # Output paths
-    pert_meshpath_out = output_dir / 'square_with_eig_pert_only.meshb'
-    pert_solpath_out = output_dir / 'square_with_eig_pert_only.solb'
+    pert_meshpath_out = output_dir / f'{config["file_prefix"]}_with_eig_pert_only.meshb'
+    pert_solpath_out = output_dir / f'{config["file_prefix"]}_with_eig_pert_only.solb'
 
     # Write the mesh with perturbed metrics
     write_mesh(
@@ -120,17 +142,18 @@ def test_perturb_eigenvalues(mesh_data, output_dir):
 
 
 def test_perturb_orientation(mesh_data, output_dir):
-    """Test perturbing only the orientation of the 2D metric field."""
-    coords, elements, boundaries, solution, num_point, num_dim = mesh_data
-
-    assert num_dim == 2, 'This test is specifically for 2D meshes'
+    """Test perturbing only the orientation of the metric field."""
+    coords, elements, boundaries, solution, num_point, num_dim, config = mesh_data
 
     # Use zero perturbations to isolate rotation effects
     delta_eigenvals = np.zeros((num_point, num_dim))
 
-    # Create rotation angles - for 2D we only need 1 angle
-    rotation_angles = np.zeros((num_point, 1))
+    # Create rotation angles
+    num_angle = 1 if num_dim == 2 else 3
+    rotation_angles = np.zeros((num_point, num_angle))
     rotation_angles[:, 0] = np.pi / 2
+    if num_dim == 3:
+        rotation_angles[:, 1] = np.pi / 2
 
     # Perturb the metric field (rotation only)
     perturbed_metrics_rot = perturb_metric_field(
@@ -151,8 +174,8 @@ def test_perturb_orientation(mesh_data, output_dir):
     perturbed_solution = {'Metric': perturbed_metrics_rot}
 
     # Output paths
-    pert_meshpath_out = output_dir / 'square_with_rot_pert_only.meshb'
-    pert_solpath_out = output_dir / 'square_with_rot_pert_only.solb'
+    pert_meshpath_out = output_dir / f'{config["file_prefix"]}_with_rot_pert_only.meshb'
+    pert_solpath_out = output_dir / f'{config["file_prefix"]}_with_rot_pert_only.solb'
 
     # Write the mesh with perturbed metrics
     write_mesh(
@@ -171,19 +194,26 @@ def test_perturb_orientation(mesh_data, output_dir):
 
 
 def test_perturb_metric_field(mesh_data, output_dir):
-    """Test perturbing the 2D metric field."""
-    coords, elements, boundaries, solution, num_point, num_dim = mesh_data
-
-    assert num_dim == 2, 'This test is specifically for 2D meshes'
+    """Test perturbing the metric field (both eigenvalues and orientation)."""
+    coords, elements, boundaries, solution, num_point, num_dim, config = mesh_data
 
     # Create perturbation arrays for eigenvalues (in log space)
     delta_eigenvals = np.zeros((num_point, num_dim))
-    delta_eigenvals[:, 0] = -np.log(20)
-    delta_eigenvals[:, 1] = np.log(2)
+    if num_dim == 2:
+        delta_eigenvals[:, 0] = -np.log(20)
+        delta_eigenvals[:, 1] = np.log(2)
+    else:  # 3D
+        delta_eigenvals[:, 0] = -np.log(5)
+        delta_eigenvals[:, 1] = np.log(5)
+        delta_eigenvals[:, 2] = np.log(2)
 
     # Create perturbation arrays for eigenvector orientations
-    rotation_angles = np.zeros((num_point, 1))
+    num_angle = 1 if num_dim == 2 else 3
+    rotation_angles = np.zeros((num_point, num_angle))
     rotation_angles[:, 0] = np.pi / 6
+    if num_dim == 3:
+        rotation_angles[:, 1] = np.pi / 4
+        rotation_angles[:, 2] = 0.1
 
     # Perturb the metric field (both eigenvalues and rotation)
     perturbed_metrics = perturb_metric_field(
@@ -204,8 +234,8 @@ def test_perturb_metric_field(mesh_data, output_dir):
     perturbed_solution = {'Metric': perturbed_metrics}
 
     # Output paths
-    pert_meshpath_out = output_dir / 'square_with_combined_pert.meshb'
-    pert_solpath_out = output_dir / 'square_with_combined_pert.solb'
+    pert_meshpath_out = output_dir / f'{config["file_prefix"]}_with_combined_pert.meshb'
+    pert_solpath_out = output_dir / f'{config["file_prefix"]}_with_combined_pert.solb'
 
     # Write the mesh with perturbed metrics
     write_mesh(
@@ -223,11 +253,30 @@ def test_perturb_metric_field(mesh_data, output_dir):
     assert pert_solpath_out.exists()
 
 
-def test_nonuniform_perturb_metric_field(mesh_data, output_dir):
-    """Test nonuniformly perturbing the 2D metric field."""
-    coords, elements, boundaries, solution, num_point, num_dim = mesh_data
+@pytest.fixture
+def mesh_data_2d():
+    """Load the 2D mesh and create a sample solution - specific for nonuniform test."""
+    meshpath_in = 'example/square/square.mesh'
+    coords, elements, boundaries = read_mesh(meshpath_in)
 
-    assert num_dim == 2, 'This test is specifically for 2D meshes'
+    num_point = coords.shape[0]
+    num_dim = coords.shape[1]
+
+    assert num_dim == 2, 'This fixture is specifically for 2D meshes'
+
+    # Create a sample solution dictionary
+    solution = {'Metric': np.zeros((num_point, (num_dim * (num_dim + 1)) // 2))}
+
+    # Make sample metric diagonal
+    solution['Metric'][:, 0] = 1e3
+    solution['Metric'][:, 2] = 1e4
+
+    return coords, elements, boundaries, solution, num_point, num_dim
+
+
+def test_nonuniform_perturb_metric_field(mesh_data_2d, output_dir):
+    """Test nonuniformly perturbing the 2D metric field."""
+    coords, elements, boundaries, solution, num_point, num_dim = mesh_data_2d
 
     # Create perturbation arrays for eigenvalues (in log space)
     log_max_old = np.log(max(solution['Metric'][0, [0, 2]]))
