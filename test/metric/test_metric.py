@@ -3,7 +3,13 @@ from pathlib import Path
 import numpy as np
 import pytest
 from pymeshb.mesh import read_mesh, write_mesh
-from pymeshb.metric import perturb_metric_field, metric_edge_length, metric_edge_length_at_endpoints
+from pymeshb.metric import (
+    perturb_metric_field,
+    metric_edge_length,
+    metric_edge_length_at_endpoints,
+    rotation_angles,
+    rotation_angles_field,
+)
 
 
 def print_perturb_comparison(met, met_pert):
@@ -334,17 +340,14 @@ def test_edge_length(mesh_data):
     """Test the computation of edge lengths for metric fields in both 2D and 3D."""
     coords, elements, boundaries, solution, num_point, num_dim, config = mesh_data
 
-    # Extract edges from elements (first 4 elements, first 2 vertices of each)
-    print(f'Available element types: {elements.keys()}')
-
     # Get the primary element type based on dimension
     if num_dim == 2:
         element_key = 'Triangles'
     else:  # 3D
         element_key = 'Hexahedra'
 
+    # Extract edges from elements (first 4 elements, first 2 vertices of each)
     edges = elements[element_key][:4, :2]
-    print(f'Using edges from {element_key}: {edges}')
 
     # Compute edge lengths using the metric field
     edge_lengths = metric_edge_length(edges, coords, solution['Metric'])
@@ -358,16 +361,10 @@ def test_edge_length(mesh_data):
     # Assert edge lengths are positive
     assert np.all(edge_lengths > 0), f'All edge lengths should be positive, got {edge_lengths}'
 
-    # Optionally, print the edge lengths for inspection
-    print(f'Computed edge lengths for {num_dim}D mesh: {edge_lengths}')
-
 
 def test_edge_length_at_endpoints(mesh_data):
     """Test the computation of edge lengths at the endpoints for metric fields in both 2D and 3D."""
     coords, elements, boundaries, solution, num_point, num_dim, config = mesh_data
-
-    # Extract edges from elements (first 4 elements, first 2 vertices of each)
-    print(f'Available element types: {elements.keys()}')
 
     # Get the primary element type based on dimension
     if num_dim == 2:
@@ -375,8 +372,8 @@ def test_edge_length_at_endpoints(mesh_data):
     else:  # 3D
         element_key = 'Hexahedra'
 
+    # Extract edges from elements (first 4 elements, first 2 vertices of each)
     edges = elements[element_key][:4, :2]
-    print(f'Using edges from {element_key}: {edges}')
 
     # Compute edge lengths at endpoints using the metric field
     edge_lengths_endpoints = metric_edge_length_at_endpoints(edges, coords, solution['Metric'])
@@ -390,9 +387,6 @@ def test_edge_length_at_endpoints(mesh_data):
 
     # Assert edge lengths are positive
     assert np.all(edge_lengths_endpoints > 0), f'All edge lengths should be positive, got {edge_lengths_endpoints}'
-
-    # Optionally, print the edge lengths at endpoints for inspection
-    print(f'Computed edge lengths at endpoints for {num_dim}D mesh: {edge_lengths_endpoints}')
 
 
 @pytest.mark.parametrize(
@@ -491,4 +485,55 @@ def test_metric_edge_length(dim, coords, edges, metric, expected_scale_factor):
     # metric_edge_length returns integrated length (1D array)
     assert np.allclose(lengths_integrated, expected_lengths, atol=1e-6), (
         f'{dim}D integrated: expected {expected_lengths}, got {lengths_integrated}'
+    )
+
+
+@pytest.mark.parametrize(
+    'eigenvectors, expected_angles',
+    [
+        (np.array([[0.8660254, 0.5], [-0.5, 0.8660254]]), np.array([np.pi / 6])),  # 2D: 30-degree rotation
+        (np.eye(3), np.array([0.0, 0.0, 0.0])),  # 3D: No rotation
+    ],
+    ids=['2D', '3D'],
+)
+def test_rotation_angles(eigenvectors, expected_angles):
+    """Test the rotation_angles function for 2D and 3D cases."""
+    angles = rotation_angles(eigenvectors)
+    assert np.allclose(angles, expected_angles, atol=1e-6), f'Expected {expected_angles}, got {angles}'
+
+
+@pytest.mark.parametrize(
+    'eigenvectors_field, expected_angles_field',
+    [
+        (
+            np.array(
+                [
+                    [[0.8660254, 0.5], [-0.5, 0.8660254]],  # 30-degree rotation
+                    [[0.707107, 0.707107], [-0.707107, 0.707107]],  # 45-degree rotation
+                ]
+            ),
+            np.array([[np.pi / 6], [np.pi / 4]]),  # 30 and 45 degrees in radians
+        ),
+        (
+            np.array(
+                [
+                    np.eye(3),  # Identity matrix (no rotation)
+                    np.eye(3),  # Identity matrix (no rotation)
+                ]
+            ),
+            np.array(
+                [
+                    [0.0, 0.0, 0.0],  # No rotation
+                    [0.0, 0.0, 0.0],  # No rotation
+                ]
+            ),
+        ),
+    ],
+    ids=['2D', '3D'],
+)
+def test_rotation_angles_field(eigenvectors_field, expected_angles_field):
+    """Test the rotation_angles_field function for 2D and 3D cases."""
+    angles_field = rotation_angles_field(eigenvectors_field)
+    assert np.allclose(angles_field, expected_angles_field, atol=1e-6), (
+        f'Expected {expected_angles_field}, got {angles_field}'
     )

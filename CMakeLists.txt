@@ -55,6 +55,7 @@ pybind11_add_module(_metric MODULE
     ${PROJECT_SOURCE_DIR}/pymeshb/metric/src/integrate.cpp
     ${PROJECT_SOURCE_DIR}/pymeshb/metric/src/normalize.cpp
     ${PROJECT_SOURCE_DIR}/pymeshb/metric/src/perturb.cpp
-    ${PROJECT_SOURCE_DIR}/pymeshb/metric/src/edge_length.cpp)
+    ${PROJECT_SOURCE_DIR}/pymeshb/metric/src/edge_length.cpp
+    ${PROJECT_SOURCE_DIR}/pymeshb/metric/src/rotation_angle.cpp)
 target_link_libraries(_metric PRIVATE Eigen3::Eigen)
 install(TARGETS _metric DESTINATION pymeshb/metric)

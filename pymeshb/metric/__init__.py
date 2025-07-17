@@ -9,4 +9,6 @@ from .metric import (
     perturb_metric_field,
     recompose,
     recompose_metric_field,
+    rotation_angles,
+    rotation_angles_field,
 )

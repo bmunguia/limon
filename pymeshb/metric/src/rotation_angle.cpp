@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstring>
 #include <stdexcept>
 #include <vector>
 
@@ -40,15 +41,31 @@ py::array_t<double> rotation_angles(py::array_t<double> eigenvectors) {
     Eigen::Map<Eigen::MatrixXd> eigen_mat(static_cast<double *>(eigenvecs_info.ptr), eigenvecs_info.shape[0], eigenvecs_info.shape[1]);
 
     if (dim == 2) {
-        // 2D case: Compute angle using Eigen's rotation matrix
-        Eigen::Rotation2Dd rotation(eigen_mat.col(0));
-        double angle = rotation.angle();
-        return py::array_t<double>({1}, {angle});
+        // 2D case: Extract angle from first eigenvector
+        // The angle is atan2(y, x) where (x, y) is the first eigenvector
+        Eigen::Vector2d first_eigenvec = eigen_mat.col(0);
+        double angle = std::atan2(first_eigenvec(1), first_eigenvec(0));
+
+        // Create result array with proper initialization
+        auto result = py::array_t<double>(1);
+        auto result_info = result.request();
+        static_cast<double*>(result_info.ptr)[0] = angle;
+
+        return result;
     } else {
         // 3D case: Compute Euler angles (ZYX order)
         Eigen::Matrix3d rotation_matrix = eigen_mat;
         Eigen::Vector3d euler_angles = rotation_matrix.eulerAngles(2, 1, 0); // ZYX order
-        return py::array_t<double>({3}, {euler_angles[0], euler_angles[1], euler_angles[2]});
+
+        // Create result array with proper initialization
+        auto result = py::array_t<double>(3);
+        py::buffer_info buf_info = result.request();
+        double* ptr = static_cast<double*>(buf_info.ptr);
+        ptr[0] = euler_angles[0];
+        ptr[1] = euler_angles[1];
+        ptr[2] = euler_angles[2];
+
+        return result;
     }
 }
 
@@ -73,28 +90,31 @@ py::array_t<double> rotation_angles_field(py::array_t<double> eigenvectors) {
 
     // Create output array
     size_t output_dim = (dim == 2) ? 1 : 3;
-    py::array_t<double> angles(std::vector<py::ssize_t>{num_point, output_dim});
-    auto result_info = angles.request();
+    auto angles = py::array_t<double>({static_cast<py::ssize_t>(num_point), static_cast<py::ssize_t>(output_dim)});
+    auto angles_info = angles.request();
 
     // Direct pointers to data
     double* eigenvecs_ptr = static_cast<double*>(eigenvecs_info.ptr);
-    double* result_ptr = static_cast<double*>(result_info.ptr);
+    double* angles_ptr = static_cast<double*>(angles_info.ptr);
 
     // Process each eigenvector array
     for (size_t i = 0; i < num_point; ++i) {
-        // Create views for current eigenvectors
-        py::array_t<double> current_eigenvector(std::vector<py::ssize_t>{dim, dim},
-                                               std::vector<py::ssize_t>{dim * sizeof(double), sizeof(double)},
-                                               eigenvecs_ptr + i * dim * dim);
+        // Create a view for the current eigenvector matrix
+        py::array_t<double> current_eigenvecs = py::array_t<double>(
+            {static_cast<py::ssize_t>(dim), static_cast<py::ssize_t>(dim)},
+            {static_cast<py::ssize_t>(dim * sizeof(double)), static_cast<py::ssize_t>(sizeof(double))},
+            eigenvecs_ptr + i * dim * dim,
+            py::handle(eigenvectors)
+        );
 
-        // Rotation angles for the current eigenvector
-        py::array_t<double> vector_angle = rotation_angles(current_eigenvector);
+        // Call rotation_angles for this point
+        py::array_t<double> point_angles = rotation_angles(current_eigenvecs);
 
-        // Copy to output array
-        auto vec_angle_info = vector_angle.request();
-        double* vec_angle_ptr = static_cast<double*>(vec_angle_info.ptr);
-        std::memcpy(result_ptr + i * output_dim, vec_angle_ptr, output_dim * sizeof(double));
+        // Copy results to output array
+        auto point_angles_info = point_angles.request();
+        double* point_angles_ptr = static_cast<double*>(point_angles_info.ptr);
+        std::memcpy(angles_ptr + i * output_dim, point_angles_ptr, output_dim * sizeof(double));
     }
 
-    return result;
+    return angles;
 }
