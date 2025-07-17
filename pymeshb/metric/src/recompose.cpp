@@ -107,10 +107,10 @@ py::array_t<double> recompose_metric_field(py::array_t<double> eigenvalues, py::
 
     // Validate input shapes
     if (eigenvals_info.ndim != 2) {
-        throw std::runtime_error("Eigenvalues array must be 2-dimensional");
+        throw std::runtime_error("Eigenvalues array must be 2D");
     }
     if (eigenvecs_info.ndim != 3) {
-        throw std::runtime_error("Eigenvectors array must be 3-dimensional");
+        throw std::runtime_error("Eigenvectors array must be 3D");
     }
 
     unsigned int num_point = eigenvals_info.shape[0];
@@ -141,9 +141,11 @@ py::array_t<double> recompose_metric_field(py::array_t<double> eigenvalues, py::
     // Process each tensor
     for (unsigned int i = 0; i < num_point; i++) {
         // Create views for current eigenvalues and eigenvectors
-        py::array_t<double> current_eigenvals(std::vector<py::ssize_t>{dim}, std::vector<py::ssize_t>{sizeof(double)},
+        py::array_t<double> current_eigenvals(std::vector<py::ssize_t>{dim},
+                                              std::vector<py::ssize_t>{sizeof(double)},
                                               eigenvals_ptr + i * dim);
-        py::array_t<double> current_eigenvecs(std::vector<py::ssize_t>{dim, dim}, std::vector<py::ssize_t>{dim * sizeof(double), sizeof(double)},
+        py::array_t<double> current_eigenvecs(std::vector<py::ssize_t>{dim, dim},
+                                              std::vector<py::ssize_t>{dim * sizeof(double), sizeof(double)},
                                               eigenvecs_ptr + i * dim * dim);
 
         // Recompose current tensor

@@ -477,3 +477,55 @@ def metric_edge_length(edges: NDArray, coords: NDArray, metrics: NDArray, eps: f
         np.asarray(metrics, dtype=np.float64),
         eps,
     )
+
+
+def rotation_angles(eigenvectors: NDArray) -> NDArray:
+    r"""Compute rotation angles from eigenvectors.
+
+    Args:
+        eigenvectors (numpy.ndarray): Array of shape (dim, dim) containing eigenvectors.
+
+    Returns:
+        numpy.ndarray: Array of shape (1,) for 2D or (3,) for 3D containing rotation angles.
+
+    Examples:
+        >>> # Compute rotation angles for 2D eigenvectors
+        >>> eigenvectors = np.array([[0.866, -0.5], [0.5, 0.866]])
+        >>> angles = rotation_angles(eigenvectors)
+        >>> print(angles.shape)  # (1,)
+
+        >>> # Compute rotation angles for 3D eigenvectors
+        >>> eigenvectors_3d = np.eye(3)
+        >>> angles_3d = rotation_angles(eigenvectors_3d)
+        >>> print(angles_3d.shape)  # (3,)
+    """
+    return _metric.rotation_angles(np.asarray(eigenvectors, dtype=np.float64))
+
+
+def rotation_angles_field(eigenvectors: NDArray) -> NDArray:
+    r"""Compute rotation angles for a field of eigenvectors.
+
+    Args:
+        eigenvectors (numpy.ndarray): Array of shape (num_point, dim, dim) containing eigenvectors.
+
+    Returns:
+        numpy.ndarray: Array of shape (num_point, 1) for 2D or (num_point, 3) for 3D containing rotation angles.
+
+    Examples:
+        >>> # Compute rotation angles for a field of 2D eigenvectors
+        >>> eigenvectors = np.array([
+        ...     [[0.866, -0.5], [0.5, 0.866]],
+        ...     [[0.707, -0.707], [0.707, 0.707]],
+        ... ])
+        >>> angles = rotation_angles_field(eigenvectors)
+        >>> print(angles.shape)  # (2, 1)
+
+        >>> # Compute rotation angles for a field of 3D eigenvectors
+        >>> eigenvectors_3d = np.array([
+        ...     np.eye(3),
+        ...     np.eye(3),
+        ... ])
+        >>> angles_3d = rotation_angles_field(eigenvectors_3d)
+        >>> print(angles_3d.shape)  # (2, 3)
+    """
+    return _metric.rotation_angles_field(np.asarray(eigenvectors, dtype=np.float64))

@@ -44,6 +44,8 @@ py::array_t<double> metric_edge_length(
     py::array_t<double> coords,
     py::array_t<double> metrics,
     double eps = 1e-12);
+py::array_t<double> rotation_angles(py::array_t<double> eigenvectors);
+py::array_t<double> rotation_angles_field(py::array_t<double> eigenvectors);
 
 /**
  * Python module definition for metric tensor operations.
@@ -93,4 +95,12 @@ PYBIND11_MODULE(_metric, m) {
           "Compute the metric edge length for the given edges",
           py::arg("edges"), py::arg("coords"), py::arg("metrics"),
           py::arg("eps") = 1e-12);
+
+    m.def("rotation_angles", &rotation_angles,
+          "Compute rotation angles from eigenvectors",
+          py::arg("eigenvectors"));
+
+    m.def("rotation_angles_field", &rotation_angles_field,
+          "Compute rotation angles for a field of eigenvectors",
+          py::arg("eigenvectors"));
 }

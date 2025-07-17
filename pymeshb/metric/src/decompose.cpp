@@ -124,7 +124,7 @@ py::tuple decompose_metric_field(py::array_t<double> metrics) {
 
     // Validate input shapes
     if (metrics_info.ndim != 2) {
-        throw std::runtime_error("Metrics array must be 2-dimensional");
+        throw std::runtime_error("Metrics array must be 2D");
     }
 
     // Create output arrays
@@ -141,7 +141,8 @@ py::tuple decompose_metric_field(py::array_t<double> metrics) {
     // Process each tensor
     for (unsigned int i = 0; i < num_point; i++) {
         // Create view for current tensor
-        py::array_t<double> metric(std::vector<py::ssize_t>{num_met}, std::vector<py::ssize_t>{static_cast<py::ssize_t>(sizeof(double))},
+        py::array_t<double> metric(std::vector<py::ssize_t>{num_met},
+                                   std::vector<py::ssize_t>{static_cast<py::ssize_t>(sizeof(double))},
                                    metrics_ptr + i * num_met);
 
         // Decompose current tensor

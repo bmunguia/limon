@@ -81,13 +81,13 @@ py::array_t<double> metric_edge_length_at_endpoints(
 
     // Validate input shapes
     if (edges_info.ndim != 2 || edges_info.shape[1] != 2) {
-        throw std::runtime_error("Edges array must be 2-dimensional with shape (num_edge, 2)");
+        throw std::runtime_error("Edges array must be 2D with shape (num_edge, 2)");
     }
     if (coords_info.ndim != 2) {
-        throw std::runtime_error("Coordinates array must be 2-dimensional");
+        throw std::runtime_error("Coordinates array must be 2D");
     }
     if (metrics_info.ndim != 2) {
-        throw std::runtime_error("Metrics array must be 2-dimensional");
+        throw std::runtime_error("Metrics array must be 2D");
     }
 
     unsigned int num_edge = edges_info.shape[0];

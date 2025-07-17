@@ -193,7 +193,7 @@ py::array_t<double> perturb_metric_field(
 
     // Validate input shapes
     if (metrics_info.ndim != 2) {
-        throw std::runtime_error("Tensors array must be 2-dimensional");
+        throw std::runtime_error("Tensors array must be 2D");
     }
     if (delta_vals_info.ndim != 2 || delta_vals_info.shape[0] != num_point ||
         delta_vals_info.shape[1] != dim) {

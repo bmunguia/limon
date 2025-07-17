@@ -52,7 +52,7 @@ py::array_t<double> normalize_metric_field(
 
     // Validate input shapes
     if (metrics_info.ndim != 2) {
-        throw std::runtime_error("Metrics array must be 2-dimensional");
+        throw std::runtime_error("Metrics array must be 2D");
     }
 
     // Direct pointers to data

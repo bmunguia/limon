@@ -51,7 +51,7 @@ double integrate_metric_field(
 
     // Validate input shapes
     if (metrics_info.ndim != 2) {
-        throw std::runtime_error("Metrics array must be 2-dimensional");
+        throw std::runtime_error("Metrics array must be 2D");
     }
     if (volumes_info.ndim != 1 || volumes_info.shape[0] != num_point) {
         throw std::runtime_error("Volumes shape must be (num_point,)");
