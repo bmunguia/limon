@@ -1,28 +1,43 @@
-__pycache__
+# Workspace
 .ruff_cache
 .vscode
-build
-CMakeFiles
-libMeshb
-output
-setup.py
-*.csv
-*.dat
-*.egg-info
 *.lock
-*.log
-*.mesh
-*.meshb
-*.png
+
+# Build
+__pycache__
+build
+dist
+*.egg-info
+*.html
 *.prof
-*.pt
 *.pyc
 *.so
-*.sol
-*.solb
-*.su2
-*.vizir
-*.vtk
-*.vtu
+*.tar.gz
+*.whl
+
+# Config
 *.yaml
 *.yml
+
+# Python logs and outputs
+output
+*.csv
+*.log
+*.out
+*.pt
+*.png
+
+# GMF and vizir
+*.mesh
+*.meshb
+*.sol
+*.solb
+*.state
+*.vizir
+
+# SU2 and VTK
+*.cfg
+*.dat
+*.su2
+*.vtk
+*.vtu

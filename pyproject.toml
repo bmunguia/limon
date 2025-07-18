@@ -28,7 +28,6 @@ dependencies = [
     "numpy~=2.0.0",
     "pybind11==2.13.6",
     "pyyaml==6.0.2",
-    "vtk==9.3.1",
 ]
 
 [project.optional-dependencies]
