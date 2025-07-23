@@ -3,20 +3,21 @@ pymeshb is a Python API to handle the *.meshb file format, and to handle various
 
 ## Installation
 
-**Note:** pymeshb is currently only supported for Linux.
+> [!IMPORTANT]
+> pymeshb is currently only supported for Linux.
 
 1. Initialize the submodules:
-   
+
     ```
     git submodule update --init --recursive
     ```
 
 2. Create the `conda` environment from `environment.yml`:
-   
+
     ```
     conda env create -f environment.yml
     ```
-    
+
 3. Load the environment:
 
     ```
@@ -28,7 +29,7 @@ pymeshb is a Python API to handle the *.meshb file format, and to handle various
     ```
     pip install .
     ```
-    
+
    Optional: to be able to run the tests, install with optional dependencies:
 
     ```
