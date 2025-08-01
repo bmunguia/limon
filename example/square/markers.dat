@@ -1,6 +1,7 @@
-# SU2 Reference ID Map
-# Format: ref_id:ref_name
-1:lower
-2:right
-3:upper
-4:left
+TITLE = "Marker ref map"
+VARIABLES = "ID","Tag"
+ZONE T= "Marker tags"
+1, lower
+2, right
+3, upper
+4, left
