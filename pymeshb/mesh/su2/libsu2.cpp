@@ -27,7 +27,7 @@
       * @param markerpath Path to the map between marker strings and ref IDs (optional)
       * @return Tuple containing coordinates and element data
       */
-     m.def("read_mesh", &pymeshb::su2::read_mesh,
+     m.def("load_mesh", &pymeshb::su2::load_mesh,
           py::arg("meshpath"),
           py::arg("markerpath") = "",
           "Read a SU2 mesh file, and return nodes and element data.");
@@ -59,7 +59,7 @@
      * @param labelpath Path to the map between solution strings and ref IDs
      * @return Dictionary of solution fields
      */
-    m.def("read_solution", &pymeshb::su2::read_solution,
+    m.def("load_solution", &pymeshb::su2::load_solution,
         py::arg("solpath"),
         py::arg("num_ver"),
         py::arg("dim"),

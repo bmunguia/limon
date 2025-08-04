@@ -3,7 +3,7 @@ from numpy.typing import NDArray
 from . import libgmf
 
 
-def read_mesh(
+def load_mesh(
     meshpath: str,
 ) -> tuple[NDArray, dict, dict, dict]:
     r"""Read mesh data from a GMF mesh (.meshb) file.
@@ -18,7 +18,7 @@ def read_mesh(
         - boundaries: Dictionary mapping boundary element types to arrays
     """
     try:
-        coords, elms, bnds = libgmf.read_mesh(meshpath)
+        coords, elms, bnds = libgmf.load_mesh(meshpath)
 
         return coords, elms, bnds
 
@@ -56,7 +56,7 @@ def write_mesh(
         return False
 
 
-def read_solution(
+def load_solution(
     solpath: str,
     num_ver: int,
     dim: int,
@@ -76,7 +76,7 @@ def read_solution(
     """
     try:
         labelpath = labelpath if labelpath is not None else ''
-        return libgmf.read_solution(solpath, num_ver, dim, labelpath)
+        return libgmf.load_solution(solpath, num_ver, dim, labelpath)
     except Exception as e:
         print(f'Error reading solution: {e}')
         return {}

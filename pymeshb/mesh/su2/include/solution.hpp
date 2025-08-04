@@ -20,11 +20,11 @@ namespace su2 {
  * @param dim Mesh dimension
  * @return Dictionary of solution fields
  */
-py::dict read_solution(const std::string& solpath, int num_point, int dim, const std::string& labelpath);
+py::dict load_solution(const std::string& solpath, int num_point, int dim, const std::string& labelpath);
 
-py::dict read_solution_ascii(const std::string& solpath, int num_point, int dim);
+py::dict load_solution_ascii(const std::string& solpath, int num_point, int dim);
 
-py::dict read_solution_binary(const std::string& solpath, int num_point, int dim);
+py::dict load_solution_binary(const std::string& solpath, int num_point, int dim);
 
 py::dict process_solution_fields(const std::vector<std::string>& field_names,
                                  const std::vector<std::vector<double>>& data,

@@ -20,7 +20,7 @@ namespace su2 {
  * @param markerpath Path to the map between marker strings and ref IDs (optional)
  * @return Tuple containing coordinates and element data
  */
-py::tuple read_mesh(const std::string& meshpath, const std::string& markerpath = "");
+py::tuple load_mesh(const std::string& meshpath, const std::string& markerpath = "");
 
 /**
  * Write mesh data to an SU2 mesh file.

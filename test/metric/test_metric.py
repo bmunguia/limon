@@ -2,7 +2,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from pymeshb.mesh import read_mesh, write_mesh
+from pymeshb.mesh import load_mesh, write_mesh
 from pymeshb.metric import (
     perturb_metric_field,
     metric_edge_length,
@@ -55,7 +55,7 @@ def output_dir(request):
 def mesh_data(request):
     """Load mesh and create sample solution for different dimensions."""
     config = request.param
-    coords, elements, boundaries = read_mesh(config['meshpath'])
+    coords, elements, boundaries = load_mesh(config['meshpath'])
 
     num_point = coords.shape[0]
     num_dim = coords.shape[1]
@@ -263,7 +263,7 @@ def test_perturb_metric_field(mesh_data, output_dir):
 def mesh_data_2d():
     """Load the 2D mesh and create a sample solution - specific for nonuniform test."""
     meshpath_in = 'example/square/square.mesh'
-    coords, elements, boundaries = read_mesh(meshpath_in)
+    coords, elements, boundaries = load_mesh(meshpath_in)
 
     num_point = coords.shape[0]
     num_dim = coords.shape[1]

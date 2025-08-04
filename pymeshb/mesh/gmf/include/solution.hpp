@@ -20,7 +20,7 @@ namespace gmf {
  * @param labelpath Path to the map between solution strings and ref IDs
  * @return Dictionary of solution fields
  */
-py::dict read_solution(const std::string& solpath, int64_t num_ver, int dim,
+py::dict load_solution(const std::string& solpath, int64_t num_ver, int dim,
                        const std::string& labelpath);
 
 /**
@@ -33,7 +33,7 @@ py::dict read_solution(const std::string& solpath, int64_t num_ver, int dim,
  * @param labelpath Path to the map between solution strings and ref IDs
  * @return Boolean indicating success
  */
-bool write_solution(const std::string& solpath, py::dict sol_data, int64_t num_ver, int dim, 
+bool write_solution(const std::string& solpath, py::dict sol_data, int64_t num_ver, int dim,
                     const std::string& labelpath);
 
 } // namespace gmf

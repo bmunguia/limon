@@ -64,7 +64,7 @@ std::map<int, std::string> RefMap::loadRefMap(const std::string& filename) {
             while (pos < dict.size()) {
                 // Find key
                 size_t key_start = dict.find('"', pos);
-                if (key_start == std::string::npos) key_start = dict.find('\'', pos);
+                if (key_start == std::string::npos) key_start = dict.find("\"", pos);
                 if (key_start == std::string::npos) break;
                 size_t key_end = dict.find_first_of("'\"", key_start + 1);
                 if (key_end == std::string::npos) break;
@@ -92,7 +92,7 @@ std::map<int, std::string> RefMap::loadRefMap(const std::string& filename) {
     return ref_map;
 }
 
-void RefMap::saveRefMap(const std::map<int, std::string>& ref_map, const std::string& filename, RefMapKind kind) {
+void RefMap::writeRefMap(const std::map<int, std::string>& ref_map, const std::string& filename, RefMapKind kind) {
     std::string ext;
     size_t dot = filename.find_last_of('.');
     if (dot != std::string::npos) {
@@ -120,7 +120,7 @@ void RefMap::saveRefMap(const std::map<int, std::string>& ref_map, const std::st
         bool first = true;
         for (const auto& [key, value] : ref_map) {
             if (!first) file << ", ";
-            file << '\'' << value << "': " << key;
+            file << "\"" << value << "\": " << key;
             first = false;
         }
         file << "}" << std::endl;

@@ -3,7 +3,7 @@ from numpy.typing import NDArray
 from . import libsu2
 
 
-def read_mesh(
+def load_mesh(
     meshpath: str,
     markerpath: str | None = None,
 ) -> tuple[NDArray, dict, dict, dict]:
@@ -22,7 +22,7 @@ def read_mesh(
     """
     try:
         markerpath = markerpath if markerpath is not None else ''
-        coords, elms, bnds = libsu2.read_mesh(meshpath, markerpath)
+        coords, elms, bnds = libsu2.load_mesh(meshpath, markerpath)
 
         return coords, elms, bnds
 
@@ -64,7 +64,7 @@ def write_mesh(
         return False
 
 
-def read_solution(
+def load_solution(
     solpath: str,
     num_point: int,
     dim: int,
@@ -84,7 +84,7 @@ def read_solution(
     """
     try:
         labelpath = labelpath if labelpath is not None else ''
-        return libsu2.read_solution(solpath, num_point, dim, labelpath)
+        return libsu2.load_solution(solpath, num_point, dim, labelpath)
     except Exception as e:
         print(f'Error reading solution: {e}')
         return {}

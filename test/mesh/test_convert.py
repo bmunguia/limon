@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import pytest
-from pymeshb.mesh import read_mesh, write_mesh
+from pymeshb.mesh import load_mesh, write_mesh
 
 
 @pytest.fixture
@@ -63,7 +63,7 @@ def output_dir(request):
 @pytest.fixture
 def su2_mesh_data(su2_meshpath_in, su2_solpath_in, markerpath, labelpath):
     """Load the 2D SU2 mesh and solution."""
-    data = read_mesh(
+    data = load_mesh(
         str(su2_meshpath_in),
         markerpath=str(markerpath),
         solpath=str(su2_solpath_in),
@@ -76,7 +76,7 @@ def su2_mesh_data(su2_meshpath_in, su2_solpath_in, markerpath, labelpath):
 @pytest.fixture
 def gmf_mesh_data(gmf_meshpath_in, gmf_solpath_in, markerpath_in, labelpath_in):
     """Load the 2D GMF mesh and binary solution."""
-    data = read_mesh(str(gmf_meshpath_in), solpath=str(gmf_solpath_in), labelpath=str(labelpath_in), read_sol=True)
+    data = load_mesh(str(gmf_meshpath_in), solpath=str(gmf_solpath_in), labelpath=str(labelpath_in), read_sol=True)
     return data
 
 

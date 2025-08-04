@@ -2,7 +2,7 @@ from pathlib import Path
 
 import numpy.testing as npt
 import pytest
-from pymeshb.mesh import read_mesh, write_mesh
+from pymeshb.mesh import load_mesh, write_mesh
 
 
 @pytest.fixture
@@ -46,7 +46,7 @@ def output_dir(request):
 @pytest.fixture
 def mesh_data_binary(meshpath_in, solpath_in_binary, markerpath, labelpath):
     """Load the 2D mesh and binary solution."""
-    data = read_mesh(
+    data = load_mesh(
         str(meshpath_in),
         markerpath=str(markerpath),
         solpath=str(solpath_in_binary),
@@ -59,7 +59,7 @@ def mesh_data_binary(meshpath_in, solpath_in_binary, markerpath, labelpath):
 @pytest.fixture
 def mesh_data_ascii(meshpath_in, solpath_in_ascii, markerpath, labelpath):
     """Load the 2D mesh and ASCII solution."""
-    data = read_mesh(
+    data = load_mesh(
         str(meshpath_in),
         markerpath=str(markerpath),
         solpath=str(solpath_in_ascii),
@@ -222,10 +222,10 @@ def test_su2_ascii_to_binary(mesh_data_ascii, output_dir, markerpath, labelpath,
 def compare_solutions(meshpath_in, solpath_in, meshpath_out, solpath_out):
     """Read the new solution and compare it to the original."""
     # Read the original solution
-    _, _, _, sol_in = read_mesh(str(meshpath_in), solpath=str(solpath_in), read_sol=True)
+    _, _, _, sol_in = load_mesh(str(meshpath_in), solpath=str(solpath_in), read_sol=True)
 
     # Read the rewritten solution
-    _, _, _, sol_out = read_mesh(str(meshpath_out), solpath=str(solpath_out), read_sol=True)
+    _, _, _, sol_out = load_mesh(str(meshpath_out), solpath=str(solpath_out), read_sol=True)
 
     assert sol_out.keys() == sol_in.keys(), 'Solution fields mismatch'
 

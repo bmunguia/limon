@@ -14,7 +14,7 @@ extern "C" {
 namespace pymeshb {
 namespace gmf {
 
-py::dict read_solution(const std::string& solpath, int64_t num_ver, int dim,
+py::dict load_solution(const std::string& solpath, int64_t num_ver, int dim,
                        const std::string& labelpath) {
     py::dict sol;
     int version;
@@ -171,7 +171,7 @@ bool write_solution(const std::string& solpath, py::dict sol_data, int64_t num_v
 
     // Save updated solution label map back to file if provided
     if (!labelpath.empty()) {
-        RefMap::saveRefMap(ref_map, labelpath, RefMapKind::Solution);
+        RefMap::writeRefMap(ref_map, labelpath, RefMapKind::Solution);
     }
 
     return true;

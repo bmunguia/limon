@@ -59,3 +59,11 @@ pybind11_add_module(_metric MODULE
     ${PROJECT_SOURCE_DIR}/pymeshb/metric/src/rotation_angle.cpp)
 target_link_libraries(_metric PRIVATE Eigen3::Eigen)
 install(TARGETS _metric DESTINATION pymeshb/metric)
+
+# Build ref_map module
+pybind11_add_module(_ref_map MODULE
+    ${PROJECT_SOURCE_DIR}/pymeshb/mesh/ref_map_bindings.cpp
+    ${PROJECT_SOURCE_DIR}/pymeshb/mesh/ref_map.cpp)
+target_include_directories(_ref_map PRIVATE
+    ${PROJECT_SOURCE_DIR}/pymeshb/mesh)
+install(TARGETS _ref_map DESTINATION pymeshb/mesh)

@@ -17,7 +17,7 @@ namespace su2 {
 const int SU2_MAGIC_NUMBER = 535532;  // Hex representation of "SU2"
 const int CGNS_STRING_SIZE = 33;      // Fixed size for variable names in SU2 files
 
-py::dict read_solution_ascii(const std::string& solpath, int num_point, int dim) {
+py::dict load_solution_ascii(const std::string& solpath, int num_point, int dim) {
     py::dict sol;
 
     std::ifstream sol_file(solpath);
@@ -61,7 +61,7 @@ py::dict read_solution_ascii(const std::string& solpath, int num_point, int dim)
     return sol;
 }
 
-py::dict read_solution_binary(const std::string& solpath, int num_point, int dim) {
+py::dict load_solution_binary(const std::string& solpath, int num_point, int dim) {
     py::dict sol;
 
     std::ifstream sol_file(solpath, std::ios::in | std::ios::binary);
@@ -251,7 +251,7 @@ py::dict process_solution_fields(const std::vector<std::string>& field_names,
     return sol;
 }
 
-py::dict read_solution(const std::string& solpath, int num_point, int dim, const std::string& labelpath) {
+py::dict load_solution(const std::string& solpath, int num_point, int dim, const std::string& labelpath) {
     py::dict sol;
 
     std::ifstream file_check(solpath, std::ios::in | std::ios::binary);
@@ -265,9 +265,9 @@ py::dict read_solution(const std::string& solpath, int num_point, int dim, const
     file_check.close();
 
     if (magic_number == SU2_MAGIC_NUMBER) {
-        sol = read_solution_binary(solpath, num_point, dim);
+        sol = load_solution_binary(solpath, num_point, dim);
     } else {
-        sol = read_solution_ascii(solpath, num_point, dim);
+        sol = load_solution_ascii(solpath, num_point, dim);
     }
 
     // Save updated marker map back to file if provided
@@ -277,7 +277,7 @@ py::dict read_solution(const std::string& solpath, int num_point, int dim, const
         for (auto& [sol_id, _] : sol) {
             ref_map[ref_id++] = sol_id.cast<std::string>();
         }
-        RefMap::saveRefMap(ref_map, labelpath, RefMapKind::Solution);
+        RefMap::writeRefMap(ref_map, labelpath, RefMapKind::Solution);
     }
 
     return sol;

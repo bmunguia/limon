@@ -17,7 +17,7 @@ namespace gmf {
  * @param meshpath Path to the mesh file
  * @return Tuple containing coordinates, elements, and optionally solution data
  */
-py::tuple read_mesh(const std::string& meshpath);
+py::tuple load_mesh(const std::string& meshpath);
 
 /**
  * Write mesh data to a GMF mesh (.meshb) file.

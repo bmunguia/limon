@@ -312,7 +312,7 @@ bool read_boundary_elements(std::ifstream& file_stream, int boundary_count, py::
 
     // Save updated marker map back to file if provided
     if (!markerpath.empty()) {
-        RefMap::saveRefMap(ref_map, markerpath, RefMapKind::Marker);
+        RefMap::writeRefMap(ref_map, markerpath, RefMapKind::Marker);
     }
 
     return true;

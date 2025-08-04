@@ -2,10 +2,12 @@ from pathlib import Path
 
 from numpy.typing import NDArray
 
-from . import gmf, su2
+from . import _ref_map, gmf, su2
+
+RefMapKind = _ref_map.RefMapKind
 
 
-def read_mesh(
+def load_mesh(
     meshpath: str,
     markerpath: str | None = None,
     solpath: str | None = None,
@@ -35,9 +37,9 @@ def read_mesh(
 
         suffix = Path(meshpath).suffix
         if suffix in ['.mesh', '.meshb']:
-            coords, elms, bnds = gmf.read_mesh(meshpath)
+            coords, elms, bnds = gmf.load_mesh(meshpath)
         elif suffix == '.su2':
-            coords, elms, bnds = su2.read_mesh(meshpath, markerpath)
+            coords, elms, bnds = su2.load_mesh(meshpath, markerpath)
         else:
             raise ValueError(f'Unsupported mesh file format: {suffix}. Supported formats are .mesh, .meshb, and .su2')
 
@@ -47,9 +49,9 @@ def read_mesh(
             dim = coords.shape[1]
 
             if suffix in ['.mesh', '.meshb']:
-                sol = gmf.read_solution(solpath, num_point, dim, labelpath)
+                sol = gmf.load_solution(solpath, num_point, dim, labelpath)
             elif suffix == '.su2':
-                sol = su2.read_solution(solpath, num_point, dim, labelpath)
+                sol = su2.load_solution(solpath, num_point, dim, labelpath)
 
             return coords, elms, bnds, sol
 
@@ -121,7 +123,7 @@ def write_mesh(
         return False
 
 
-def read_solution(
+def load_solution(
     solpath: str,
     num_point: int,
     dim: int,
@@ -142,9 +144,9 @@ def read_solution(
     try:
         suffix = Path(solpath).suffix.lower()
         if suffix in ['.sol', '.solb']:
-            return gmf.read_solution(solpath, num_point, dim, labelpath)
+            return gmf.load_solution(solpath, num_point, dim, labelpath)
         elif suffix in ['.dat', '.csv']:
-            return su2.read_solution(solpath, num_point, dim, labelpath)
+            return su2.load_solution(solpath, num_point, dim, labelpath)
         else:
             raise ValueError(
                 f'Unsupported solution file format: {suffix}. Supported formats are .sol, .solb, .dat, and .csv'
@@ -187,3 +189,18 @@ def write_solution(
     except Exception as e:
         print(f'Error writing solution: {e}')
         return False
+
+
+def load_ref_map(filename: str) -> dict[int, str]:
+    """Load reference map from file."""
+    return _ref_map.load_ref_map(filename)
+
+
+def write_ref_map(ref_map: dict[int, str], filename: str, kind: RefMapKind) -> None:
+    """Write reference map to file."""
+    _ref_map.write_ref_map(ref_map, filename, kind)
+
+
+def get_ref_name(ref_map: dict[int, str], ref_id: int) -> str:
+    """Get reference name from map."""
+    return _ref_map.get_ref_name(ref_map, ref_id)

@@ -2,7 +2,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from pymeshb.mesh import read_mesh, write_mesh, write_solution
+from pymeshb.mesh import load_mesh, write_mesh, write_solution
 
 
 @pytest.fixture
@@ -26,7 +26,7 @@ def labelpath(output_dir):
 @pytest.fixture
 def mesh_data_3d(meshpath_in_3d):
     """Load the 3D mesh and create a sample solution."""
-    data = read_mesh(str(meshpath_in_3d))
+    data = load_mesh(str(meshpath_in_3d))
     coords, elements, boundaries = data
 
     num_point = coords.shape[0]
@@ -51,7 +51,7 @@ def mesh_data_3d(meshpath_in_3d):
 @pytest.fixture
 def mesh_data_2d(meshpath_in_2d):
     """Load the 2D mesh and create a sample solution."""
-    data = read_mesh(str(meshpath_in_2d))
+    data = load_mesh(str(meshpath_in_2d))
     coords, elements, boundaries = data
 
     num_point = coords.shape[0]
@@ -89,7 +89,7 @@ def output_dir(request):
     return out_dir
 
 
-def test_read_meshb(mesh_data_3d):
+def test_load_meshb(mesh_data_3d):
     """Test reading a mesh."""
     coords, elements, boundaries, solution = mesh_data_3d
 
@@ -175,7 +175,7 @@ def test_solution_keys_solb(mesh_data_2d, output_dir, labelpath):
     assert labelpath.exists(), 'Output solution label map was not created'
 
     # Read the mesh and solution back
-    _, _, _, reread_solution = read_mesh(
+    _, _, _, reloaded_solution = load_mesh(
         str(meshpath_out),
         solpath=str(solpath_out),
         labelpath=str(labelpath),
@@ -183,11 +183,11 @@ def test_solution_keys_solb(mesh_data_2d, output_dir, labelpath):
     )
 
     # Check that the solution was read correctly
-    assert reread_solution is not None, 'Failed to read solution'
+    assert reloaded_solution is not None, 'Failed to read solution'
 
     # Check that all original solution keys are present in the reread solution
     original_keys = set(original_solution.keys())
-    reread_keys = set(reread_solution.keys())
+    reread_keys = set(reloaded_solution.keys())
 
     print(f'Original solution keys: {original_keys}')
     print(f'Re-read solution keys: {reread_keys}')
@@ -196,10 +196,12 @@ def test_solution_keys_solb(mesh_data_2d, output_dir, labelpath):
 
     # Check that the field types and sizes match
     for key in original_keys:
-        assert key in reread_solution, f'Field "{key}" missing in reread solution'
+        assert key in reloaded_solution, f'Field "{key}" missing in reread solution'
 
         # Check shape
-        assert reread_solution[key].shape == original_solution[key].shape, f'Shape mismatch for field "{key}"'
+        assert reloaded_solution[key].shape == original_solution[key].shape, f'Shape mismatch for field "{key}"'
 
         # Check approximate values (allowing for small floating point differences)
-        assert np.allclose(reread_solution[key], original_solution[key], rtol=1e-5), f'Values differ for field "{key}"'
+        assert np.allclose(reloaded_solution[key], original_solution[key], rtol=1e-5), (
+            f'Values differ for field "{key}"'
+        )
