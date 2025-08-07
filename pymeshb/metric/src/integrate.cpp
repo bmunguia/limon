@@ -66,10 +66,12 @@ double integrate_metric_field(
     // Exponent for global normalization term
     double norm_exp = norm / (2.0 * norm + dim);
 
+    // Pre-allocate matrix
+    Eigen::MatrixXd A(dim, dim);
+
     // Process each tensor
     for (unsigned int i = 0; i < num_point; i++) {
         // Reconstruct full tensor matrix from lower triangular elements
-        Eigen::MatrixXd A(dim, dim);
         double* ptr = metrics_ptr + i * num_met;
 
         if (dim == 1) {

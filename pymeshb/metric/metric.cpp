@@ -34,7 +34,9 @@ py::array_t<double> normalize_metric_field(
     py::array_t<double> metrics,
     double metric_integral,
     int complexity,
-    int norm);
+    int norm,
+    double hmax = -1.0,
+    double hmin = -1.0);
 py::array_t<double> metric_edge_length_at_endpoints(
     py::array_t<int> edges,
     py::array_t<double> coords,
@@ -54,53 +56,69 @@ PYBIND11_MODULE(_metric, m) {
     m.doc() = "Metric tensor operations";
 
     m.def("decompose", &decompose,
-        "Diagonalize a symmetric tensor",
-        py::arg("lower_tri"));
+        py::arg("lower_tri"),
+        "Diagonalize a symmetric tensor.");
 
     m.def("recompose", &recompose,
-        "Recombine eigenvalues and eigenvectors to reconstruct the tensor",
-        py::arg("eigenvalues"), py::arg("eigenvectors"));
+        py::arg("eigenvalues"),
+        py::arg("eigenvectors"),
+        "Recombine eigenvalues and eigenvectors to reconstruct the tensor.");
 
     m.def("decompose_metric_field", &decompose_metric_field,
-        "Decompose a field of metric tensors",
-        py::arg("metrics"));
+        py::arg("metrics"),
+        "Decompose a field of metric tensors.");
 
     m.def("recompose_metric_field", &recompose_metric_field,
-        "Recompose a field of metric tensors from eigenvalues and eigenvectors",
-        py::arg("eigenvalues"), py::arg("eigenvectors"));
+        py::arg("eigenvalues"),
+        py::arg("eigenvectors"),
+        "Recompose a field of metric tensors from eigenvalues and eigenvectors.");
 
     m.def("perturb", &perturb,
-        "Apply perturbation to eigenvalues and eigenvectors",
-        py::arg("eigenvalues"), py::arg("eigenvectors"),
-        py::arg("delta_eigenvals"), py::arg("rotation_angles"));
+        py::arg("eigenvalues"),
+        py::arg("eigenvectors"),
+        py::arg("delta_eigenvals"),
+        py::arg("rotation_angles"),
+        "Apply perturbation to eigenvalues and eigenvectors.");
 
     m.def("perturb_metric_field", &perturb_metric_field,
-          "Perturb a field of metric tensors",
-          py::arg("metrics"), py::arg("delta_eigenvals"), py::arg("rotation_angles"));
+          py::arg("metrics"),
+          py::arg("delta_eigenvals"),
+          py::arg("rotation_angles"),
+          "Perturb a field of metric tensors.");
 
     m.def("integrate_metric_field", &integrate_metric_field,
-          "Integrate determinant of metric tensors over volumes",
-          py::arg("metrics"), py::arg("volumes"), py::arg("norm"));
+          py::arg("metrics"),
+          py::arg("volumes"),
+          py::arg("norm"),
+          "Integrate determinant of metric tensors over volumes.");
 
     m.def("normalize_metric_field", &normalize_metric_field,
-          "Normalize a field of metric tensors",
-          py::arg("metrics"), py::arg("metric_integral"),
-          py::arg("complexity"), py::arg("norm"));
+          py::arg("metrics"),
+          py::arg("metric_integral"),
+          py::arg("complexity"),
+          py::arg("norm"),
+          py::arg("hmax") = -1.0,
+          py::arg("hmin") = -1.0,
+          "Normalize a field of metric tensors.");
 
     m.def("metric_edge_length_at_endpoints", &metric_edge_length_at_endpoints,
-          "Compute the metric edge length at the endpoints of the edges",
-          py::arg("edges"), py::arg("coords"), py::arg("metrics"));
+          py::arg("edges"),
+          py::arg("coords"),
+          py::arg("metrics"),
+          "Compute the metric edge length at the endpoints of the edges.");
 
     m.def("metric_edge_length", &metric_edge_length,
-          "Compute the metric edge length for the given edges",
-          py::arg("edges"), py::arg("coords"), py::arg("metrics"),
-          py::arg("eps") = 1e-12);
+          py::arg("edges"),
+          py::arg("coords"),
+          py::arg("metrics"),
+          py::arg("eps") = 1e-12,
+          "Compute the metric edge length for the given edges.");
 
     m.def("rotation_angles", &rotation_angles,
-          "Compute rotation angles from eigenvectors",
-          py::arg("eigenvectors"));
+          py::arg("eigenvectors"),
+          "Compute rotation angles from eigenvectors.");
 
     m.def("rotation_angles_field", &rotation_angles_field,
-          "Compute rotation angles for a field of eigenvectors",
-          py::arg("eigenvectors"));
+          py::arg("eigenvectors"),
+          "Compute rotation angles for a field of eigenvectors.");
 }

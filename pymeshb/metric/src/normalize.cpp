@@ -32,13 +32,17 @@ namespace py = pybind11;
  * @param metric_integral Integral of metric determinants over the domain
  * @param complexity Target complexity for normalization
  * @param norm Choice of norm for Lp-norm normalization
+ * @param hmax Upper bound on local mesh size, corresponding to minimum eigenvalue
+ * @param hmin Lower bound on local mesh size, corresponding to maximum eigenvalue
  * @return Array of normalized metric tensors in lower triangular form
  */
 py::array_t<double> normalize_metric_field(
     py::array_t<double> metrics,
     double metric_integral,
     int complexity,
-    int norm) {
+    int norm,
+    double hmax = -1.0,
+    double hmin = -1.0) {
 
     auto metrics_info = metrics.request();
 
@@ -64,12 +68,18 @@ py::array_t<double> normalize_metric_field(
     double* result_ptr = static_cast<double*>(result_info.ptr);
 
     // Global scaling factor
-    double global_scale = std::pow(complexity / metric_integral, 2.0 / dim);
+    const double global_scale = std::pow(complexity / metric_integral, 2.0 / dim);
+
+    // Whether to clip eigenvalues
+    const bool clip = (hmax > 0) || (hmin > 0);
+
+    // Pre-allocate matrix and eigensolver (used if clipping eigenvalues)
+    Eigen::MatrixXd A(dim, dim);
+    Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eigensolver(dim);
 
     // Process each tensor
     for (unsigned int i = 0; i < num_point; i++) {
         // Reconstruct full tensor matrix from lower triangular elements
-        Eigen::MatrixXd A(dim, dim);
         double* ptr = metrics_ptr + i * num_met;
 
         if (dim == 1) {
@@ -90,16 +100,41 @@ py::array_t<double> normalize_metric_field(
         }
 
         // Compute determinant
-        double det = A.determinant();
+        const double det = A.determinant();
 
         // Local scaling factor
-        double local_scale = std::pow(det, -1.0 / (2.0 * norm + dim));
+        const double local_scale = std::pow(det, -1.0 / (2.0 * norm + dim));
 
         // Total scaling factor
-        double total_scale = global_scale * local_scale;
+        const double total_scale = global_scale * local_scale;
 
         // Scale the tensor
         Eigen::MatrixXd A_scaled = total_scale * A;
+
+        // Apply eigenvalue clipping if requested
+        if (clip) {
+            // Compute eigendecomposition
+            eigensolver.compute(A_scaled);
+            if (eigensolver.info() != Eigen::Success) {
+                throw std::runtime_error("Eigenvalue computation failed");
+            }
+
+            Eigen::VectorXd eigenvalues = eigensolver.eigenvalues();
+            const Eigen::MatrixXd& eigenvectors = eigensolver.eigenvectors();
+
+            // Clip eigenvalues
+            for (int j = 0; j < dim; j++) {
+                if (hmax > 0) {
+                    eigenvalues = eigenvalues.cwiseMax(1.0 / (hmax * hmax));
+                }
+                if (hmin > 0) {
+                    eigenvalues = eigenvalues.cwiseMin(1.0 / (hmin * hmin));
+                }
+            }
+
+            // Reconstruct tensor with clipped eigenvalues
+            A_scaled = eigenvectors * eigenvalues.asDiagonal() * eigenvectors.transpose();
+        }
 
         // Extract lower triangular elements and store in output
         double* result_tensor_ptr = result_ptr + i * num_met;

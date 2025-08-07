@@ -209,6 +209,8 @@ def normalize_metric_field(
     metric_integral: float,
     complexity: int,
     norm: float,
+    hmax: float = None,
+    hmin: float = None,
 ) -> NDArray:
     r"""Normalize a field of metric tensors.
 
@@ -227,6 +229,10 @@ def normalize_metric_field(
         metric_integral (float): Integral of metric determinants over the domain.
         complexity (int): Target complexity for normalization.
         norm (int): Choice of norm for Lp-norm normalization.
+        hmax (float): Upper bound on local mesh size, corresponding to the minimum
+                     allowable eigenvalue of the normalized tensor.
+        hmin (float): Lower bound on local mesh size, corresponding to the maximum
+                     allowable eigenvalue of the normalized tensor.
 
     Returns:
         numpy.ndarray: Array of normalized metric tensors in lower triangular form.
@@ -255,11 +261,17 @@ def normalize_metric_field(
         >>> normalized_3d = normalize_metric_field(metrics_3d, metric_integral=25.8,
                                                    complexity=5000, norm=2)
     """
+    if hmax is None:
+        hmax = -1.0
+    if hmin is None:
+        hmin = -1.0
     return _metric.normalize_metric_field(
         np.asarray(metrics, dtype=np.float64),
         metric_integral,
         complexity,
         norm,
+        hmax,
+        hmin,
     )
 
 
