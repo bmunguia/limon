@@ -10,7 +10,7 @@
 namespace pymeshb {
 namespace su2 {
 
-py::tuple load_mesh(const std::string& meshpath, const std::string& markerpath) {
+py::tuple load_mesh(const std::string& meshpath, const std::string& markerpath, bool write_markers) {
     // Check if file exists
     std::ifstream mesh_file(meshpath);
     if (!mesh_file.is_open()) {

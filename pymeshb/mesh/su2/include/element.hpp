@@ -40,7 +40,7 @@ void read_boundary_elements_3D(std::ifstream& file_stream, int marker_idx, int m
                               py::dict& boundaries);
 
 bool read_boundary_elements(std::ifstream& file_stream, int boundary_count, py::dict& boundaries,
-                            const std::string& markerpath = "");
+                            const std::string& markerpath = "", bool write_markers = false);
 
 void write_element_type(std::ofstream& mesh_file, int elem_type, py::array_t<unsigned int>& element_array);
 

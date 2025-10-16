@@ -244,7 +244,7 @@ void read_boundary_elements_3D(std::ifstream& file_stream, int marker_idx, int m
 }
 
 bool read_boundary_elements(std::ifstream& file_stream, int boundary_count, py::dict& boundaries,
-                            const std::string& markerpath) {
+                            const std::string& markerpath, bool write_markers) {
     if (boundary_count <= 0) {
         return true;
     }
@@ -311,7 +311,7 @@ bool read_boundary_elements(std::ifstream& file_stream, int boundary_count, py::
     }
 
     // Save updated marker map back to file if provided
-    if (!markerpath.empty()) {
+    if (write_markers && !markerpath.empty()) {
         RefMap::writeRefMap(ref_map, markerpath, RefMapKind::Marker);
     }
 

@@ -25,11 +25,13 @@
       *
       * @param meshpath Path to the mesh file
       * @param markerpath Path to the map between marker strings and ref IDs (optional)
+      * @param write_markers Whether to write the markers to the file specified in markerpath
       * @return Tuple containing coordinates and element data
       */
      m.def("load_mesh", &pymeshb::su2::load_mesh,
           py::arg("meshpath"),
           py::arg("markerpath") = "",
+          py::arg("write_markers") = false,
           "Read a SU2 mesh file, and return nodes and element data.");
 
      /**
@@ -57,6 +59,7 @@
      * @param num_ver Number of vertices
      * @param dim Mesh dimension
      * @param labelpath Path to the map between solution strings and ref IDs
+   * @param write_labels Whether to write the labels to the file specified in labelpath
      * @return Dictionary of solution fields
      */
     m.def("load_solution", &pymeshb::su2::load_solution,
@@ -64,6 +67,7 @@
         py::arg("num_ver"),
         py::arg("dim"),
         py::arg("labelpath") = "",
+        py::arg("write_labels") = false,
         "Read a SU2 solution file and return solution fields as a dictionary");
 
   /**

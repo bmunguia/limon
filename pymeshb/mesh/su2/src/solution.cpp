@@ -251,7 +251,7 @@ py::dict process_solution_fields(const std::vector<std::string>& field_names,
     return sol;
 }
 
-py::dict load_solution(const std::string& solpath, int num_point, int dim, const std::string& labelpath) {
+py::dict load_solution(const std::string& solpath, int num_point, int dim, const std::string& labelpath, bool write_labels) {
     py::dict sol;
 
     std::ifstream file_check(solpath, std::ios::in | std::ios::binary);
@@ -271,7 +271,7 @@ py::dict load_solution(const std::string& solpath, int num_point, int dim, const
     }
 
     // Save updated solution label map back to file if provided
-    if (!labelpath.empty()) {
+    if (write_labels && !labelpath.empty()) {
         std::map<int, std::string> ref_map;
         int ref_id = 1;
         for (auto& [sol_id, _] : sol) {

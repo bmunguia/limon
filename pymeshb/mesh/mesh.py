@@ -13,6 +13,8 @@ def load_mesh_and_solution(
     solpath: PathLike | str,
     markerpath: PathLike | str | None = None,
     labelpath: PathLike | str | None = None,
+    write_markers: bool = False,
+    write_labels: bool = False,
 ) -> tuple[NDArray, dict, dict, dict]:
     r"""Read a mesh file and return nodes and coordinates as numpy arrays.
 
@@ -23,6 +25,10 @@ def load_mesh_and_solution(
                     ref IDs. Defaults to None.
         labelpath: Path to the map between solution strings and
                    ref IDs. Defaults to None.
+        write_markers: Whether to write the marker reference map.
+                       Defaults to False.
+        write_labels: Whether to write the solution label reference map.
+                      Defaults to False.
 
     Returns:
         A tuple containing:
@@ -36,7 +42,7 @@ def load_mesh_and_solution(
         if suffix in ['.mesh', '.meshb']:
             coords, elms, bnds = gmf.load_mesh(meshpath)
         elif suffix == '.su2':
-            coords, elms, bnds = su2.load_mesh(meshpath, markerpath)
+            coords, elms, bnds = su2.load_mesh(meshpath, markerpath, write_markers)
         else:
             raise ValueError(f'Unsupported mesh file format: {suffix}. Supported formats are .mesh, .meshb, and .su2')
 
@@ -47,7 +53,7 @@ def load_mesh_and_solution(
         if suffix in ['.sol', '.solb']:
             sol = gmf.load_solution(solpath, num_point, dim, labelpath)
         elif suffix in ['.csv', '.dat']:
-            sol = su2.load_solution(solpath, num_point, dim, labelpath)
+            sol = su2.load_solution(solpath, num_point, dim, labelpath, write_labels)
         else:
             raise ValueError(
                 f'Unsupported solution file format: {suffix}. Supported formats are .sol, .solb, .csv, and .dat'
@@ -123,6 +129,7 @@ def write_mesh_and_solution(
 def load_mesh(
     meshpath: PathLike | str,
     markerpath: PathLike | str | None = None,
+    write_markers: bool = False,
 ) -> tuple[NDArray, dict, dict]:
     r"""Read a mesh file and return nodes and coordinates as numpy arrays.
 
@@ -130,6 +137,8 @@ def load_mesh(
         meshpath: Path to the mesh file.
         markerpath: Path to the map between marker strings and
                     ref IDs. Defaults to None.
+        write_markers: Whether to write the marker reference map.
+                       Defaults to False.
 
     Returns:
         A tuple containing:
@@ -142,7 +151,7 @@ def load_mesh(
         if suffix in ['.mesh', '.meshb']:
             coords, elms, bnds = gmf.load_mesh(meshpath)
         elif suffix == '.su2':
-            coords, elms, bnds = su2.load_mesh(meshpath, markerpath)
+            coords, elms, bnds = su2.load_mesh(meshpath, markerpath, write_markers)
         else:
             raise ValueError(f'Unsupported mesh file format: {suffix}. Supported formats are .mesh, .meshb, and .su2')
 
@@ -150,7 +159,7 @@ def load_mesh(
 
     except Exception as e:
         print(f'Error reading mesh: {e}')
-        return None, None, None, None
+        return None, None, None
 
 
 def write_mesh(
@@ -197,6 +206,7 @@ def load_solution(
     num_point: int,
     dim: int,
     labelpath: PathLike | str | None = None,
+    write_labels: bool = False,
 ) -> dict[str, NDArray]:
     r"""Read solution data from a solution file.
 
@@ -206,6 +216,8 @@ def load_solution(
         dim: Mesh dimension.
         labelpath: Path to the map between solution strings and
                    ref IDs. Defaults to None.
+        write_labels: Whether to write the solution label reference map.
+                      Defaults to False.
 
     Returns:
         dict[str, NDArray]: Dictionary of solution fields.
@@ -215,7 +227,7 @@ def load_solution(
         if suffix in ['.sol', '.solb']:
             return gmf.load_solution(solpath, num_point, dim, labelpath)
         elif suffix in ['.csv', '.dat']:
-            return su2.load_solution(solpath, num_point, dim, labelpath)
+            return su2.load_solution(solpath, num_point, dim, labelpath, write_labels)
         else:
             raise ValueError(
                 f'Unsupported solution file format: {suffix}. Supported formats are .sol, .solb, .csv, and .dat'

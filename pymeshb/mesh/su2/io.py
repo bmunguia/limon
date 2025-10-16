@@ -8,6 +8,7 @@ from . import libsu2
 def load_mesh(
     meshpath: PathLike | str,
     markerpath: PathLike | str | None = None,
+    write_markers: bool = False,
 ) -> tuple[NDArray, dict, dict, dict]:
     r"""Read a SU2 mesh file and return nodes and element as numpy arrays.
 
@@ -15,6 +16,8 @@ def load_mesh(
         meshpath: Path to the mesh file.
         markerpath: Path to the map between marker strings and
                     ref IDs. Defaults to None.
+        write_markers: Whether to write the marker reference map.
+                       Defaults to False.
 
     Returns:
         A tuple containing:
@@ -25,7 +28,7 @@ def load_mesh(
     try:
         meshpath = str(meshpath)
         markerpath = str(markerpath) if markerpath is not None else ''
-        coords, elms, bnds = libsu2.load_mesh(meshpath, markerpath)
+        coords, elms, bnds = libsu2.load_mesh(meshpath, markerpath, write_markers)
 
         return coords, elms, bnds
 
@@ -73,6 +76,7 @@ def load_solution(
     num_point: int,
     dim: int,
     labelpath: PathLike | str | None = None,
+    write_labels: bool = False,
 ) -> dict[str, NDArray]:
     r"""Read solution data from a SU2 solution file.
 
@@ -82,6 +86,8 @@ def load_solution(
         dim: Mesh dimension.
         labelpath: Path to the map between solution strings and
                    ref IDs. Defaults to None.
+        write_labels: Whether to write the solution label reference map.
+                      Defaults to False.
 
     Returns:
         dict[str, NDArray]: Dictionary of solution fields.
@@ -89,7 +95,7 @@ def load_solution(
     try:
         solpath = str(solpath)
         labelpath = str(labelpath) if labelpath is not None else ''
-        return libsu2.load_solution(solpath, num_point, dim, labelpath)
+        return libsu2.load_solution(solpath, num_point, dim, labelpath, write_labels)
     except Exception as e:
         print(f'Error reading solution: {e}')
         return {}
