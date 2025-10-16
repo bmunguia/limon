@@ -104,7 +104,7 @@ py::tuple load_mesh(const std::string& meshpath, const std::string& markerpath, 
     }
 
     py::dict boundaries;
-    read_boundary_elements(mesh_file, boundary_count, boundaries, markerpath);
+    read_boundary_elements(mesh_file, boundary_count, boundaries, markerpath, write_markers);
 
     return py::make_tuple(coords, elements, boundaries);
 }
