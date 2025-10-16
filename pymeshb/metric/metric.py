@@ -11,13 +11,13 @@ def decompose(lower_tri: NDArray) -> tuple[NDArray, NDArray]:
     using the provided lower triangular elements.
 
     Args:
-        lower_tri (numpy.ndarray): Lower triangular elements of the symmetric tensor.
+        lower_tri: Lower triangular elements of the symmetric tensor.
             For 1D: [a[0][0]]
             For 2D: [a[0][0], a[1][0], a[1][1]]
             For 3D: [a[0][0], a[1][0], a[1][1], a[2][0], a[2][1], a[2][2]]
 
     Returns:
-        tuple[numpy.ndarray, numpy.ndarray]: A tuple containing:
+        tuple[NDArray, NDArray]: A tuple containing:
             - eigenvalues: Array of eigenvalues in descending order
             - eigenvectors: Array of eigenvectors as columns
 
@@ -41,11 +41,11 @@ def recompose(eigenvalues: NDArray, eigenvectors: NDArray) -> NDArray:
     matrix of eigenvalues.
 
     Args:
-        eigenvalues (numpy.ndarray): Array of eigenvalues
-        eigenvectors (numpy.ndarray): Array of eigenvectors as columns
+        eigenvalues: Array of eigenvalues
+        eigenvectors: Array of eigenvectors as columns
 
     Returns:
-        numpy.ndarray: Lower triangular elements of the reconstructed tensor.
+        NDArray: Lower triangular elements of the reconstructed tensor.
             For 1D: [a[0][0]]
             For 2D: [a[0][0], a[1][0], a[1][1]]
             For 3D: [a[0][0], a[1][0], a[1][1], a[2][0], a[2][1], a[2][2]]
@@ -73,12 +73,12 @@ def perturb(
     orthonormalized using the Gram-Schmidt process.
 
     Args:
-        eigenvalues (numpy.ndarray): Original eigenvalues
-        eigenvectors (numpy.ndarray): Original eigenvectors as columns
-        delta_eigenvals (numpy.ndarray): Logarithmic perturbation values for eigenvalues
-        rotation_angles (numpy.ndarray): Rotation angles in radians for eigenvector rotation.
-                                        For 2D: Single angle for rotation in xy-plane.
-                                        For 3D: Three angles for rotations in xy, yz, and xz planes.
+        eigenvalues: Original eigenvalues
+        eigenvectors: Original eigenvectors as columns
+        delta_eigenvals: Logarithmic perturbation values for eigenvalues
+        rotation_angles: Rotation angles in radians for eigenvector rotation.
+                        For 2D: Single angle for rotation in xy-plane.
+                        For 3D: Three angles for rotations in xy, yz, and xz planes.
 
     Raises:
         RuntimeError: If dimensions of inputs don't match
@@ -110,17 +110,17 @@ def perturb_metric_field(metrics: NDArray, delta_eigenvals: NDArray, rotation_an
     3. Recombines into a perturbed tensor
 
     Args:
-        metrics (numpy.ndarray): Array of shape (num_point, num_met) where each row
-                                contains the lower triangular elements of a tensor.
-        delta_eigenvals (numpy.ndarray): Array of shape (num_point, dim) containing
-                                        logarithmic eigenvalue perturbations for each point.
-                                        dim is 1, 2, or 3 for 1D, 2D, or 3D tensors.
-        rotation_angles (numpy.ndarray): Array of shape (num_point, num_angle) containing
-                                        rotation angles in radians for each point.
-                                        num_angle is 0 for 1D, 1 for 2D, or 3 for 3D.
+        metrics: Array of shape (num_point, num_met) where each row
+                 contains the lower triangular elements of a tensor.
+        delta_eigenvals: Array of shape (num_point, dim) containing
+                        logarithmic eigenvalue perturbations for each point.
+                        dim is 1, 2, or 3 for 1D, 2D, or 3D tensors.
+        rotation_angles: Array of shape (num_point, num_angle) containing
+                        rotation angles in radians for each point.
+                        num_angle is 0 for 1D, 1 for 2D, or 3 for 3D.
 
     Returns:
-        numpy.ndarray: Array of perturbed metric tensors in lower triangular form.
+        NDArray: Array of perturbed metric tensors in lower triangular form.
 
     Raises:
         RuntimeError: If input arrays have incompatible shapes
@@ -164,12 +164,12 @@ def integrate_metric_field(
     3. Multiplies by the corresponding volume and adds to the integral
 
     Args:
-        metrics (numpy.ndarray): Array of shape (num_point, num_met) where each row
-                                contains the lower triangular elements of a tensor.
-                                num_met is 1, 3, or 6 for 1D, 2D, or 3D tensors.
-        volumes (numpy.ndarray): Array of shape (num_point,) containing volumes for
-                                each point.
-        norm (int): Choice of norm for Lp-norm normalization.
+        metrics: Array of shape (num_point, num_met) where each row
+                 contains the lower triangular elements of a tensor.
+                 num_met is 1, 3, or 6 for 1D, 2D, or 3D tensors.
+        volumes: Array of shape (num_point,) containing volumes for
+                 each point.
+        norm: Choice of norm for Lp-norm normalization.
 
     Returns:
         float: Scalar value representing the integrated determinant ∑(det(M_i) * volume_i).
@@ -223,19 +223,19 @@ def normalize_metric_field(
     (complexity / metric_integral)^(2/dim) * det(M)^(-1/(2*norm + dim))
 
     Args:
-        metrics (numpy.ndarray): Array of shape (num_point, num_met) where each row
-                                contains the lower triangular elements of a tensor.
-                                num_met is 1, 3, or 6 for 1D, 2D, or 3D tensors.
-        metric_integral (float): Integral of metric determinants over the domain.
-        complexity (int): Target complexity for normalization.
-        norm (int): Choice of norm for Lp-norm normalization.
-        hmax (float): Upper bound on local mesh size, corresponding to the minimum
-                     allowable eigenvalue of the normalized tensor.
-        hmin (float): Lower bound on local mesh size, corresponding to the maximum
-                     allowable eigenvalue of the normalized tensor.
+        metrics: Array of shape (num_point, num_met) where each row
+                 contains the lower triangular elements of a tensor.
+                 num_met is 1, 3, or 6 for 1D, 2D, or 3D tensors.
+        metric_integral: Integral of metric determinants over the domain.
+        complexity: Target complexity for normalization.
+        norm: Choice of norm for Lp-norm normalization.
+        hmax: Upper bound on local mesh size, corresponding to the minimum
+              allowable eigenvalue of the normalized tensor.
+        hmin: Lower bound on local mesh size, corresponding to the maximum
+              allowable eigenvalue of the normalized tensor.
 
     Returns:
-        numpy.ndarray: Array of normalized metric tensors in lower triangular form.
+        NDArray: Array of normalized metric tensors in lower triangular form.
 
     Raises:
         RuntimeError: If input arrays have incompatible shapes
@@ -283,12 +283,12 @@ def decompose_metric_field(metrics: NDArray) -> tuple[NDArray, NDArray]:
     2. Returns the eigenvalues and eigenvectors for all points
 
     Args:
-        metrics (numpy.ndarray): Array of shape (num_point, num_met) where each row
-                                contains the lower triangular elements of a tensor.
-                                num_met is 1, 3, or 6 for 1D, 2D, or 3D tensors.
+        metrics: Array of shape (num_point, num_met) where each row
+                 contains the lower triangular elements of a tensor.
+                 num_met is 1, 3, or 6 for 1D, 2D, or 3D tensors.
 
     Returns:
-        tuple[numpy.ndarray, numpy.ndarray]: A tuple containing:
+        tuple[NDArray, NDArray]: A tuple containing:
             - eigenvalues: Array of shape (num_point, dim) with eigenvalues for each point
             - eigenvectors: Array of shape (num_point, dim, dim) with eigenvectors for each point
 
@@ -327,14 +327,14 @@ def recompose_metric_field(eigenvalues: NDArray, eigenvectors: NDArray) -> NDArr
     2. Returns the lower triangular elements for all points
 
     Args:
-        eigenvalues (numpy.ndarray): Array of shape (num_point, dim) containing
-                                    eigenvalues for each point
-        eigenvectors (numpy.ndarray): Array of shape (num_point, dim, dim) containing
-                                     eigenvectors for each point
+        eigenvalues: Array of shape (num_point, dim) containing
+                     eigenvalues for each point
+        eigenvectors: Array of shape (num_point, dim, dim) containing
+                      eigenvectors for each point
 
     Returns:
-        numpy.ndarray: Array of shape (num_point, num_met) containing recomposed
-                      metric tensors in lower triangular form.
+        NDArray: Array of shape (num_point, num_met) containing recomposed
+                 metric tensors in lower triangular form.
 
     Raises:
         RuntimeError: If input arrays have incompatible shapes
@@ -371,17 +371,17 @@ def metric_edge_length_at_endpoints(edges: NDArray, coords: NDArray, metrics: ND
     where e is the edge vector and M is the metric tensor.
 
     Args:
-        edges (numpy.ndarray): Array of shape (num_edge, 2) containing node indices
-                              for each edge.
-        coords (numpy.ndarray): Array of shape (num_node, dim) containing node
-                               coordinates.
-        metrics (numpy.ndarray): Array of shape (num_node, num_met) containing
-                                metric tensors at each node in lower triangular form.
-                                num_met is 1, 3, or 6 for 1D, 2D, or 3D tensors.
+        edges: Array of shape (num_edge, 2) containing node indices
+               for each edge.
+        coords: Array of shape (num_node, dim) containing node
+                coordinates.
+        metrics: Array of shape (num_node, num_met) containing
+                 metric tensors at each node in lower triangular form.
+                 num_met is 1, 3, or 6 for 1D, 2D, or 3D tensors.
 
     Returns:
-        numpy.ndarray: Array of shape (num_edge, 2) containing metric lengths
-                      at both endpoints of each edge.
+        NDArray: Array of shape (num_edge, 2) containing metric lengths
+                 at both endpoints of each edge.
 
     Raises:
         RuntimeError: If input arrays have incompatible shapes
@@ -436,19 +436,19 @@ def metric_edge_length(edges: NDArray, coords: NDArray, metrics: NDArray, eps: f
     where r = l_b / l_a and l_a, l_b are metric lengths at endpoints.
 
     Args:
-        edges (numpy.ndarray): Array of shape (num_edge, 2) containing node indices
-                              for each edge.
-        coords (numpy.ndarray): Array of shape (num_node, dim) containing node
-                               coordinates.
-        metrics (numpy.ndarray): Array of shape (num_node, num_met) containing
-                                metric tensors at each node in lower triangular form.
-                                num_met is 1, 3, or 6 for 1D, 2D, or 3D tensors.
-        eps (float): Tolerance for ratio comparison to determine when to use
-                    geometric integration vs. simple average (default: 1e-12).
+        edges: Array of shape (num_edge, 2) containing node indices
+               for each edge.
+        coords: Array of shape (num_node, dim) containing node
+                coordinates.
+        metrics: Array of shape (num_node, num_met) containing
+                 metric tensors at each node in lower triangular form.
+                 num_met is 1, 3, or 6 for 1D, 2D, or 3D tensors.
+        eps: Tolerance for ratio comparison to determine when to use
+             geometric integration vs. simple average (default: 1e-12).
 
     Returns:
-        numpy.ndarray: Array of shape (num_edge,) containing integrated metric
-                      lengths for each edge.
+        NDArray: Array of shape (num_edge,) containing integrated metric
+                 lengths for each edge.
 
     Raises:
         RuntimeError: If input arrays have incompatible shapes
@@ -495,10 +495,10 @@ def rotation_angles(eigenvectors: NDArray) -> NDArray:
     r"""Compute rotation angles from eigenvectors.
 
     Args:
-        eigenvectors (numpy.ndarray): Array of shape (dim, dim) containing eigenvectors.
+        eigenvectors: Array of shape (dim, dim) containing eigenvectors.
 
     Returns:
-        numpy.ndarray: Array of shape (1,) for 2D or (3,) for 3D containing rotation angles.
+        NDArray: Array of shape (1,) for 2D or (3,) for 3D containing rotation angles.
 
     Examples:
         >>> # Compute rotation angles for 2D eigenvectors
@@ -518,10 +518,10 @@ def rotation_angles_field(eigenvectors: NDArray) -> NDArray:
     r"""Compute rotation angles for a field of eigenvectors.
 
     Args:
-        eigenvectors (numpy.ndarray): Array of shape (num_point, dim, dim) containing eigenvectors.
+        eigenvectors: Array of shape (num_point, dim, dim) containing eigenvectors.
 
     Returns:
-        numpy.ndarray: Array of shape (num_point, 1) for 2D or (num_point, 3) for 3D containing rotation angles.
+        NDArray: Array of shape (num_point, 1) for 2D or (num_point, 3) for 3D containing rotation angles.
 
     Examples:
         >>> # Compute rotation angles for a field of 2D eigenvectors

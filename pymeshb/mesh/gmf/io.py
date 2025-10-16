@@ -1,15 +1,17 @@
+from os import PathLike
+
 from numpy.typing import NDArray
 
 from . import libgmf
 
 
 def load_mesh(
-    meshpath: str,
+    meshpath: PathLike | str,
 ) -> tuple[NDArray, dict, dict, dict]:
     r"""Read mesh data from a GMF mesh (.meshb) file.
 
     Args:
-        meshpath (str): Path to the mesh file.
+        meshpath: Path to the mesh file.
 
     Returns:
         A tuple containing:
@@ -18,6 +20,7 @@ def load_mesh(
         - boundaries: Dictionary mapping boundary element types to arrays
     """
     try:
+        meshpath = str(meshpath)
         coords, elms, bnds = libgmf.load_mesh(meshpath)
 
         return coords, elms, bnds
@@ -28,7 +31,7 @@ def load_mesh(
 
 
 def write_mesh(
-    meshpath: str,
+    meshpath: PathLike | str,
     coords: NDArray,
     elements: dict[str, NDArray],
     boundaries: dict[str, NDArray],
@@ -36,18 +39,19 @@ def write_mesh(
     r"""Write mesh data to a GMF mesh (.meshb) file.
 
     Args:
-        meshpath (str): Path to the mesh file.
-        coords (numpy.ndarray): Coordinates of each node.
-        elements (dict[str, NDArray]): Dictionary of mesh elements. Keys are
-                                       element types, values are numpy arrays.
-        boundaries (dict[str, NDArray]): Dictionary of mesh boundary elements.
-                                         Keys are element types, values are
-                                         numpy arrays.
+        meshpath: Path to the mesh file.
+        coords: Coordinates of each node.
+        elements: Dictionary of mesh elements. Keys are
+                  element types, values are numpy arrays.
+        boundaries: Dictionary of mesh boundary elements.
+                    Keys are element types, values are
+                    numpy arrays.
 
     Returns:
         bool: True if successful, False otherwise
     """
     try:
+        meshpath = str(meshpath)
         success = libgmf.write_mesh(meshpath, coords, elements, boundaries)
         return success
 
@@ -57,25 +61,26 @@ def write_mesh(
 
 
 def load_solution(
-    solpath: str,
+    solpath: PathLike | str,
     num_ver: int,
     dim: int,
-    labelpath: str | None = None,
+    labelpath: PathLike | str | None = None,
 ) -> dict[str, NDArray]:
     r"""Read solution data from a GMF solution (.solb) file.
 
     Args:
-        solpath (str): Path to the solution file.
-        labelpath (str, optional): Path to the map between solution strings and
-                                ref IDs. Defaults to None.
-        num_ver (int): Number of vertices.
-        dim (int): Mesh dimension. Defaults to 3.
+        solpath: Path to the solution file.
+        num_ver: Number of vertices.
+        dim: Mesh dimension.
+        labelpath: Path to the map between solution strings and
+                   ref IDs. Defaults to None.
 
     Returns:
         dict[str, NDArray]: Dictionary of solution fields.
     """
     try:
-        labelpath = labelpath if labelpath is not None else ''
+        solpath = str(solpath)
+        labelpath = str(labelpath) if labelpath is not None else ''
         return libgmf.load_solution(solpath, num_ver, dim, labelpath)
     except Exception as e:
         print(f'Error reading solution: {e}')
@@ -83,27 +88,28 @@ def load_solution(
 
 
 def write_solution(
-    solpath: str,
+    solpath: PathLike | str,
     solution: dict[str, NDArray],
     num_ver: int,
     dim: int,
-    labelpath: str | None = None,
+    labelpath: PathLike | str | None = None,
 ) -> bool:
     r"""Write solution data to a GMF solution (.solb) file.
 
     Args:
-        solpath (str): Path to the solution file.
-        solution (dict[str, NDArray]): Dictionary of solution fields.
-        num_ver (int): Number of vertices.
-        dim (int): Mesh dimension.
-        labelpath (str, optional): Path to the map between solution strings and
-                                   ref IDs. Defaults to None.
+        solpath: Path to the solution file.
+        solution: Dictionary of solution fields.
+        num_ver: Number of vertices.
+        dim: Mesh dimension.
+        labelpath: Path to the map between solution strings and
+                   ref IDs. Defaults to None.
 
     Returns:
         bool: True if successful, False otherwise.
     """
     try:
-        labelpath = labelpath if labelpath is not None else ''
+        solpath = str(solpath)
+        labelpath = str(labelpath) if labelpath is not None else ''
         return libgmf.write_solution(solpath, solution, num_ver, dim, labelpath)
     except Exception as e:
         print(f'Error writing solution: {e}')

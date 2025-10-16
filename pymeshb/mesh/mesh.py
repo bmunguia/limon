@@ -1,4 +1,5 @@
 from pathlib import Path
+from os import PathLike
 
 from numpy.typing import NDArray
 
@@ -8,22 +9,22 @@ RefMapKind = _ref_map.RefMapKind
 
 
 def load_mesh(
-    meshpath: str,
-    markerpath: str | None = None,
-    solpath: str | None = None,
-    labelpath: str | None = None,
+    meshpath: PathLike | str,
+    markerpath: PathLike | str | None = None,
+    solpath: PathLike | str | None = None,
+    labelpath: PathLike | str | None = None,
     read_sol: bool = False,
 ) -> tuple[NDArray, dict, dict] | tuple[NDArray, dict, dict, dict]:
     r"""Read a mesh file and return nodes and coordinates as numpy arrays.
 
     Args:
-        meshpath (str): Path to the mesh file.
-        markerpath (str, optional): Path to the map between marker strings and
-                                    ref IDs. Defaults to None.
-        solpath (str, optional): Path to the solution file. Defaults to None.
-        labelpath (str, optional): Path to the map between solution strings and
-                                   ref IDs. Defaults to None.
-        read_sol (bool, optional): Whether to read solution data. Defaults to False.
+        meshpath: Path to the mesh file.
+        markerpath: Path to the map between marker strings and
+                    ref IDs. Defaults to None.
+        solpath: Path to the solution file. Defaults to None.
+        labelpath: Path to the map between solution strings and
+                   ref IDs. Defaults to None.
+        read_sol: Whether to read solution data. Defaults to False.
 
     Returns:
         A tuple containing:
@@ -33,8 +34,6 @@ def load_mesh(
         - solution: Dictionary of solution data (if read_sol is True, otherwise empty)
     """
     try:
-        markerpath = markerpath if markerpath is not None else ''
-
         suffix = Path(meshpath).suffix
         if suffix in ['.mesh', '.meshb']:
             coords, elms, bnds = gmf.load_mesh(meshpath)
@@ -44,7 +43,6 @@ def load_mesh(
             raise ValueError(f'Unsupported mesh file format: {suffix}. Supported formats are .mesh, .meshb, and .su2')
 
         if read_sol and solpath is not None:
-            labelpath = labelpath if labelpath is not None else ''
             num_point = coords.shape[0]
             dim = coords.shape[1]
 
@@ -63,41 +61,39 @@ def load_mesh(
 
 
 def write_mesh(
-    meshpath: str,
+    meshpath: PathLike | str,
     coords: NDArray,
     elements: dict[str, NDArray],
     boundaries: dict[str, NDArray],
-    markerpath: str | None = None,
-    solpath: str | None = None,
-    labelpath: str | None = None,
+    markerpath: PathLike | str | None = None,
+    solpath: PathLike | str | None = None,
+    labelpath: PathLike | str | None = None,
     solution: dict[str, NDArray] | None = None,
     write_sol: bool = False,
 ) -> bool:
     r"""Write nodes and coordinates to a meshb file.
 
     Args:
-        meshpath (str): Path to the mesh file.
-        coords (numpy.ndarray): Coordinates of each node.
-        elements (dict[str, NDArray]): Dictionary of mesh elements. Keys are
-                                       element types, values are numpy arrays.
-        boundaries (dict[str, NDArray]): Dictionary of mesh boundary elements.
-                                         Keys are element types, values are
-                                         numpy arrays.
-        markerpath (str, optional): Path to the map between marker strings and
-                                    ref IDs. Defaults to None.
-        solpath (str, optional): Path to the solution file. Defaults to None.
-        labelpath (str, optional): Path to the map between solution strings and
-                                   ref IDs. Defaults to None.
-        solution (dict, optional): Dictionary of solution data. Keys are
-                                   field names, values are numpy arrays.
-        write_sol (bool, optional): Whether to write solution data. Defaults to False.
+        meshpath: Path to the mesh file.
+        coords: Coordinates of each node.
+        elements: Dictionary of mesh elements. Keys are
+                  element types, values are numpy arrays.
+        boundaries: Dictionary of mesh boundary elements.
+                    Keys are element types, values are
+                    numpy arrays.
+        markerpath: Path to the map between marker strings and
+                    ref IDs. Defaults to None.
+        solpath: Path to the solution file. Defaults to None.
+        labelpath: Path to the map between solution strings and
+                   ref IDs. Defaults to None.
+        solution: Dictionary of solution data. Keys are
+                  field names, values are numpy arrays.
+        write_sol: Whether to write solution data. Defaults to False.
 
     Returns:
         bool: True if successful, False otherwise
     """
     try:
-        markerpath = markerpath if markerpath is not None else ''
-
         suffix = Path(meshpath).suffix
         if suffix in ['.mesh', '.meshb']:
             success = gmf.write_mesh(meshpath, coords, elements, boundaries)
@@ -107,7 +103,6 @@ def write_mesh(
             raise ValueError(f'Unsupported mesh file format: {suffix}. Supported formats are .mesh, .meshb, and .su2')
 
         if success and write_sol and solpath is not None and solution is not None:
-            labelpath = labelpath if labelpath is not None else ''
             num_point = coords.shape[0]
             dim = coords.shape[1]
 
@@ -124,19 +119,19 @@ def write_mesh(
 
 
 def load_solution(
-    solpath: str,
+    solpath: PathLike | str,
     num_point: int,
     dim: int,
-    labelpath: str | None = None,
+    labelpath: PathLike | str | None = None,
 ) -> dict[str, NDArray]:
     r"""Read solution data from a solution file.
 
     Args:
-        solpath (str): Path to the solution file.
-        num_point (int): Number of points/vertices.
-        dim (int): Mesh dimension.
-        labelpath (str, optional): Path to the map between solution strings and
-                                   ref IDs. Defaults to None.
+        solpath: Path to the solution file.
+        num_point: Number of points/vertices.
+        dim: Mesh dimension.
+        labelpath: Path to the map between solution strings and
+                   ref IDs. Defaults to None.
 
     Returns:
         dict[str, NDArray]: Dictionary of solution fields.
@@ -157,21 +152,21 @@ def load_solution(
 
 
 def write_solution(
-    solpath: str,
+    solpath: PathLike | str,
     solution: dict[str, NDArray],
     num_point: int,
     dim: int,
-    labelpath: str | None = None,
+    labelpath: PathLike | str | None = None,
 ) -> bool:
     """Write solution data to a solution file.
 
     Args:
-        solpath (str): Path to the solution file.
-        solution (dict[str, NDArray]): Dictionary of solution fields.
-        num_point (int): Number of points/vertices.
-        dim (int): Mesh dimension.
-        labelpath (str, optional): Path to the map between solution strings and
-                                   ref IDs. Defaults to None.
+        solpath: Path to the solution file.
+        solution: Dictionary of solution fields.
+        num_point: Number of points/vertices.
+        dim: Mesh dimension.
+        labelpath: Path to the map between solution strings and
+                   ref IDs. Defaults to None.
 
     Returns:
         bool: True if successful, False otherwise.
@@ -191,14 +186,14 @@ def write_solution(
         return False
 
 
-def load_ref_map(filename: str) -> dict[int, str]:
+def load_ref_map(filename: PathLike | str) -> dict[int, str]:
     """Load reference map from file."""
-    return _ref_map.load_ref_map(filename)
+    return _ref_map.load_ref_map(str(filename))
 
 
-def write_ref_map(ref_map: dict[int, str], filename: str, kind: RefMapKind) -> None:
+def write_ref_map(ref_map: dict[int, str], filename: PathLike | str, kind: _ref_map.RefMapKind) -> None:
     """Write reference map to file."""
-    _ref_map.write_ref_map(ref_map, filename, kind)
+    _ref_map.write_ref_map(ref_map, str(filename), kind)
 
 
 def get_ref_name(ref_map: dict[int, str], ref_id: int) -> str:

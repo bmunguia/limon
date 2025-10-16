@@ -26,7 +26,7 @@ def labelpath(output_dir):
 @pytest.fixture
 def mesh_data_3d(meshpath_in_3d):
     """Load the 3D mesh and create a sample solution."""
-    data = load_mesh(str(meshpath_in_3d))
+    data = load_mesh(meshpath_in_3d)
     coords, elements, boundaries = data
 
     num_point = coords.shape[0]
@@ -51,7 +51,7 @@ def mesh_data_3d(meshpath_in_3d):
 @pytest.fixture
 def mesh_data_2d(meshpath_in_2d):
     """Load the 2D mesh and create a sample solution."""
-    data = load_mesh(str(meshpath_in_2d))
+    data = load_mesh(meshpath_in_2d)
     coords, elements, boundaries = data
 
     num_point = coords.shape[0]
@@ -107,7 +107,7 @@ def test_write_meshb(mesh_data_3d, output_dir):
     meshpath_out = output_dir / 'sphere_with_sol.mesh'
 
     # Write the mesh with the solution
-    write_mesh(str(meshpath_out), coords, elements, boundaries)
+    write_mesh(meshpath_out, coords, elements, boundaries)
 
     # Assert that the files were created
     assert meshpath_out.exists()
@@ -123,7 +123,7 @@ def test_write_solb(mesh_data_3d, output_dir):
     # Write the mesh with the solution
     num_point = coords.shape[0]
     dim = coords.shape[1]
-    write_solution(str(solpath_out), solution, num_point, dim)
+    write_solution(solpath_out, solution, num_point, dim)
 
     # Assert that the files were created
     assert solpath_out.exists()
@@ -139,7 +139,13 @@ def test_write_meshb_and_solb(mesh_data_3d, output_dir):
 
     # Write the mesh with the solution
     write_mesh(
-        str(meshpath_out), coords, elements, boundaries, solpath=str(solpath_out), solution=solution, write_sol=True
+        meshpath_out,
+        coords,
+        elements,
+        boundaries,
+        solpath=solpath_out,
+        solution=solution,
+        write_sol=True,
     )
 
     # Assert that the files were created
@@ -157,12 +163,12 @@ def test_solution_keys_solb(mesh_data_2d, output_dir, labelpath):
 
     # Write the mesh with the original solution
     write_success = write_mesh(
-        str(meshpath_out),
+        meshpath_out,
         coords,
         elements,
         boundaries,
-        solpath=str(solpath_out),
-        labelpath=str(labelpath),
+        solpath=solpath_out,
+        labelpath=labelpath,
         solution=original_solution,
         write_sol=True,
     )
@@ -176,9 +182,9 @@ def test_solution_keys_solb(mesh_data_2d, output_dir, labelpath):
 
     # Read the mesh and solution back
     _, _, _, reloaded_solution = load_mesh(
-        str(meshpath_out),
-        solpath=str(solpath_out),
-        labelpath=str(labelpath),
+        meshpath_out,
+        solpath=solpath_out,
+        labelpath=labelpath,
         read_sol=True,
     )
 

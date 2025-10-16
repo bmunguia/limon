@@ -64,10 +64,10 @@ def output_dir(request):
 def su2_mesh_data(su2_meshpath_in, su2_solpath_in, markerpath, labelpath):
     """Load the 2D SU2 mesh and solution."""
     data = load_mesh(
-        str(su2_meshpath_in),
-        markerpath=str(markerpath),
-        solpath=str(su2_solpath_in),
-        labelpath=str(labelpath),
+        su2_meshpath_in,
+        markerpath=markerpath,
+        solpath=su2_solpath_in,
+        labelpath=labelpath,
         read_sol=True,
     )
     return data
@@ -76,7 +76,12 @@ def su2_mesh_data(su2_meshpath_in, su2_solpath_in, markerpath, labelpath):
 @pytest.fixture
 def gmf_mesh_data(gmf_meshpath_in, gmf_solpath_in, markerpath_in, labelpath_in):
     """Load the 2D GMF mesh and binary solution."""
-    data = load_mesh(str(gmf_meshpath_in), solpath=str(gmf_solpath_in), labelpath=str(labelpath_in), read_sol=True)
+    data = load_mesh(
+        gmf_meshpath_in,
+        solpath=gmf_solpath_in,
+        labelpath=labelpath_in,
+        read_sol=True,
+    )
     return data
 
 
@@ -90,7 +95,13 @@ def test_su2_to_gmf(su2_mesh_data, output_dir):
 
     # Write the mesh with the solution
     write_mesh(
-        str(meshpath_out), coords, elements, boundaries, solpath=str(solpath_out), solution=solution, write_sol=True
+        meshpath_out,
+        coords,
+        elements,
+        boundaries,
+        solpath=solpath_out,
+        solution=solution,
+        write_sol=True,
     )
 
     # Assert that the files were created
@@ -111,12 +122,12 @@ def test_gmf_to_su2(gmf_mesh_data, output_dir, markerpath_in):
 
     # Write the mesh with the solution
     write_mesh(
-        str(meshpath_out),
+        meshpath_out,
         coords,
         elements,
         boundaries,
-        markerpath=str(markerpath_in),
-        solpath=str(solpath_out),
+        markerpath=markerpath_in,
+        solpath=solpath_out,
         solution=solution,
         write_sol=True,
     )

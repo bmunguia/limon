@@ -83,7 +83,13 @@ def test_write_mesh_with_metric(mesh_data, output_dir):
 
     # Write the mesh with the solution
     write_mesh(
-        str(meshpath_out), coords, elements, boundaries, solpath=str(solpath_out), solution=solution, write_sol=True
+        meshpath_out,
+        coords,
+        elements,
+        boundaries,
+        solpath=solpath_out,
+        solution=solution,
+        write_sol=True,
     )
 
     # Assert that the files were created
@@ -133,11 +139,11 @@ def test_perturb_eigenvalues(mesh_data, output_dir):
 
     # Write the mesh with perturbed metrics
     write_mesh(
-        str(pert_meshpath_out),
+        pert_meshpath_out,
         coords,
         elements,
         boundaries,
-        solpath=str(pert_solpath_out),
+        solpath=pert_solpath_out,
         solution=perturbed_solution,
         write_sol=True,
     )
@@ -185,11 +191,11 @@ def test_perturb_orientation(mesh_data, output_dir):
 
     # Write the mesh with perturbed metrics
     write_mesh(
-        str(pert_meshpath_out),
+        pert_meshpath_out,
         coords,
         elements,
         boundaries,
-        solpath=str(pert_solpath_out),
+        solpath=pert_solpath_out,
         solution=perturbed_solution,
         write_sol=True,
     )
@@ -245,11 +251,11 @@ def test_perturb_metric_field(mesh_data, output_dir):
 
     # Write the mesh with perturbed metrics
     write_mesh(
-        str(pert_meshpath_out),
+        pert_meshpath_out,
         coords,
         elements,
         boundaries,
-        solpath=str(pert_solpath_out),
+        solpath=pert_solpath_out,
         solution=perturbed_solution,
         write_sol=True,
     )
@@ -322,11 +328,11 @@ def test_nonuniform_perturb_metric_field(mesh_data_2d, output_dir):
 
     # Write the mesh with perturbed metrics
     write_mesh(
-        str(pert_meshpath_out),
+        pert_meshpath_out,
         coords,
         elements,
         boundaries,
-        solpath=str(pert_solpath_out),
+        solpath=pert_solpath_out,
         solution=perturbed_solution,
         write_sol=True,
     )
