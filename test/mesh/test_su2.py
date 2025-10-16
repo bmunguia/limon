@@ -2,7 +2,7 @@ from pathlib import Path
 
 import numpy.testing as npt
 import pytest
-from pymeshb.mesh import load_mesh, write_mesh
+from pymeshb.mesh import load_mesh_and_solution, write_mesh_and_solution
 
 
 @pytest.fixture
@@ -46,12 +46,11 @@ def output_dir(request):
 @pytest.fixture
 def mesh_data_binary(meshpath_in, solpath_in_binary, markerpath, labelpath):
     """Load the 2D mesh and binary solution."""
-    data = load_mesh(
+    data = load_mesh_and_solution(
         meshpath_in,
+        solpath_in_binary,
         markerpath=markerpath,
-        solpath=solpath_in_binary,
         labelpath=labelpath,
-        read_sol=True,
     )
     return data
 
@@ -59,12 +58,11 @@ def mesh_data_binary(meshpath_in, solpath_in_binary, markerpath, labelpath):
 @pytest.fixture
 def mesh_data_ascii(meshpath_in, solpath_in_ascii, markerpath, labelpath):
     """Load the 2D mesh and ASCII solution."""
-    data = load_mesh(
+    data = load_mesh_and_solution(
         meshpath_in,
+        solpath_in_ascii,
         markerpath=markerpath,
-        solpath=solpath_in_ascii,
         labelpath=labelpath,
-        read_sol=True,
     )
     return data
 
@@ -104,15 +102,14 @@ def test_su2_binary_to_binary(mesh_data_binary, output_dir, markerpath, labelpat
     solpath_out = output_dir / 'naca_with_sol.dat'
 
     # Write the mesh with the solution
-    write_mesh(
+    write_mesh_and_solution(
         meshpath_out,
+        solpath_out,
         coords,
         elements,
         boundaries,
+        solution,
         markerpath=markerpath,
-        solpath=solpath_out,
-        solution=solution,
-        write_sol=True,
     )
 
     # Assert that the files were created
@@ -134,16 +131,14 @@ def test_su2_binary_to_ascii(mesh_data_binary, output_dir, markerpath, labelpath
     solpath_out = output_dir / 'naca_with_sol.csv'
 
     # Write the mesh with the solution
-    write_mesh(
+    write_mesh_and_solution(
         meshpath_out,
+        solpath_out,
         coords,
         elements,
         boundaries,
+        solution,
         markerpath=markerpath,
-        solpath=solpath_out,
-        labelpath=labelpath,
-        solution=solution,
-        write_sol=True,
     )
 
     # Assert that the files were created
@@ -165,16 +160,14 @@ def test_su2_ascii_to_ascii(mesh_data_ascii, output_dir, markerpath, labelpath, 
     solpath_out = output_dir / 'naca_with_sol.csv'
 
     # Write the mesh with the solution
-    write_mesh(
+    write_mesh_and_solution(
         meshpath_out,
+        solpath_out,
         coords,
         elements,
         boundaries,
+        solution,
         markerpath=markerpath,
-        solpath=solpath_out,
-        labelpath=labelpath,
-        solution=solution,
-        write_sol=True,
     )
 
     # Assert that the files were created
@@ -196,16 +189,14 @@ def test_su2_ascii_to_binary(mesh_data_ascii, output_dir, markerpath, labelpath,
     solpath_out = output_dir / 'naca_with_sol.dat'
 
     # Write the mesh with the solution
-    write_mesh(
+    write_mesh_and_solution(
         meshpath_out,
+        solpath_out,
         coords,
         elements,
         boundaries,
+        solution,
         markerpath=markerpath,
-        solpath=solpath_out,
-        labelpath=labelpath,
-        solution=solution,
-        write_sol=True,
     )
 
     # Assert that the files were created
@@ -222,10 +213,10 @@ def test_su2_ascii_to_binary(mesh_data_ascii, output_dir, markerpath, labelpath,
 def compare_solutions(meshpath_in, solpath_in, meshpath_out, solpath_out):
     """Read the new solution and compare it to the original."""
     # Read the original solution
-    _, _, _, sol_in = load_mesh(meshpath_in, solpath=solpath_in, read_sol=True)
+    _, _, _, sol_in = load_mesh_and_solution(meshpath_in, solpath_in)
 
     # Read the rewritten solution
-    _, _, _, sol_out = load_mesh(meshpath_out, solpath=solpath_out, read_sol=True)
+    _, _, _, sol_out = load_mesh_and_solution(meshpath_out, solpath_out)
 
     assert sol_out.keys() == sol_in.keys(), 'Solution fields mismatch'
 

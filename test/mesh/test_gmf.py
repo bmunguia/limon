@@ -2,7 +2,13 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from pymeshb.mesh import load_mesh, write_mesh, write_solution
+from pymeshb.mesh import (
+    load_mesh,
+    write_mesh,
+    write_solution,
+    load_mesh_and_solution,
+    write_mesh_and_solution,
+)
 
 
 @pytest.fixture
@@ -138,14 +144,13 @@ def test_write_meshb_and_solb(mesh_data_3d, output_dir):
     solpath_out = output_dir / 'sphere_with_sol.solb'
 
     # Write the mesh with the solution
-    write_mesh(
+    write_mesh_and_solution(
         meshpath_out,
+        solpath_out,
         coords,
         elements,
         boundaries,
-        solpath=solpath_out,
-        solution=solution,
-        write_sol=True,
+        solution,
     )
 
     # Assert that the files were created
@@ -162,15 +167,13 @@ def test_solution_keys_solb(mesh_data_2d, output_dir, labelpath):
     solpath_out = output_dir / 'square_with_fields.solb'
 
     # Write the mesh with the original solution
-    write_success = write_mesh(
+    write_success = write_mesh_and_solution(
         meshpath_out,
+        solpath_out,
         coords,
         elements,
         boundaries,
-        solpath=solpath_out,
-        labelpath=labelpath,
-        solution=original_solution,
-        write_sol=True,
+        original_solution,
     )
     print(f'Original solution written: {write_success}')
 
@@ -181,11 +184,10 @@ def test_solution_keys_solb(mesh_data_2d, output_dir, labelpath):
     assert labelpath.exists(), 'Output solution label map was not created'
 
     # Read the mesh and solution back
-    _, _, _, reloaded_solution = load_mesh(
+    _, _, _, reloaded_solution = load_mesh_and_solution(
         meshpath_out,
-        solpath=solpath_out,
+        solpath_out,
         labelpath=labelpath,
-        read_sol=True,
     )
 
     # Check that the solution was read correctly

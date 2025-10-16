@@ -2,7 +2,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from pymeshb.mesh import load_mesh, write_mesh
+from pymeshb.mesh import load_mesh, write_mesh_and_solution
 from pymeshb.metric import (
     perturb_metric_field,
     metric_edge_length,
@@ -82,14 +82,13 @@ def test_write_mesh_with_metric(mesh_data, output_dir):
     solpath_out = output_dir / f'{config["file_prefix"]}_with_met.solb'
 
     # Write the mesh with the solution
-    write_mesh(
+    write_mesh_and_solution(
         meshpath_out,
+        solpath_out,
         coords,
         elements,
         boundaries,
-        solpath=solpath_out,
-        solution=solution,
-        write_sol=True,
+        solution,
     )
 
     # Assert that the files were created
@@ -138,14 +137,13 @@ def test_perturb_eigenvalues(mesh_data, output_dir):
     pert_solpath_out = output_dir / f'{config["file_prefix"]}_with_eig_pert_only.solb'
 
     # Write the mesh with perturbed metrics
-    write_mesh(
+    write_mesh_and_solution(
         pert_meshpath_out,
+        pert_solpath_out,
         coords,
         elements,
         boundaries,
-        solpath=pert_solpath_out,
-        solution=perturbed_solution,
-        write_sol=True,
+        perturbed_solution,
     )
 
     # Assert that the files were created
@@ -190,14 +188,13 @@ def test_perturb_orientation(mesh_data, output_dir):
     pert_solpath_out = output_dir / f'{config["file_prefix"]}_with_rot_pert_only.solb'
 
     # Write the mesh with perturbed metrics
-    write_mesh(
+    write_mesh_and_solution(
         pert_meshpath_out,
+        pert_solpath_out,
         coords,
         elements,
         boundaries,
-        solpath=pert_solpath_out,
-        solution=perturbed_solution,
-        write_sol=True,
+        perturbed_solution,
     )
 
     # Assert that the files were created
@@ -250,14 +247,13 @@ def test_perturb_metric_field(mesh_data, output_dir):
     pert_solpath_out = output_dir / f'{config["file_prefix"]}_with_combined_pert.solb'
 
     # Write the mesh with perturbed metrics
-    write_mesh(
+    write_mesh_and_solution(
         pert_meshpath_out,
+        pert_solpath_out,
         coords,
         elements,
         boundaries,
-        solpath=pert_solpath_out,
-        solution=perturbed_solution,
-        write_sol=True,
+        perturbed_solution,
     )
 
     # Assert that the files were created
@@ -327,14 +323,13 @@ def test_nonuniform_perturb_metric_field(mesh_data_2d, output_dir):
     pert_solpath_out = output_dir / 'square_with_nonuniform_pert.solb'
 
     # Write the mesh with perturbed metrics
-    write_mesh(
+    write_mesh_and_solution(
         pert_meshpath_out,
+        pert_solpath_out,
         coords,
         elements,
         boundaries,
-        solpath=pert_solpath_out,
-        solution=perturbed_solution,
-        write_sol=True,
+        perturbed_solution,
     )
 
     # Assert that the files were created
