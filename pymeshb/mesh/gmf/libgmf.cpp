@@ -73,7 +73,6 @@ PYBIND11_MODULE(libgmf, m) {
      * @param sol_data Dictionary of solution fields
      * @param num_ver Number of vertices
      * @param dim Mesh dimension
-     * @param labelpath Path to the map between solution strings and ref IDs
      * @return Boolean indicating success
      */
     m.def("write_solution", &pymeshb::gmf::write_solution,
@@ -81,6 +80,5 @@ PYBIND11_MODULE(libgmf, m) {
           py::arg("sol_data"),
           py::arg("num_ver"),
           py::arg("dim"),
-          py::arg("labelpath") = "",
           "Write solution data to a solb solution file.");
 }

@@ -93,8 +93,7 @@ py::dict load_solution(const std::string& solpath, int64_t num_ver, int dim,
     return sol;
 }
 
-bool write_solution(const std::string& solpath, py::dict sol_data, int64_t num_ver,
-                    int dim, const std::string& labelpath) {
+bool write_solution(const std::string& solpath, py::dict sol_data, int64_t num_ver, int dim) {
     if (sol_data.empty()) {
         return true;
     }
@@ -108,7 +107,6 @@ bool write_solution(const std::string& solpath, py::dict sol_data, int64_t num_v
 
     std::vector<int> sol_types;
     std::vector<py::array_t<double>> sol_field_arrays;
-    std::map<int, std::string> ref_map;
 
     int sym_size = (dim * (dim + 1)) / 2;
 
@@ -131,7 +129,6 @@ bool write_solution(const std::string& solpath, py::dict sol_data, int64_t num_v
             GmfCloseMesh(sol_id);
             throw std::runtime_error("Unsupported solution field shape for: " + key);
         }
-        ref_map[ref_id++] = key;
         sol_field_arrays.push_back(field_array);
     }
 
@@ -168,11 +165,6 @@ bool write_solution(const std::string& solpath, py::dict sol_data, int64_t num_v
 
     // Close the solution
     GmfCloseMesh(sol_id);
-
-    // Save updated solution label map back to file if provided
-    if (!labelpath.empty()) {
-        RefMap::writeRefMap(ref_map, labelpath, RefMapKind::Solution);
-    }
 
     return true;
 }

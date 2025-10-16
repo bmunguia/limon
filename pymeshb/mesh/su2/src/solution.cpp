@@ -270,7 +270,7 @@ py::dict load_solution(const std::string& solpath, int num_point, int dim, const
         sol = load_solution_ascii(solpath, num_point, dim);
     }
 
-    // Save updated marker map back to file if provided
+    // Save updated solution label map back to file if provided
     if (!labelpath.empty()) {
         std::map<int, std::string> ref_map;
         int ref_id = 1;

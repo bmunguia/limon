@@ -107,7 +107,7 @@ def write_mesh(
             dim = coords.shape[1]
 
             if suffix in ['.mesh', '.meshb']:
-                success = gmf.write_solution(solpath, solution, num_point, dim, labelpath)
+                success = gmf.write_solution(solpath, solution, num_point, dim)
             elif suffix == '.su2':
                 success = su2.write_solution(solpath, solution, num_point, dim, labelpath)
 
@@ -174,7 +174,7 @@ def write_solution(
     try:
         suffix = Path(solpath).suffix.lower()
         if suffix in ['.sol', '.solb']:
-            return gmf.write_solution(solpath, solution, num_point, dim, labelpath)
+            return gmf.write_solution(solpath, solution, num_point, dim)
         elif suffix in ['.dat', '.csv']:
             return su2.write_solution(solpath, solution, num_point, dim, labelpath)
         else:

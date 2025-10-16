@@ -92,7 +92,6 @@ def write_solution(
     solution: dict[str, NDArray],
     num_ver: int,
     dim: int,
-    labelpath: PathLike | str | None = None,
 ) -> bool:
     r"""Write solution data to a GMF solution (.solb) file.
 
@@ -101,16 +100,13 @@ def write_solution(
         solution: Dictionary of solution fields.
         num_ver: Number of vertices.
         dim: Mesh dimension.
-        labelpath: Path to the map between solution strings and
-                   ref IDs. Defaults to None.
 
     Returns:
         bool: True if successful, False otherwise.
     """
     try:
         solpath = str(solpath)
-        labelpath = str(labelpath) if labelpath is not None else ''
-        return libgmf.write_solution(solpath, solution, num_ver, dim, labelpath)
+        return libgmf.write_solution(solpath, solution, num_ver, dim)
     except Exception as e:
         print(f'Error writing solution: {e}')
         return False

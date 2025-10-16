@@ -30,11 +30,9 @@ py::dict load_solution(const std::string& solpath, int64_t num_ver, int dim,
  * @param sol Dictionary of solution fields
  * @param num_ver Number of vertices
  * @param dim Mesh dimension
- * @param labelpath Path to the map between solution strings and ref IDs
  * @return Boolean indicating success
  */
-bool write_solution(const std::string& solpath, py::dict sol_data, int64_t num_ver, int dim,
-                    const std::string& labelpath);
+bool write_solution(const std::string& solpath, py::dict sol_data, int64_t num_ver, int dim);
 
 } // namespace gmf
 } // namespace pymeshb
