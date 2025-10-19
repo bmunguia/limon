@@ -51,6 +51,8 @@ def mesh_data_binary(meshpath_in, solpath_in_binary, markerpath, labelpath):
         solpath_in_binary,
         markerpath=markerpath,
         labelpath=labelpath,
+        write_markers=True,
+        write_labels=True,
     )
     return data
 
@@ -63,6 +65,8 @@ def mesh_data_ascii(meshpath_in, solpath_in_ascii, markerpath, labelpath):
         solpath_in_ascii,
         markerpath=markerpath,
         labelpath=labelpath,
+        write_markers=True,
+        write_labels=True,
     )
     return data
 
