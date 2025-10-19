@@ -1,10 +1,10 @@
-# pymeshb
-pymeshb is a Python API to handle the *.meshb file format, and to handle various operations on metric tensor fields.
+# limon
+The **LI**brary for **M**esh **O**perations and **N**umerics (limon) is a Python API to handle mesh/solution I/O for SU2 and GMF formats, basic mesh refinement operations, and various operations on metric tensor fields.
 
 ## Installation
 
 > [!IMPORTANT]
-> pymeshb is currently only supported for Linux.
+> limon is currently only supported for Linux.
 
 1. Initialize the submodules:
 
