@@ -2,7 +2,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from pymeshb.mesh import (
+from limon.mesh import (
     load_mesh,
     write_mesh,
     write_solution,

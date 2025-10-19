@@ -27,7 +27,7 @@ PYBIND11_MODULE(libgmf, m) {
      * @param meshpath Path to the mesh file
      * @return Tuple containing coordinates and element data
      */
-    m.def("load_mesh", &pymeshb::gmf::load_mesh,
+    m.def("load_mesh", &limon::gmf::load_mesh,
           py::arg("meshpath"),
           "Read a meshb file and return coordinates and element data.");
 
@@ -43,7 +43,7 @@ PYBIND11_MODULE(libgmf, m) {
      * @param sol Dictionary of solution data (optional)
      * @return Boolean indicating success
      */
-    m.def("write_mesh", &pymeshb::gmf::write_mesh,
+    m.def("write_mesh", &limon::gmf::write_mesh,
           py::arg("meshpath"),
           py::arg("coords"),
           py::arg("elements"),
@@ -59,7 +59,7 @@ PYBIND11_MODULE(libgmf, m) {
      * @param labelpath Path to the map between solution strings and ref IDs
      * @return Dictionary of solution fields
      */
-    m.def("load_solution", &pymeshb::gmf::load_solution,
+    m.def("load_solution", &limon::gmf::load_solution,
           py::arg("solpath"),
           py::arg("num_ver"),
           py::arg("dim"),
@@ -75,7 +75,7 @@ PYBIND11_MODULE(libgmf, m) {
      * @param dim Mesh dimension
      * @return Boolean indicating success
      */
-    m.def("write_solution", &pymeshb::gmf::write_solution,
+    m.def("write_solution", &limon::gmf::write_solution,
           py::arg("solpath"),
           py::arg("sol_data"),
           py::arg("num_ver"),

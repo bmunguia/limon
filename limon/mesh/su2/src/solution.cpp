@@ -10,7 +10,7 @@
 #include "../../ref_map.hpp"
 #include "../../util.hpp"
 
-namespace pymeshb {
+namespace limon {
 namespace su2 {
 
 // Constants for SU2 binary file format
@@ -34,7 +34,7 @@ py::dict load_solution_ascii(const std::string& solpath, int num_point, int dim)
     std::stringstream ss(header);
     std::string field;
     while (std::getline(ss, field, ',')) {
-        field = pymeshb::trim(field);
+        field = limon::trim(field);
         // Remove quotes if present
         if (field.front() == '"' && field.back() == '"') {
             field = field.substr(1, field.size() - 2);
@@ -50,7 +50,7 @@ py::dict load_solution_ascii(const std::string& solpath, int num_point, int dim)
         std::string cell;
         int col = 0;
         while (std::getline(lineStream, cell, ',') && col < field_names.size()) {
-            data[col].push_back(std::stod(pymeshb::trim(cell)));
+            data[col].push_back(std::stod(limon::trim(cell)));
             col++;
         }
     }
@@ -288,7 +288,7 @@ bool write_solution_ascii(const std::string& solpath, py::dict sol, int num_poin
     std::vector<std::string> vec_suffixes = {"_x", "_y", "_z"};
     std::vector<std::string> mat_suffixes = {"_xx", "_xy", "_yy", "_xz", "_yz", "_zz"};
 
-    if (!pymeshb::createDirectory(solpath)) {
+    if (!limon::createDirectory(solpath)) {
         return false;
     }
 
@@ -378,7 +378,7 @@ bool write_solution_binary(const std::string& solpath, py::dict sol, int num_poi
     std::vector<std::string> vec_suffixes = {"_x", "_y", "_z"};
     std::vector<std::string> mat_suffixes = {"_xx", "_xy", "_yy", "_xz", "_yz", "_zz"};
 
-    if (!pymeshb::createDirectory(solpath)) {
+    if (!limon::createDirectory(solpath)) {
         return false;
     }
 
@@ -485,4 +485,4 @@ bool write_solution(const std::string& solpath, py::dict sol, int num_point, int
 }
 
 }  // namespace su2
-}  // namespace pymeshb
+}  // namespace limon

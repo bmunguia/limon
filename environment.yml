@@ -1,4 +1,4 @@
-name: meshb
+name: limon
 channels:
   - conda-forge
 dependencies:

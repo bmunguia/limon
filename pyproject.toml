@@ -1,7 +1,9 @@
 [project]
-name = "pymeshb"
+name = "limon"
 version = "0.1.0"
-description = "Python API to handle the *.meshb file format"
+description = """Python API to handle mesh/solution I/O for SU2 and GMF file
+formats, and basic mesh refinement and metric tensor operations
+"""
 license = "MIT"
 authors = [
     {name = "bmunguia", email = "bmunguia@stanford.edu"},
@@ -34,7 +36,7 @@ dependencies = [
 test = ["pytest"]
 
 [project.urls]
-repository = "https://github.com/bmunguia/pymeshb.git"
+repository = "https://github.com/bmunguia/limon.git"
 
 [build-system]
 requires = [
@@ -46,7 +48,7 @@ requires = [
 build-backend = "hatchling.build"
 
 [tool.hatch.build]
-packages = ["pymeshb"]
+packages = ["limon"]
 exclude = [
     "build",
     "dist",
@@ -79,7 +81,7 @@ split_before_named_assigns = false
 blank_line_before_nested_class_or_def = false
 
 [tool.ruff]
-src = ["pymeshb"]
+src = ["limon"]
 line-length = 120
 indent-width = 4
 target-version = "py312"

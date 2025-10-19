@@ -1,7 +1,7 @@
 from pathlib import Path
 import tempfile
 import pytest
-from pymeshb.mesh import load_ref_map, write_ref_map, get_ref_name, RefMapKind
+from limon.mesh import load_ref_map, write_ref_map, get_ref_name, RefMapKind
 
 
 @pytest.fixture

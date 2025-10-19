@@ -1,5 +1,5 @@
-#ifndef PYMESHB_GMF_SOLUTION_HPP
-#define PYMESHB_GMF_SOLUTION_HPP
+#ifndef LIMON_GMF_SOLUTION_HPP
+#define LIMON_GMF_SOLUTION_HPP
 
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
@@ -8,7 +8,7 @@
 
 namespace py = pybind11;
 
-namespace pymeshb {
+namespace limon {
 namespace gmf {
 
 /**
@@ -35,6 +35,6 @@ py::dict load_solution(const std::string& solpath, int64_t num_ver, int dim,
 bool write_solution(const std::string& solpath, py::dict sol_data, int64_t num_ver, int dim);
 
 } // namespace gmf
-} // namespace pymeshb
+} // namespace limon
 
-#endif // PYMESHB_GMF_SOLUTION_HPP
+#endif // LIMON_GMF_SOLUTION_HPP

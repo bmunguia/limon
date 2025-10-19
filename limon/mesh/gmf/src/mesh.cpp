@@ -10,7 +10,7 @@ extern "C" {
 #include "../include/element.hpp"
 #include "../include/mesh.hpp"
 
-namespace pymeshb {
+namespace limon {
 namespace gmf {
 
 py::tuple load_mesh(const std::string& meshpath) {
@@ -74,7 +74,7 @@ bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
     int64_t num_ver = coords.shape(0);
 
     // Create output directory if needed
-    if (!pymeshb::createDirectory(meshpath)) {
+    if (!limon::createDirectory(meshpath)) {
         throw std::runtime_error("Failed to create directory for mesh file");
     }
 
@@ -119,4 +119,4 @@ bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
 }
 
 } // namespace gmf
-} // namespace pymeshb
+} // namespace limon

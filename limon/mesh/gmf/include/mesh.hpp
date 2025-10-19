@@ -1,5 +1,5 @@
-#ifndef PYMESHB_GMF_MESH_HPP
-#define PYMESHB_GMF_MESH_HPP
+#ifndef LIMON_GMF_MESH_HPP
+#define LIMON_GMF_MESH_HPP
 
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
@@ -8,7 +8,7 @@
 
 namespace py = pybind11;
 
-namespace pymeshb {
+namespace limon {
 namespace gmf {
 
 /**
@@ -32,6 +32,6 @@ bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
                 const py::dict& elements, const py::dict& boundaries);
 
 } // namespace gmf
-} // namespace pymeshb
+} // namespace limon
 
-#endif // PYMESHB_GMF_MESH_HPP
+#endif // LIMON_GMF_MESH_HPP

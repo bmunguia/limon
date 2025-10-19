@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import pytest
-from pymeshb.mesh import load_mesh_and_solution, write_mesh_and_solution
+from limon.mesh import load_mesh_and_solution, write_mesh_and_solution
 
 
 @pytest.fixture

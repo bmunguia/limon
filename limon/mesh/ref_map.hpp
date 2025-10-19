@@ -5,7 +5,7 @@
 #include <fstream>
 #include <stdexcept>
 
-namespace pymeshb {
+namespace limon {
 
 enum class RefMapKind {
     Marker = 0,
@@ -21,4 +21,4 @@ public:
     static std::string getRefName(const std::map<int, std::string>& ref_map, int marker_id);
 };
 
-} // namespace pymeshb
+} // namespace limon

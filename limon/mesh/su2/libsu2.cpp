@@ -28,7 +28,7 @@
       * @param write_markers Whether to write the markers to the file specified in markerpath
       * @return Tuple containing coordinates and element data
       */
-     m.def("load_mesh", &pymeshb::su2::load_mesh,
+     m.def("load_mesh", &limon::su2::load_mesh,
           py::arg("meshpath"),
           py::arg("markerpath") = "",
           py::arg("write_markers") = false,
@@ -44,7 +44,7 @@
       * @param markerpath Path to the map between marker strings and ref IDs (optional)
       * @return Boolean indicating success
       */
-     m.def("write_mesh", &pymeshb::su2::write_mesh,
+     m.def("write_mesh", &limon::su2::write_mesh,
           py::arg("meshpath"),
           py::arg("coords"),
           py::arg("elements"),
@@ -62,7 +62,7 @@
    * @param write_labels Whether to write the labels to the file specified in labelpath
      * @return Dictionary of solution fields
      */
-    m.def("load_solution", &pymeshb::su2::load_solution,
+    m.def("load_solution", &limon::su2::load_solution,
         py::arg("solpath"),
         py::arg("num_ver"),
         py::arg("dim"),
@@ -80,7 +80,7 @@
    * @param labelpath Path to the map between solution strings and ref IDs
    * @return Boolean indicating success
    */
-  m.def("write_solution", &pymeshb::su2::write_solution,
+  m.def("write_solution", &limon::su2::write_solution,
         py::arg("solpath"),
         py::arg("sol"),
         py::arg("num_ver"),

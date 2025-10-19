@@ -1,5 +1,5 @@
-#ifndef PYMESHB_SU2_MESH_H
-#define PYMESHB_SU2_MESH_H
+#ifndef LIMON_SU2_MESH_H
+#define LIMON_SU2_MESH_H
 
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
@@ -10,7 +10,7 @@
 
 namespace py = pybind11;
 
-namespace pymeshb {
+namespace limon {
 namespace su2 {
 
 /**
@@ -38,6 +38,6 @@ bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
                 const std::string& markerpath = "");
 
 }  // namespace su2
-}  // namespace pymeshb
+}  // namespace limon
 
-#endif  // PYMESHB_SU2_MESH_H
+#endif  // LIMON_SU2_MESH_H

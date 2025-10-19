@@ -1,5 +1,5 @@
-#ifndef PYMESHB_SU2_SOLUTION_H
-#define PYMESHB_SU2_SOLUTION_H
+#ifndef LIMON_SU2_SOLUTION_H
+#define LIMON_SU2_SOLUTION_H
 
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
@@ -8,7 +8,7 @@
 
 namespace py = pybind11;
 
-namespace pymeshb {
+namespace limon {
 namespace su2 {
 
 /**
@@ -48,6 +48,6 @@ bool write_solution_ascii(const std::string& solpath, py::dict sol, int num_ver,
 bool write_solution_binary(const std::string& solpath, py::dict sol, int num_point, int dim);
 
 }  // namespace su2
-}  // namespace pymeshb
+}  // namespace limon
 
-#endif  // PYMESHB_SU2_SOLUTION_H
+#endif  // LIMON_SU2_SOLUTION_H

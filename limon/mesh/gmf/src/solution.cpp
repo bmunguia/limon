@@ -11,7 +11,7 @@ extern "C" {
 #include "../../ref_map.hpp"
 #include "../../util.hpp"
 
-namespace pymeshb {
+namespace limon {
 namespace gmf {
 
 py::dict load_solution(const std::string& solpath, int64_t num_ver, int dim,
@@ -170,4 +170,4 @@ bool write_solution(const std::string& solpath, py::dict sol_data, int64_t num_v
 }
 
 } // namespace gmf
-} // namespace pymeshb
+} // namespace limon

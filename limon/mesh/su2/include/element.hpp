@@ -1,5 +1,5 @@
-#ifndef PYMESHB_SU2_ELEMENT_HPP
-#define PYMESHB_SU2_ELEMENT_HPP
+#ifndef LIMON_SU2_ELEMENT_HPP
+#define LIMON_SU2_ELEMENT_HPP
 
 #include <fstream>
 #include <map>
@@ -11,7 +11,7 @@
 
 namespace py = pybind11;
 
-namespace pymeshb {
+namespace limon {
 namespace su2 {
 
 struct ElementTypeInfo {
@@ -60,6 +60,6 @@ int write_boundary_elements(std::ofstream& mesh_file, const py::dict& boundaries
                             const std::string& markerpath = "");
 
 } // namespace su2
-} // namespace pymeshb
+} // namespace limon
 
-#endif // PYMESHB_SU2_ELEMENT_HPP
+#endif // LIMON_SU2_ELEMENT_HPP

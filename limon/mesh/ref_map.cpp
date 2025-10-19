@@ -3,7 +3,7 @@
 
 #include "ref_map.hpp"
 
-namespace pymeshb {
+namespace limon {
 
 std::map<int, std::string> RefMap::loadRefMap(const std::string& filename) {
     std::map<int, std::string> ref_map;
@@ -137,4 +137,4 @@ std::string RefMap::getRefName(const std::map<int, std::string>& ref_map, int re
     return "REF_" + std::to_string(ref_id);
 }
 
-} // namespace pymeshb
+} // namespace limon

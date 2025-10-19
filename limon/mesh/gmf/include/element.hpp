@@ -1,5 +1,5 @@
-#ifndef PYMESHB_GMF_ELEMENT_HPP
-#define PYMESHB_GMF_ELEMENT_HPP
+#ifndef LIMON_GMF_ELEMENT_HPP
+#define LIMON_GMF_ELEMENT_HPP
 
 #include <cstdint>
 #include <string>
@@ -8,7 +8,7 @@
 
 namespace py = pybind11;
 
-namespace pymeshb {
+namespace limon {
 namespace gmf {
 
 void read_element_type(int64_t mesh_id, int kwd, int num_nodes, py::dict& elements, const std::string& key_name);
@@ -20,6 +20,6 @@ void write_elements_2D(int64_t mesh_id, const py::dict& elements, const py::dict
 void write_elements_3D(int64_t mesh_id, const py::dict& elements, const py::dict& boundaries);
 
 } // namespace gmf
-} // namespace pymeshb
+} // namespace limon
 
-#endif // PYMESHB_GMF_ELEMENT_HPP
+#endif // LIMON_GMF_ELEMENT_HPP

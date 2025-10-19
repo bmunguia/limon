@@ -6,7 +6,7 @@
 #include "../../ref_map.hpp"
 #include "../../util.hpp"
 
-namespace pymeshb {
+namespace limon {
 namespace su2 {
 
 std::map<int, ElementTypeInfo> get_element_type_map() {
@@ -535,4 +535,4 @@ int write_boundary_elements(std::ofstream& mesh_file, const py::dict& boundaries
 }
 
 } // namespace su2
-} // namespace pymeshb
+} // namespace limon

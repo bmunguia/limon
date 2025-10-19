@@ -1,9 +1,9 @@
-#ifndef PYMESHB_MESHUTIL_H
-#define PYMESHB_MESHUTIL_H
+#ifndef LIMON_MESHUTIL_H
+#define LIMON_MESHUTIL_H
 
 #include <string>
 
-namespace pymeshb {
+namespace limon {
     /**
      * Remove leading and trailing whitespace from a string.
      *
@@ -21,4 +21,4 @@ namespace pymeshb {
     bool createDirectory(const std::string& path);
 }
 
-#endif // PYMESHB_MESHUTIL_H
+#endif // LIMON_MESHUTIL_H
