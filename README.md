@@ -21,7 +21,7 @@ The **LI**brary for **M**esh **O**perations and **N**umerics (limon) is a Python
 3. Load the environment:
 
     ```
-    conda activate meshb
+    conda activate limon
     ```
 
 4. From the top-level directory of the repo, install the package:
