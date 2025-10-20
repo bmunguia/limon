@@ -33,27 +33,21 @@ def load_mesh(
 
 def write_mesh(
     meshpath: PathLike | str,
-    coords: NDArray,
-    elements: dict[str, NDArray],
-    boundaries: dict[str, NDArray],
+    mesh_data: dict,
 ) -> bool:
     r"""Write mesh data to a GMF mesh (.meshb) file.
 
     Args:
         meshpath: Path to the mesh file.
-        coords: Coordinates of each node.
-        elements: Dictionary of mesh elements. Keys are
-                  element types, values are numpy arrays.
-        boundaries: Dictionary of mesh boundary elements.
-                    Keys are element types, values are
-                    numpy arrays.
+        mesh_data: Dictionary containing mesh data with keys:
+                   coords, elements, boundaries
 
     Returns:
         bool: True if successful, False otherwise
     """
     try:
         meshpath = str(meshpath)
-        success = libgmf.write_mesh(meshpath, coords, elements, boundaries)
+        success = libgmf.write_mesh(meshpath, mesh_data)
         return success
 
     except Exception as e:

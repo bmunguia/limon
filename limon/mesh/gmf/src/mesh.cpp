@@ -75,8 +75,23 @@ py::dict load_mesh(const std::string& meshpath) {
     return mesh_data;
 }
 
-bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
-                const py::dict& elements, const py::dict& boundaries) {
+bool write_mesh(const std::string& meshpath, const py::dict& mesh_data) {
+    // Validate required keys
+    if (!mesh_data.contains("coords")) {
+        throw std::runtime_error("mesh_data must contain 'coords' key");
+    }
+    if (!mesh_data.contains("elements")) {
+        throw std::runtime_error("mesh_data must contain 'elements' key");
+    }
+    if (!mesh_data.contains("boundaries")) {
+        throw std::runtime_error("mesh_data must contain 'boundaries' key");
+    }
+
+    // Extract data from dictionary
+    py::array_t<double> coords = mesh_data["coords"].cast<py::array_t<double>>();
+    py::dict elements = mesh_data["elements"].cast<py::dict>();
+    py::dict boundaries = mesh_data["boundaries"].cast<py::dict>();
+
     // Get dimensions
     int dim = coords.shape(1);
     int64_t num_ver = coords.shape(0);

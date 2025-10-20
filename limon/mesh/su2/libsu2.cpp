@@ -38,19 +38,15 @@
       * Write mesh data to a SU2 mesh (.su2) file.
       *
       * @param meshpath Path to the mesh file
-      * @param coords Coordinates of each node
-      * @param elements Dictionary of mesh elements
-      * @param boundaries Dictionary of mesh boundary elements
+      * @param mesh_data Dictionary containing mesh data with keys: coords, elements, boundaries
       * @param markerpath Path to the map between marker strings and ref IDs (optional)
       * @return Boolean indicating success
       */
      m.def("write_mesh", &limon::su2::write_mesh,
           py::arg("meshpath"),
-          py::arg("coords"),
-          py::arg("elements"),
-          py::arg("boundaries"),
+          py::arg("mesh_data"),
           py::arg("markerpath") = "",
-          "Write nodes and element data to a SU2 mesh file.");
+          "Write mesh data to a SU2 mesh file.");
 
     /**
      * Read solution data from a SU2 solution (.dat) file.

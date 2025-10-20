@@ -72,26 +72,17 @@ def load_mesh_and_solution(
 def write_mesh_and_solution(
     meshpath: PathLike | str,
     solpath: PathLike | str,
-    coords: NDArray,
-    elements: dict[str, NDArray],
-    boundaries: dict[str, NDArray],
-    solution: dict[str, NDArray],
+    mesh_data: dict,
     markerpath: PathLike | str | None = None,
     labelpath: PathLike | str | None = None,
 ) -> bool:
-    r"""Write nodes and coordinates to a meshb file.
+    r"""Write mesh and solution data to files.
 
     Args:
         meshpath: Path to the mesh file.
         solpath: Path to the solution file.
-        coords: Coordinates of each node.
-        elements: Dictionary of mesh elements. Keys are
-                  element types, values are numpy arrays.
-        boundaries: Dictionary of mesh boundary elements.
-                    Keys are element types, values are
-                    numpy arrays.
-        solution: Dictionary of solution data. Keys are
-                  field names, values are numpy arrays.
+        mesh_data: Dictionary containing mesh and solution data with keys:
+                   coords, elements, boundaries, solution, dim, num_points
         markerpath: Path to the map between marker strings and
                     ref IDs. Defaults to None.
         labelpath: Path to the map between solution strings and
@@ -101,16 +92,33 @@ def write_mesh_and_solution(
         bool: True if successful, False otherwise
     """
     try:
+        # Validate required keys for mesh
+        if 'coords' not in mesh_data:
+            raise ValueError("mesh_data must contain 'coords' key")
+        if 'elements' not in mesh_data:
+            raise ValueError("mesh_data must contain 'elements' key")
+        if 'boundaries' not in mesh_data:
+            raise ValueError("mesh_data must contain 'boundaries' key")
+        if 'solution' not in mesh_data:
+            raise ValueError("mesh_data must contain 'solution' key")
+        if 'dim' not in mesh_data:
+            raise ValueError("mesh_data must contain 'dim' key")
+        if 'num_points' not in mesh_data:
+            raise ValueError("mesh_data must contain 'num_points' key")
+
+        # Write mesh
         suffix = Path(meshpath).suffix.lower()
         if suffix in ['.mesh', '.meshb']:
-            success = gmf.write_mesh(meshpath, coords, elements, boundaries)
+            success = gmf.write_mesh(meshpath, mesh_data)
         elif suffix == '.su2':
-            success = su2.write_mesh(meshpath, coords, elements, boundaries, markerpath)
+            success = su2.write_mesh(meshpath, mesh_data, markerpath)
         else:
             raise ValueError(f'Unsupported mesh file format: {suffix}. Supported formats are .mesh, .meshb, and .su2')
 
-        num_point = coords.shape[0]
-        dim = coords.shape[1]
+        # Write solution
+        num_point = mesh_data['num_points']
+        dim = mesh_data['dim']
+        solution = mesh_data['solution']
 
         suffix = Path(solpath).suffix.lower()
         if suffix in ['.sol', '.solb']:
@@ -169,21 +177,15 @@ def load_mesh(
 
 def write_mesh(
     meshpath: PathLike | str,
-    coords: NDArray,
-    elements: dict[str, NDArray],
-    boundaries: dict[str, NDArray],
+    mesh_data: dict,
     markerpath: PathLike | str | None = None,
 ) -> bool:
-    r"""Write nodes and coordinates to a meshb file.
+    r"""Write mesh data to a file.
 
     Args:
         meshpath: Path to the mesh file.
-        coords: Coordinates of each node.
-        elements: Dictionary of mesh elements. Keys are
-                  element types, values are numpy arrays.
-        boundaries: Dictionary of mesh boundary elements.
-                    Keys are element types, values are
-                    numpy arrays.
+        mesh_data: Dictionary containing mesh data with keys:
+                   coords, elements, boundaries
         markerpath: Path to the map between marker strings and
                     ref IDs. Defaults to None.
 
@@ -193,9 +195,9 @@ def write_mesh(
     try:
         suffix = Path(meshpath).suffix.lower()
         if suffix in ['.mesh', '.meshb']:
-            success = gmf.write_mesh(meshpath, coords, elements, boundaries)
+            success = gmf.write_mesh(meshpath, mesh_data)
         elif suffix == '.su2':
-            success = su2.write_mesh(meshpath, coords, elements, boundaries, markerpath)
+            success = su2.write_mesh(meshpath, mesh_data, markerpath)
         else:
             raise ValueError(f'Unsupported mesh file format: {suffix}. Supported formats are .mesh, .meshb, and .su2')
 

@@ -10,11 +10,7 @@ namespace py = pybind11;
 namespace limon {
 namespace mesh {
 
-py::dict refine_2d(
-    py::array_t<double> coords,
-    const py::dict& elements,
-    const py::dict& boundaries
-);
+py::dict refine_2d(const py::dict& mesh_data);
 
 } // namespace mesh
 } // namespace limon

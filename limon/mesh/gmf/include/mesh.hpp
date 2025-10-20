@@ -23,13 +23,10 @@ py::dict load_mesh(const std::string& meshpath);
  * Write mesh data to a GMF mesh (.meshb) file.
  *
  * @param meshpath Path to the mesh file
- * @param coords Coordinates of each node
- * @param elements Dictionary of mesh elements
- * @param boundaries Dictionary of mesh boundary elements
+ * @param mesh_data Dictionary containing mesh data with keys: coords, elements, boundaries
  * @return Boolean indicating success
  */
-bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
-                const py::dict& elements, const py::dict& boundaries);
+bool write_mesh(const std::string& meshpath, const py::dict& mesh_data);
 
 } // namespace gmf
 } // namespace limon

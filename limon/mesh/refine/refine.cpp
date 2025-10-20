@@ -15,11 +15,10 @@ PYBIND11_MODULE(_refine, m) {
     m.doc() = "Python bindings for mesh refinement";
 
     m.def("refine_2d", &limon::mesh::refine_2d,
-          py::arg("coords"),
-          py::arg("elements"),
-          py::arg("boundaries"),
+          py::arg("mesh_data"),
           "Refine a 2D mesh by one level (uniform). "
-          "Returns a dictionary with keys: coords, elements, boundaries, dim, num_point.");
+          "Takes a dictionary with keys: coords, elements, boundaries. "
+          "Returns a dictionary with keys: coords, elements, boundaries, dim, num_points.");
 
     // m.def("refine_3d", &limon::mesh::refine_3d,
     //       py::arg("coords"),

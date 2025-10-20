@@ -80,6 +80,16 @@ def test_write_mesh_with_metric(mesh_data, output_dir):
     """Test writing mesh with a metric for different dimensions."""
     coords, elements, boundaries, solution, _, _, config = mesh_data
 
+    # Reconstruct mesh_data dictionary
+    mesh_data_dict = {
+        'coords': coords,
+        'elements': elements,
+        'boundaries': boundaries,
+        'solution': solution,
+        'dim': config['dim'],
+        'num_points': coords.shape[0],
+    }
+
     # Output paths
     meshpath_out = output_dir / f'{config["file_prefix"]}_with_met.meshb'
     solpath_out = output_dir / f'{config["file_prefix"]}_with_met.solb'
@@ -88,10 +98,7 @@ def test_write_mesh_with_metric(mesh_data, output_dir):
     write_mesh_and_solution(
         meshpath_out,
         solpath_out,
-        coords,
-        elements,
-        boundaries,
-        solution,
+        mesh_data_dict,
     )
 
     # Assert that the files were created
@@ -135,6 +142,16 @@ def test_perturb_eigenvalues(mesh_data, output_dir):
     # Create a new solution dictionary for perturbed metrics
     perturbed_solution = {'Metric': perturbed_metrics_eig}
 
+    # Reconstruct mesh_data dictionary
+    mesh_data_dict = {
+        'coords': coords,
+        'elements': elements,
+        'boundaries': boundaries,
+        'solution': perturbed_solution,
+        'dim': config['dim'],
+        'num_points': coords.shape[0],
+    }
+
     # Output paths
     pert_meshpath_out = output_dir / f'{config["file_prefix"]}_with_eig_pert_only.meshb'
     pert_solpath_out = output_dir / f'{config["file_prefix"]}_with_eig_pert_only.solb'
@@ -143,10 +160,7 @@ def test_perturb_eigenvalues(mesh_data, output_dir):
     write_mesh_and_solution(
         pert_meshpath_out,
         pert_solpath_out,
-        coords,
-        elements,
-        boundaries,
-        perturbed_solution,
+        mesh_data_dict,
     )
 
     # Assert that the files were created
@@ -186,6 +200,16 @@ def test_perturb_orientation(mesh_data, output_dir):
     # Create a new solution dictionary for perturbed metrics
     perturbed_solution = {'Metric': perturbed_metrics_rot}
 
+    # Reconstruct mesh_data dictionary
+    mesh_data_dict = {
+        'coords': coords,
+        'elements': elements,
+        'boundaries': boundaries,
+        'solution': perturbed_solution,
+        'dim': config['dim'],
+        'num_points': coords.shape[0],
+    }
+
     # Output paths
     pert_meshpath_out = output_dir / f'{config["file_prefix"]}_with_rot_pert_only.meshb'
     pert_solpath_out = output_dir / f'{config["file_prefix"]}_with_rot_pert_only.solb'
@@ -194,10 +218,7 @@ def test_perturb_orientation(mesh_data, output_dir):
     write_mesh_and_solution(
         pert_meshpath_out,
         pert_solpath_out,
-        coords,
-        elements,
-        boundaries,
-        perturbed_solution,
+        mesh_data_dict,
     )
 
     # Assert that the files were created
@@ -245,6 +266,16 @@ def test_perturb_metric_field(mesh_data, output_dir):
     # Create a new solution dictionary for perturbed metrics
     perturbed_solution = {'Metric': perturbed_metrics}
 
+    # Reconstruct mesh_data dictionary
+    mesh_data_dict = {
+        'coords': coords,
+        'elements': elements,
+        'boundaries': boundaries,
+        'solution': perturbed_solution,
+        'dim': config['dim'],
+        'num_points': coords.shape[0],
+    }
+
     # Output paths
     pert_meshpath_out = output_dir / f'{config["file_prefix"]}_with_combined_pert.meshb'
     pert_solpath_out = output_dir / f'{config["file_prefix"]}_with_combined_pert.solb'
@@ -253,10 +284,7 @@ def test_perturb_metric_field(mesh_data, output_dir):
     write_mesh_and_solution(
         pert_meshpath_out,
         pert_solpath_out,
-        coords,
-        elements,
-        boundaries,
-        perturbed_solution,
+        mesh_data_dict,
     )
 
     # Assert that the files were created
@@ -324,6 +352,16 @@ def test_nonuniform_perturb_metric_field(mesh_data_2d, output_dir):
     # Create a new solution dictionary for perturbed metrics
     perturbed_solution = {'Metric': perturbed_metrics}
 
+    # Reconstruct mesh_data dictionary
+    mesh_data_dict = {
+        'coords': coords,
+        'elements': elements,
+        'boundaries': boundaries,
+        'solution': perturbed_solution,
+        'dim': num_dim,
+        'num_points': num_point,
+    }
+
     # Output paths
     pert_meshpath_out = output_dir / 'square_with_nonuniform_pert.meshb'
     pert_solpath_out = output_dir / 'square_with_nonuniform_pert.solb'
@@ -332,10 +370,7 @@ def test_nonuniform_perturb_metric_field(mesh_data_2d, output_dir):
     write_mesh_and_solution(
         pert_meshpath_out,
         pert_solpath_out,
-        coords,
-        elements,
-        boundaries,
-        perturbed_solution,
+        mesh_data_dict,
     )
 
     # Assert that the files were created

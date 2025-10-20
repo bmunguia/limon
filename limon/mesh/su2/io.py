@@ -40,21 +40,15 @@ def load_mesh(
 
 def write_mesh(
     meshpath: PathLike | str,
-    coords: NDArray,
-    elements: dict[str, NDArray],
-    boundaries: dict[str, NDArray],
+    mesh_data: dict,
     markerpath: PathLike | str | None = None,
 ) -> bool:
     r"""Write mesh data to a SU2 mesh (.su2) file.
 
     Args:
         meshpath: Path to the mesh file.
-        coords: Coordinates of each node.
-        elements: Dictionary of mesh elements. Keys are
-                  element types, values are numpy arrays.
-        boundaries: Dictionary of mesh boundary elements.
-                    Keys are element types, values are
-                    numpy arrays.
+        mesh_data: Dictionary containing mesh data with keys:
+                   coords, elements, boundaries
         markerpath: Path to the map between marker strings and
                     ref IDs. Defaults to None.
 
@@ -64,7 +58,7 @@ def write_mesh(
     try:
         meshpath = str(meshpath)
         markerpath = str(markerpath) if markerpath is not None else ''
-        success = libsu2.write_mesh(meshpath, coords, elements, boundaries, markerpath)
+        success = libsu2.write_mesh(meshpath, mesh_data, markerpath)
         return success
 
     except Exception as e:

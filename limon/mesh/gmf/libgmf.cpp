@@ -35,20 +35,13 @@ PYBIND11_MODULE(libgmf, m) {
      * Write mesh data to a GMF mesh (.meshb) file.
      *
      * @param meshpath Path to the mesh file
-     * @param coords Coordinates of each node
-     * @param elements Dictionary of mesh elements
-     * @param boundaries Dictionary of mesh boundary elements
-     * @param solpath Path to the solution file (optional)
-     * @param labelpath Path to the map between solution strings and ref IDs (optional)
-     * @param sol Dictionary of solution data (optional)
+     * @param mesh_data Dictionary containing mesh data with keys: coords, elements, boundaries
      * @return Boolean indicating success
      */
     m.def("write_mesh", &limon::gmf::write_mesh,
           py::arg("meshpath"),
-          py::arg("coords"),
-          py::arg("elements"),
-          py::arg("boundaries"),
-          "Write nodes and element data to a meshb file.");
+          py::arg("mesh_data"),
+          "Write mesh data to a meshb file.");
 
     /**
      * Read solution data from a GMF solution (.solb) file.

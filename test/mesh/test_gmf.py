@@ -34,11 +34,11 @@ def mesh_data_3d(meshpath_in_3d):
     """Load the 3D mesh and create a sample solution."""
     mesh_data = load_mesh(meshpath_in_3d)
     coords = mesh_data['coords']
-    elements = mesh_data['elements']
-    boundaries = mesh_data['boundaries']
+    num_point = mesh_data['num_point']
+    num_dim = mesh_data['dim']
 
-    num_point = coords.shape[0]
-    num_dim = coords.shape[1]
+    assert num_point == coords.shape[0]
+    assert num_dim == coords.shape[1]
 
     # Create a sample solution dictionary
     solution = {
@@ -53,7 +53,9 @@ def mesh_data_3d(meshpath_in_3d):
     solution['Metric'][:, 2] = 1e2
     solution['Metric'][:, 5] = 1e3
 
-    return coords, elements, boundaries, solution
+    mesh_data['solution'] = solution
+
+    return mesh_data
 
 
 @pytest.fixture
@@ -61,11 +63,11 @@ def mesh_data_2d(meshpath_in_2d):
     """Load the 2D mesh and create a sample solution."""
     mesh_data = load_mesh(meshpath_in_2d)
     coords = mesh_data['coords']
-    elements = mesh_data['elements']
-    boundaries = mesh_data['boundaries']
+    num_point = mesh_data['num_point']
+    num_dim = mesh_data['dim']
 
-    num_point = coords.shape[0]
-    num_dim = coords.shape[1]
+    assert num_point == coords.shape[0]
+    assert num_dim == coords.shape[1]
 
     # Create a sample solution dictionary
     solution = {
@@ -88,7 +90,9 @@ def mesh_data_2d(meshpath_in_2d):
     solution['GradientT'][:, 0] = 5.0 * (coords[:, 0] + 0.1)  # dT/dx
     solution['GradientT'][:, 1] = 8.0 * (coords[:, 1] + 0.1)  # dT/dy
 
-    return coords, elements, boundaries, solution
+    mesh_data['solution'] = solution
+
+    return mesh_data
 
 
 @pytest.fixture
@@ -101,7 +105,9 @@ def output_dir(request):
 
 def test_load_meshb(mesh_data_3d):
     """Test reading a mesh."""
-    coords, elements, boundaries, solution = mesh_data_3d
+    coords = mesh_data_3d['coords']
+    boundaries = mesh_data_3d['boundaries']
+    solution = mesh_data_3d['solution']
 
     # Assert that the mesh data is loaded correctly
     assert coords.shape[0] > 0  # Ensure there are points
@@ -111,13 +117,11 @@ def test_load_meshb(mesh_data_3d):
 
 def test_write_meshb(mesh_data_3d, output_dir):
     """Test writing a mesh."""
-    coords, elements, boundaries, _ = mesh_data_3d
-
     # Output paths
     meshpath_out = output_dir / 'sphere_with_sol.mesh'
 
     # Write the mesh with the solution
-    write_mesh(meshpath_out, coords, elements, boundaries)
+    write_mesh(meshpath_out, mesh_data_3d)
 
     # Assert that the files were created
     assert meshpath_out.exists()
@@ -125,7 +129,8 @@ def test_write_meshb(mesh_data_3d, output_dir):
 
 def test_write_solb(mesh_data_3d, output_dir):
     """Test writing a mesh with a solution."""
-    coords, _, _, solution = mesh_data_3d
+    coords = mesh_data_3d['coords']
+    solution = mesh_data_3d['solution']
 
     # Output paths
     solpath_out = output_dir / 'sphere_with_sol.solb'
@@ -141,8 +146,6 @@ def test_write_solb(mesh_data_3d, output_dir):
 
 def test_write_meshb_and_solb(mesh_data_3d, output_dir):
     """Test writing a mesh with a solution."""
-    coords, elements, boundaries, solution = mesh_data_3d
-
     # Output paths
     meshpath_out = output_dir / 'sphere_with_sol.mesh'
     solpath_out = output_dir / 'sphere_with_sol.solb'
@@ -151,10 +154,7 @@ def test_write_meshb_and_solb(mesh_data_3d, output_dir):
     write_mesh_and_solution(
         meshpath_out,
         solpath_out,
-        coords,
-        elements,
-        boundaries,
-        solution,
+        mesh_data_3d,
     )
 
     # Assert that the files were created

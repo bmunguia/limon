@@ -105,11 +105,6 @@ def test_su2_binary_to_binary(mesh_data_binary, output_dir, markerpath, labelpat
     """Test reading a SU2 mesh file and binary solution, and writing it back
     with a binary solution.
     """
-    coords = mesh_data_binary['coords']
-    elements = mesh_data_binary['elements']
-    boundaries = mesh_data_binary['boundaries']
-    solution = mesh_data_binary['solution']
-
     # Output paths
     meshpath_out = output_dir / 'naca_with_sol.su2'
     solpath_out = output_dir / 'naca_with_sol.dat'
@@ -118,10 +113,7 @@ def test_su2_binary_to_binary(mesh_data_binary, output_dir, markerpath, labelpat
     write_mesh_and_solution(
         meshpath_out,
         solpath_out,
-        coords,
-        elements,
-        boundaries,
-        solution,
+        mesh_data_binary,
         markerpath=markerpath,
     )
 
@@ -137,11 +129,6 @@ def test_su2_binary_to_ascii(mesh_data_binary, output_dir, markerpath, labelpath
     """Test reading a SU2 mesh file and binary solution, and writing it back
     with an ASCII solution.
     """
-    coords = mesh_data_binary['coords']
-    elements = mesh_data_binary['elements']
-    boundaries = mesh_data_binary['boundaries']
-    solution = mesh_data_binary['solution']
-
     # Output paths
     meshpath_out = output_dir / 'naca_with_sol.su2'
     solpath_out = output_dir / 'naca_with_sol.csv'
@@ -150,10 +137,7 @@ def test_su2_binary_to_ascii(mesh_data_binary, output_dir, markerpath, labelpath
     write_mesh_and_solution(
         meshpath_out,
         solpath_out,
-        coords,
-        elements,
-        boundaries,
-        solution,
+        mesh_data_binary,
         markerpath=markerpath,
     )
 
@@ -169,11 +153,6 @@ def test_su2_ascii_to_ascii(mesh_data_ascii, output_dir, markerpath, labelpath, 
     """Test reading a SU2 mesh file and ASCII solution, and writing it back
     with an ASCII solution.
     """
-    coords = mesh_data_ascii['coords']
-    elements = mesh_data_ascii['elements']
-    boundaries = mesh_data_ascii['boundaries']
-    solution = mesh_data_ascii['solution']
-
     # Output paths
     meshpath_out = output_dir / 'naca_with_sol.su2'
     solpath_out = output_dir / 'naca_with_sol.csv'
@@ -182,10 +161,7 @@ def test_su2_ascii_to_ascii(mesh_data_ascii, output_dir, markerpath, labelpath, 
     write_mesh_and_solution(
         meshpath_out,
         solpath_out,
-        coords,
-        elements,
-        boundaries,
-        solution,
+        mesh_data_ascii,
         markerpath=markerpath,
     )
 
@@ -201,11 +177,6 @@ def test_su2_ascii_to_binary(mesh_data_ascii, output_dir, markerpath, labelpath,
     """Test reading a SU2 mesh file and ASCII solution, and writing it back
     with a binary solution.
     """
-    coords = mesh_data_ascii['coords']
-    elements = mesh_data_ascii['elements']
-    boundaries = mesh_data_ascii['boundaries']
-    solution = mesh_data_ascii['solution']
-
     # Output paths
     meshpath_out = output_dir / 'naca_with_sol.su2'
     solpath_out = output_dir / 'naca_with_sol.dat'
@@ -214,10 +185,7 @@ def test_su2_ascii_to_binary(mesh_data_ascii, output_dir, markerpath, labelpath,
     write_mesh_and_solution(
         meshpath_out,
         solpath_out,
-        coords,
-        elements,
-        boundaries,
-        solution,
+        mesh_data_ascii,
         markerpath=markerpath,
     )
 

@@ -27,14 +27,11 @@ py::dict load_mesh(const std::string& meshpath, const std::string& markerpath = 
  * Write mesh data to an SU2 mesh file.
  *
  * @param meshpath Path to the mesh file
- * @param coords Coordinates of each node
- * @param elements Dictionary of mesh elements
- * @param boundaries Dictionary of mesh boundary elements
+ * @param mesh_data Dictionary containing mesh data with keys: coords, elements, boundaries
  * @param markerpath Path to the map between marker strings and ref IDs (optional)
  * @return Boolean indicating success
  */
-bool write_mesh(const std::string& meshpath, py::array_t<double> coords,
-                const py::dict& elements, const py::dict& boundaries,
+bool write_mesh(const std::string& meshpath, const py::dict& mesh_data,
                 const std::string& markerpath = "");
 
 }  // namespace su2

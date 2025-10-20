@@ -25,7 +25,22 @@ struct Edge {
 };
 
 
-py::dict refine_2d(py::array_t<double> coords, const py::dict& elements, const py::dict& boundaries) {
+py::dict refine_2d(const py::dict& mesh_data) {
+    // Validate required keys
+    if (!mesh_data.contains("coords")) {
+        throw std::runtime_error("mesh_data must contain 'coords' key");
+    }
+    if (!mesh_data.contains("elements")) {
+        throw std::runtime_error("mesh_data must contain 'elements' key");
+    }
+    if (!mesh_data.contains("boundaries")) {
+        throw std::runtime_error("mesh_data must contain 'boundaries' key");
+    }
+
+    // Extract data from dictionary
+    py::array_t<double> coords = mesh_data["coords"].cast<py::array_t<double>>();
+    py::dict elements = mesh_data["elements"].cast<py::dict>();
+    py::dict boundaries = mesh_data["boundaries"].cast<py::dict>();
 
     auto coords_buf = coords.request();
     auto* coords_ptr = static_cast<double*>(coords_buf.ptr);
@@ -187,14 +202,14 @@ py::dict refine_2d(py::array_t<double> coords, const py::dict& elements, const p
     py::array_t<double> new_coords({new_num_pts, dim}, new_coords_vec.data());
 
     // Return refined mesh data as a dictionary
-    py::dict mesh_data;
-    mesh_data["coords"] = new_coords;
-    mesh_data["elements"] = new_elements;
-    mesh_data["boundaries"] = new_boundaries;
-    mesh_data["dim"] = dim;
-    mesh_data["num_point"] = new_num_pts;
+    py::dict new_mesh_data;
+    new_mesh_data["coords"] = new_coords;
+    new_mesh_data["elements"] = new_elements;
+    new_mesh_data["boundaries"] = new_boundaries;
+    new_mesh_data["dim"] = dim;
+    new_mesh_data["num_point"] = new_num_pts;
 
-    return mesh_data;
+    return new_mesh_data;
 }
 
 } // namespace mesh
