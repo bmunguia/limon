@@ -9,7 +9,7 @@ def load_mesh(
     meshpath: PathLike | str,
     markerpath: PathLike | str | None = None,
     write_markers: bool = False,
-) -> tuple[NDArray, dict, dict, dict]:
+) -> dict:
     r"""Read a SU2 mesh file and return nodes and element as numpy arrays.
 
     Args:
@@ -20,21 +20,22 @@ def load_mesh(
                        Defaults to False.
 
     Returns:
-        A tuple containing:
+        Dictionary containing mesh data with keys:
         - coords: NDArray of node coordinates
         - elements: Dictionary mapping element types to arrays of elements
         - boundaries: Dictionary mapping boundary element types to arrays
+        - dim: Mesh dimension
+        - num_point: Number of points
     """
     try:
         meshpath = str(meshpath)
         markerpath = str(markerpath) if markerpath is not None else ''
-        coords, elms, bnds = libsu2.load_mesh(meshpath, markerpath, write_markers)
-
-        return coords, elms, bnds
+        mesh_data = libsu2.load_mesh(meshpath, markerpath, write_markers)
+        return mesh_data
 
     except Exception as e:
         print(f'Error reading mesh: {e}')
-        return None, None, None
+        return {}
 
 
 def write_mesh(

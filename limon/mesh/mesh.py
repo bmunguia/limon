@@ -15,8 +15,8 @@ def load_mesh_and_solution(
     labelpath: PathLike | str | None = None,
     write_markers: bool = False,
     write_labels: bool = False,
-) -> tuple[NDArray, dict, dict, dict]:
-    r"""Read a mesh file and return nodes and coordinates as numpy arrays.
+) -> dict:
+    r"""Read a mesh file and solution file and return data as a dictionary.
 
     Args:
         meshpath: Path to the mesh file.
@@ -31,23 +31,25 @@ def load_mesh_and_solution(
                       Defaults to False.
 
     Returns:
-        A tuple containing:
+        Dictionary containing:
         - coords: NDArray of node coordinates
         - elements: Dictionary mapping element types to arrays of elements
         - boundaries: Dictionary mapping boundary element types to arrays
         - solution: Dictionary of solution data
+        - dim: Mesh dimension
+        - num_point: Number of points
     """
     try:
         suffix = Path(meshpath).suffix.lower()
         if suffix in ['.mesh', '.meshb']:
-            coords, elms, bnds = gmf.load_mesh(meshpath)
+            mesh_data = gmf.load_mesh(meshpath)
         elif suffix == '.su2':
-            coords, elms, bnds = su2.load_mesh(meshpath, markerpath, write_markers)
+            mesh_data = su2.load_mesh(meshpath, markerpath, write_markers)
         else:
             raise ValueError(f'Unsupported mesh file format: {suffix}. Supported formats are .mesh, .meshb, and .su2')
 
-        num_point = coords.shape[0]
-        dim = coords.shape[1]
+        num_point = mesh_data['num_point']
+        dim = mesh_data['dim']
 
         suffix = Path(solpath).suffix.lower()
         if suffix in ['.sol', '.solb']:
@@ -59,11 +61,12 @@ def load_mesh_and_solution(
                 f'Unsupported solution file format: {suffix}. Supported formats are .sol, .solb, .csv, and .dat'
             )
 
-        return coords, elms, bnds, sol
+        mesh_data['solution'] = sol
+        return mesh_data
 
     except Exception as e:
         print(f'Error reading mesh: {e}')
-        return None, None, None, None
+        return {}
 
 
 def write_mesh_and_solution(
@@ -130,8 +133,8 @@ def load_mesh(
     meshpath: PathLike | str,
     markerpath: PathLike | str | None = None,
     write_markers: bool = False,
-) -> tuple[NDArray, dict, dict]:
-    r"""Read a mesh file and return nodes and coordinates as numpy arrays.
+) -> dict:
+    r"""Read a mesh file and return data as a dictionary.
 
     Args:
         meshpath: Path to the mesh file.
@@ -141,25 +144,27 @@ def load_mesh(
                        Defaults to False.
 
     Returns:
-        A tuple containing:
+        Dictionary containing:
         - coords: NDArray of node coordinates
         - elements: Dictionary mapping element types to arrays of elements
         - boundaries: Dictionary mapping boundary element types to arrays
+        - dim: Mesh dimension
+        - num_point: Number of points
     """
     try:
         suffix = Path(meshpath).suffix.lower()
         if suffix in ['.mesh', '.meshb']:
-            coords, elms, bnds = gmf.load_mesh(meshpath)
+            mesh_data = gmf.load_mesh(meshpath)
         elif suffix == '.su2':
-            coords, elms, bnds = su2.load_mesh(meshpath, markerpath, write_markers)
+            mesh_data = su2.load_mesh(meshpath, markerpath, write_markers)
         else:
             raise ValueError(f'Unsupported mesh file format: {suffix}. Supported formats are .mesh, .meshb, and .su2')
 
-        return coords, elms, bnds
+        return mesh_data
 
     except Exception as e:
         print(f'Error reading mesh: {e}')
-        return None, None, None
+        return {}
 
 
 def write_mesh(

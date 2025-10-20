@@ -10,7 +10,7 @@
 namespace limon {
 namespace su2 {
 
-py::tuple load_mesh(const std::string& meshpath, const std::string& markerpath, bool write_markers) {
+py::dict load_mesh(const std::string& meshpath, const std::string& markerpath, bool write_markers) {
     // Check if file exists
     std::ifstream mesh_file(meshpath);
     if (!mesh_file.is_open()) {
@@ -106,7 +106,15 @@ py::tuple load_mesh(const std::string& meshpath, const std::string& markerpath, 
     py::dict boundaries;
     read_boundary_elements(mesh_file, boundary_count, boundaries, markerpath, write_markers);
 
-    return py::make_tuple(coords, elements, boundaries);
+    // Return mesh data as a dictionary
+    py::dict mesh_data;
+    mesh_data["coords"] = coords;
+    mesh_data["elements"] = elements;
+    mesh_data["boundaries"] = boundaries;
+    mesh_data["dim"] = dim;
+    mesh_data["num_point"] = num_point;
+
+    return mesh_data;
 }
 
 bool write_mesh(const std::string& meshpath, py::array_t<double> coords,

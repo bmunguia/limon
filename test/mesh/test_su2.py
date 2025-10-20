@@ -46,7 +46,7 @@ def output_dir(request):
 @pytest.fixture
 def mesh_data_binary(meshpath_in, solpath_in_binary, markerpath, labelpath):
     """Load the 2D mesh and binary solution."""
-    data = load_mesh_and_solution(
+    mesh_data = load_mesh_and_solution(
         meshpath_in,
         solpath_in_binary,
         markerpath=markerpath,
@@ -54,13 +54,13 @@ def mesh_data_binary(meshpath_in, solpath_in_binary, markerpath, labelpath):
         write_markers=True,
         write_labels=True,
     )
-    return data
+    return mesh_data
 
 
 @pytest.fixture
 def mesh_data_ascii(meshpath_in, solpath_in_ascii, markerpath, labelpath):
     """Load the 2D mesh and ASCII solution."""
-    data = load_mesh_and_solution(
+    mesh_data = load_mesh_and_solution(
         meshpath_in,
         solpath_in_ascii,
         markerpath=markerpath,
@@ -68,12 +68,15 @@ def mesh_data_ascii(meshpath_in, solpath_in_ascii, markerpath, labelpath):
         write_markers=True,
         write_labels=True,
     )
-    return data
+    return mesh_data
 
 
 def test_read_su2_binary(mesh_data_binary, markerpath, labelpath):
     """Test reading a binary (.dat) SU2 mesh file."""
-    coords, elements, boundaries, solution = mesh_data_binary
+    coords = mesh_data_binary['coords']
+    elements = mesh_data_binary['elements']
+    boundaries = mesh_data_binary['boundaries']
+    solution = mesh_data_binary['solution']
 
     # Assert that the mesh data is loaded correctly
     assert coords.shape[0] > 0  # Ensure there are points
@@ -85,7 +88,10 @@ def test_read_su2_binary(mesh_data_binary, markerpath, labelpath):
 
 def test_read_su2_ascii(mesh_data_ascii, markerpath, labelpath):
     """Test reading an ASCII (.csv) SU2 mesh file."""
-    coords, elements, boundaries, solution = mesh_data_ascii
+    coords = mesh_data_ascii['coords']
+    elements = mesh_data_ascii['elements']
+    boundaries = mesh_data_ascii['boundaries']
+    solution = mesh_data_ascii['solution']
 
     # Assert that the mesh data is loaded correctly
     assert coords.shape[0] > 0  # Ensure there are points
@@ -99,7 +105,10 @@ def test_su2_binary_to_binary(mesh_data_binary, output_dir, markerpath, labelpat
     """Test reading a SU2 mesh file and binary solution, and writing it back
     with a binary solution.
     """
-    coords, elements, boundaries, solution = mesh_data_binary
+    coords = mesh_data_binary['coords']
+    elements = mesh_data_binary['elements']
+    boundaries = mesh_data_binary['boundaries']
+    solution = mesh_data_binary['solution']
 
     # Output paths
     meshpath_out = output_dir / 'naca_with_sol.su2'
@@ -128,7 +137,10 @@ def test_su2_binary_to_ascii(mesh_data_binary, output_dir, markerpath, labelpath
     """Test reading a SU2 mesh file and binary solution, and writing it back
     with an ASCII solution.
     """
-    coords, elements, boundaries, solution = mesh_data_binary
+    coords = mesh_data_binary['coords']
+    elements = mesh_data_binary['elements']
+    boundaries = mesh_data_binary['boundaries']
+    solution = mesh_data_binary['solution']
 
     # Output paths
     meshpath_out = output_dir / 'naca_with_sol.su2'
@@ -157,7 +169,10 @@ def test_su2_ascii_to_ascii(mesh_data_ascii, output_dir, markerpath, labelpath, 
     """Test reading a SU2 mesh file and ASCII solution, and writing it back
     with an ASCII solution.
     """
-    coords, elements, boundaries, solution = mesh_data_ascii
+    coords = mesh_data_ascii['coords']
+    elements = mesh_data_ascii['elements']
+    boundaries = mesh_data_ascii['boundaries']
+    solution = mesh_data_ascii['solution']
 
     # Output paths
     meshpath_out = output_dir / 'naca_with_sol.su2'
@@ -186,7 +201,10 @@ def test_su2_ascii_to_binary(mesh_data_ascii, output_dir, markerpath, labelpath,
     """Test reading a SU2 mesh file and ASCII solution, and writing it back
     with a binary solution.
     """
-    coords, elements, boundaries, solution = mesh_data_ascii
+    coords = mesh_data_ascii['coords']
+    elements = mesh_data_ascii['elements']
+    boundaries = mesh_data_ascii['boundaries']
+    solution = mesh_data_ascii['solution']
 
     # Output paths
     meshpath_out = output_dir / 'naca_with_sol.su2'
@@ -217,10 +235,12 @@ def test_su2_ascii_to_binary(mesh_data_ascii, output_dir, markerpath, labelpath,
 def compare_solutions(meshpath_in, solpath_in, meshpath_out, solpath_out):
     """Read the new solution and compare it to the original."""
     # Read the original solution
-    _, _, _, sol_in = load_mesh_and_solution(meshpath_in, solpath_in)
+    mesh_data_in = load_mesh_and_solution(meshpath_in, solpath_in)
+    sol_in = mesh_data_in['solution']
 
     # Read the rewritten solution
-    _, _, _, sol_out = load_mesh_and_solution(meshpath_out, solpath_out)
+    mesh_data_out = load_mesh_and_solution(meshpath_out, solpath_out)
+    sol_out = mesh_data_out['solution']
 
     assert sol_out.keys() == sol_in.keys(), 'Solution fields mismatch'
 

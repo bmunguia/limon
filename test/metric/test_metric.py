@@ -55,7 +55,10 @@ def output_dir(request):
 def mesh_data(request):
     """Load mesh and create sample solution for different dimensions."""
     config = request.param
-    coords, elements, boundaries = load_mesh(config['meshpath'])
+    mesh_dict = load_mesh(config['meshpath'])
+    coords = mesh_dict['coords']
+    elements = mesh_dict['elements']
+    boundaries = mesh_dict['boundaries']
 
     num_point = coords.shape[0]
     num_dim = coords.shape[1]
@@ -265,7 +268,10 @@ def test_perturb_metric_field(mesh_data, output_dir):
 def mesh_data_2d():
     """Load the 2D mesh and create a sample solution - specific for nonuniform test."""
     meshpath_in = 'example/square/square.mesh'
-    coords, elements, boundaries = load_mesh(meshpath_in)
+    mesh_dict = load_mesh(meshpath_in)
+    coords = mesh_dict['coords']
+    elements = mesh_dict['elements']
+    boundaries = mesh_dict['boundaries']
 
     num_point = coords.shape[0]
     num_dim = coords.shape[1]
@@ -412,8 +418,8 @@ def test_edge_length_at_endpoints(mesh_data):
 )
 def test_identity_metric_edge_length(dim, coords, edges, identity_metric, expected_lengths):
     """Test that identity metric gives Euclidean edge lengths."""
-    num_points = coords.shape[0]
-    metrics = np.tile(identity_metric, (num_points, 1))  # Same metric at all points
+    num_point = coords.shape[0]
+    metrics = np.tile(identity_metric, (num_point, 1))  # Same metric at all points
 
     # Test both functions
     lengths_endpoints = metric_edge_length_at_endpoints(edges, coords, metrics)
@@ -458,8 +464,8 @@ def test_identity_metric_edge_length(dim, coords, edges, identity_metric, expect
 )
 def test_metric_edge_length(dim, coords, edges, metric, expected_scale_factor):
     """Test metric edge length functions with scaled metrics."""
-    num_points = coords.shape[0]
-    metrics = np.tile(metric, (num_points, 1))  # Same metric at all points
+    num_point = coords.shape[0]
+    metrics = np.tile(metric, (num_point, 1))  # Same metric at all points
 
     # Expected Euclidean lengths for unit edges
     if dim == 2:

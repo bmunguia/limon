@@ -32,8 +32,10 @@ def labelpath(output_dir):
 @pytest.fixture
 def mesh_data_3d(meshpath_in_3d):
     """Load the 3D mesh and create a sample solution."""
-    data = load_mesh(meshpath_in_3d)
-    coords, elements, boundaries = data
+    mesh_data = load_mesh(meshpath_in_3d)
+    coords = mesh_data['coords']
+    elements = mesh_data['elements']
+    boundaries = mesh_data['boundaries']
 
     num_point = coords.shape[0]
     num_dim = coords.shape[1]
@@ -57,8 +59,10 @@ def mesh_data_3d(meshpath_in_3d):
 @pytest.fixture
 def mesh_data_2d(meshpath_in_2d):
     """Load the 2D mesh and create a sample solution."""
-    data = load_mesh(meshpath_in_2d)
-    coords, elements, boundaries = data
+    mesh_data = load_mesh(meshpath_in_2d)
+    coords = mesh_data['coords']
+    elements = mesh_data['elements']
+    boundaries = mesh_data['boundaries']
 
     num_point = coords.shape[0]
     num_dim = coords.shape[1]

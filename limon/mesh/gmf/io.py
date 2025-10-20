@@ -7,27 +7,28 @@ from . import libgmf
 
 def load_mesh(
     meshpath: PathLike | str,
-) -> tuple[NDArray, dict, dict, dict]:
+) -> dict:
     r"""Read mesh data from a GMF mesh (.meshb) file.
 
     Args:
         meshpath: Path to the mesh file.
 
     Returns:
-        A tuple containing:
+        Dictionary containing mesh data with keys:
         - coords: NDArray of node coordinates
         - elements: Dictionary mapping element types to arrays of elements
         - boundaries: Dictionary mapping boundary element types to arrays
+        - dim: Mesh dimension
+        - num_point: Number of points
     """
     try:
         meshpath = str(meshpath)
-        coords, elms, bnds = libgmf.load_mesh(meshpath)
-
-        return coords, elms, bnds
+        mesh_data = libgmf.load_mesh(meshpath)
+        return mesh_data
 
     except Exception as e:
         print(f'Error reading mesh: {e}')
-        return None, None, None
+        return {}
 
 
 def write_mesh(

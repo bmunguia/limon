@@ -15,9 +15,9 @@ namespace gmf {
  * Read mesh data from a GMF mesh (.meshb) file.
  *
  * @param meshpath Path to the mesh file
- * @return Tuple containing coordinates, elements, and optionally solution data
+ * @return Dictionary containing mesh data with keys: coords, elements, boundaries, dim, num_point
  */
-py::tuple load_mesh(const std::string& meshpath);
+py::dict load_mesh(const std::string& meshpath);
 
 /**
  * Write mesh data to a GMF mesh (.meshb) file.

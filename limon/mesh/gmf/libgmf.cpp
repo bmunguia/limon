@@ -25,11 +25,11 @@ PYBIND11_MODULE(libgmf, m) {
      * Read mesh data from a GMF mesh (.meshb) file.
      *
      * @param meshpath Path to the mesh file
-     * @return Tuple containing coordinates and element data
+     * @return Dictionary containing mesh data with keys: coords, elements, boundaries, dim, num_point
      */
     m.def("load_mesh", &limon::gmf::load_mesh,
           py::arg("meshpath"),
-          "Read a meshb file and return coordinates and element data.");
+          "Read a meshb file and return mesh data as a dictionary.");
 
     /**
      * Write mesh data to a GMF mesh (.meshb) file.

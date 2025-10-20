@@ -13,7 +13,7 @@ extern "C" {
 namespace limon {
 namespace gmf {
 
-py::tuple load_mesh(const std::string& meshpath) {
+py::dict load_mesh(const std::string& meshpath) {
     int version;
     int dim;
 
@@ -64,7 +64,15 @@ py::tuple load_mesh(const std::string& meshpath) {
     // Close the mesh
     GmfCloseMesh(mesh_id);
 
-    return py::make_tuple(coords, elements, boundaries);
+    // Return mesh data as a dictionary
+    py::dict mesh_data;
+    mesh_data["coords"] = coords;
+    mesh_data["elements"] = elements;
+    mesh_data["boundaries"] = boundaries;
+    mesh_data["dim"] = dim;
+    mesh_data["num_point"] = static_cast<int>(num_ver);
+
+    return mesh_data;
 }
 
 bool write_mesh(const std::string& meshpath, py::array_t<double> coords,

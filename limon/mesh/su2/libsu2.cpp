@@ -26,13 +26,13 @@
       * @param meshpath Path to the mesh file
       * @param markerpath Path to the map between marker strings and ref IDs (optional)
       * @param write_markers Whether to write the markers to the file specified in markerpath
-      * @return Tuple containing coordinates and element data
+      * @return Dictionary containing mesh data with keys: coords, elements, boundaries, dim, num_point
       */
      m.def("load_mesh", &limon::su2::load_mesh,
           py::arg("meshpath"),
           py::arg("markerpath") = "",
           py::arg("write_markers") = false,
-          "Read a SU2 mesh file, and return nodes and element data.");
+          "Read a SU2 mesh file and return mesh data as a dictionary.");
 
      /**
       * Write mesh data to a SU2 mesh (.su2) file.

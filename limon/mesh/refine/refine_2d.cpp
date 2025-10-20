@@ -25,7 +25,7 @@ struct Edge {
 };
 
 
-py::tuple refine_2d(py::array_t<double> coords, const py::dict& elements, const py::dict& boundaries) {
+py::dict refine_2d(py::array_t<double> coords, const py::dict& elements, const py::dict& boundaries) {
 
     auto coords_buf = coords.request();
     auto* coords_ptr = static_cast<double*>(coords_buf.ptr);
@@ -186,7 +186,15 @@ py::tuple refine_2d(py::array_t<double> coords, const py::dict& elements, const 
     int new_num_pts = new_coords_vec.size() / dim;
     py::array_t<double> new_coords({new_num_pts, dim}, new_coords_vec.data());
 
-    return py::make_tuple(new_coords, new_elements, new_boundaries);
+    // Return refined mesh data as a dictionary
+    py::dict mesh_data;
+    mesh_data["coords"] = new_coords;
+    mesh_data["elements"] = new_elements;
+    mesh_data["boundaries"] = new_boundaries;
+    mesh_data["dim"] = dim;
+    mesh_data["num_point"] = new_num_pts;
+
+    return mesh_data;
 }
 
 } // namespace mesh

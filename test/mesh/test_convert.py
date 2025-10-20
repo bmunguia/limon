@@ -85,7 +85,10 @@ def gmf_mesh_data(gmf_meshpath_in, gmf_solpath_in, markerpath_in, labelpath_in):
 
 def test_su2_to_gmf(su2_mesh_data, output_dir):
     """Test reading a SU2 mesh file and solution, and writing it to GMF files."""
-    coords, elements, boundaries, solution = su2_mesh_data
+    coords = su2_mesh_data['coords']
+    elements = su2_mesh_data['elements']
+    boundaries = su2_mesh_data['boundaries']
+    solution = su2_mesh_data['solution']
 
     # Output paths
     meshpath_out = output_dir / 'naca_with_sol.meshb'
@@ -111,7 +114,10 @@ def test_su2_to_gmf(su2_mesh_data, output_dir):
 
 def test_gmf_to_su2(gmf_mesh_data, output_dir, markerpath_in):
     """Test reading a GMF mesh file and solution, and writing it to SU2 files."""
-    coords, elements, boundaries, solution = gmf_mesh_data
+    coords = gmf_mesh_data['coords']
+    elements = gmf_mesh_data['elements']
+    boundaries = gmf_mesh_data['boundaries']
+    solution = gmf_mesh_data['solution']
 
     # Output paths
     meshpath_out = output_dir / 'square.su2'

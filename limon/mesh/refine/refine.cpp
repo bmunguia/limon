@@ -18,7 +18,8 @@ PYBIND11_MODULE(_refine, m) {
           py::arg("coords"),
           py::arg("elements"),
           py::arg("boundaries"),
-          "Refine a 2D mesh by one level (uniform).");
+          "Refine a 2D mesh by one level (uniform). "
+          "Returns a dictionary with keys: coords, elements, boundaries, dim, num_point.");
 
     // m.def("refine_3d", &limon::mesh::refine_3d,
     //       py::arg("coords"),
