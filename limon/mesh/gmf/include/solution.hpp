@@ -17,11 +17,13 @@ namespace gmf {
  * @param solpath Path to the solution file
  * @param num_ver Number of vertices
  * @param dim Mesh dimension
- * @param labelpath Path to the map between solution strings and ref IDs
- * @return Dictionary of solution fields
+ * @param label_map Dictionary mapping label IDs to label names (optional)
+ * @param read_labels Whether to read labels from labelpath file
+ * @param labelpath Path to the label reference map file
+ * @return Tuple of (solution dict, label_map dict)
  */
-py::dict load_solution(const std::string& solpath, int64_t num_ver, int dim,
-                       const std::string& labelpath);
+py::tuple load_solution(const std::string& solpath, int64_t num_ver, int dim,
+                        py::dict label_map, bool read_labels, const std::string& labelpath);
 
 /**
  * Write solution data to a GMF solution (.solb) file.

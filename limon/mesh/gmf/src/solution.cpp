@@ -14,16 +14,29 @@ extern "C" {
 namespace limon {
 namespace gmf {
 
-py::dict load_solution(const std::string& solpath, int64_t num_ver, int dim,
-                       const std::string& labelpath) {
+py::tuple load_solution(const std::string& solpath, int64_t num_ver, int dim,
+                        py::dict label_map, bool read_labels, const std::string& labelpath) {
     py::dict sol;
     int version;
     int dim_sol;
 
-    // Load solution label map from file if provided
+    // Load or initialize label map
     std::map<int, std::string> ref_map;
-    if (!labelpath.empty()) {
-        ref_map = RefMap::loadRefMap(labelpath);
+    if (read_labels || label_map.empty()) {
+        label_map.clear();
+        if (!labelpath.empty()) {
+            ref_map = RefMap::loadRefMap(labelpath);
+            for (const auto& pair : ref_map) {
+                label_map[py::int_(pair.first)] = py::str(pair.second);
+            }
+        }
+    } else {
+        // Convert Python dict to C++ map
+        for (auto item : label_map) {
+            int key = item.first.cast<int>();
+            std::string value = item.second.cast<std::string>();
+            ref_map[key] = value;
+        }
     }
 
     // Open the solution
@@ -87,10 +100,22 @@ py::dict load_solution(const std::string& solpath, int64_t num_ver, int dim,
         }
     }
 
+    // Update the label_map with discovered fields
+    for (auto item : sol) {
+        std::string field_name = item.first.cast<std::string>();
+        // Find the ref_id for this field name
+        for (const auto& pair : ref_map) {
+            if (pair.second == field_name) {
+                label_map[py::int_(pair.first)] = py::str(pair.second);
+                break;
+            }
+        }
+    }
+
     // Close the solution
     GmfCloseMesh(sol_id);
 
-    return sol;
+    return py::make_tuple(sol, label_map);
 }
 
 bool write_solution(const std::string& solpath, py::dict sol_data, int64_t num_ver, int dim) {

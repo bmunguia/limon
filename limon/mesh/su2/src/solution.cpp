@@ -251,12 +251,12 @@ py::dict process_solution_fields(const std::vector<std::string>& field_names,
     return sol;
 }
 
-py::dict load_solution(const std::string& solpath, int num_point, int dim, const std::string& labelpath, bool write_labels) {
+py::tuple load_solution(const std::string& solpath, int num_point, int dim, bool write_labels, const std::string& labelpath) {
     py::dict sol;
 
     std::ifstream file_check(solpath, std::ios::in | std::ios::binary);
     if (!file_check.is_open()) {
-        return sol;
+        return py::make_tuple(sol, py::dict());
     }
 
     // Check for the SU2 magic number
@@ -270,17 +270,27 @@ py::dict load_solution(const std::string& solpath, int num_point, int dim, const
         sol = load_solution_ascii(solpath, num_point, dim);
     }
 
+    // Build label_map from solution fields
+    py::dict label_map;
+    int ref_id = 1;
+    for (auto& [sol_id, _] : sol) {
+        std::string field_name = sol_id.cast<std::string>();
+        label_map[py::int_(ref_id)] = py::str(field_name);
+        ref_id++;
+    }
+
     // Save updated solution label map back to file if provided
     if (write_labels && !labelpath.empty()) {
         std::map<int, std::string> ref_map;
-        int ref_id = 1;
-        for (auto& [sol_id, _] : sol) {
-            ref_map[ref_id++] = sol_id.cast<std::string>();
+        for (auto item : label_map) {
+            int key = item.first.cast<int>();
+            std::string value = item.second.cast<std::string>();
+            ref_map[key] = value;
         }
         RefMap::writeRefMap(ref_map, labelpath, RefMapKind::Solution);
     }
 
-    return sol;
+    return py::make_tuple(sol, label_map);
 }
 
 bool write_solution_ascii(const std::string& solpath, py::dict sol, int num_point, int dim) {
@@ -465,8 +475,7 @@ bool write_solution_binary(const std::string& solpath, py::dict sol, int num_poi
     return true;
 }
 
-bool write_solution(const std::string& solpath, py::dict sol, int num_point, int dim,
-                    const std::string& labelpath) {
+bool write_solution(const std::string& solpath, py::dict sol, int num_point, int dim) {
     // Check file extension to determine format
     std::string extension;
     size_t dot_pos = solpath.find_last_of('.');

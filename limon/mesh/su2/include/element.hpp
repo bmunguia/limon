@@ -34,13 +34,13 @@ void read_boundary_element_type(std::ifstream& file_stream, int marker_idx, int 
                                int elem_type, py::dict& boundaries, const std::string& key_name);
 
 void read_boundary_elements_2D(std::ifstream& file_stream, int marker_idx, int marker_elements,
-                              py::dict& boundaries);
+                               py::dict& boundaries);
 
 void read_boundary_elements_3D(std::ifstream& file_stream, int marker_idx, int marker_elements,
-                              py::dict& boundaries);
+                               py::dict& boundaries);
 
-bool read_boundary_elements(std::ifstream& file_stream, int boundary_count, py::dict& boundaries,
-                            const std::string& markerpath = "", bool write_markers = false);
+std::map<int, std::string> read_boundary_elements(std::ifstream& file_stream, int boundary_count, py::dict& boundaries,
+                                                  bool write_markers = false, const std::string& markerpath = "");
 
 void write_element_type(std::ofstream& mesh_file, int elem_type, py::array_t<unsigned int>& element_array);
 
@@ -57,7 +57,7 @@ void write_boundary_elements_3D(std::ofstream& mesh_file, const py::dict& bounda
                                 std::map<int, std::string>& ref_map);
 
 int write_boundary_elements(std::ofstream& mesh_file, const py::dict& boundaries,
-                            const std::string& markerpath = "");
+                            const std::map<int, std::string>& marker_map);
 
 } // namespace su2
 } // namespace limon

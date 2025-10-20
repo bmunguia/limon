@@ -24,28 +24,28 @@
       * Read mesh data from a SU2 mesh (.su2) file.
       *
       * @param meshpath Path to the mesh file
-      * @param markerpath Path to the map between marker strings and ref IDs (optional)
       * @param write_markers Whether to write the markers to the file specified in markerpath
-      * @return Dictionary containing mesh data with keys: coords, elements, boundaries, dim, num_point
+      * @param markerpath Path to write the marker reference map file
+      * @return Tuple of (mesh_data dict, marker_map dict)
       */
      m.def("load_mesh", &limon::su2::load_mesh,
           py::arg("meshpath"),
-          py::arg("markerpath") = "",
           py::arg("write_markers") = false,
-          "Read a SU2 mesh file and return mesh data as a dictionary.");
+          py::arg("markerpath") = "",
+          "Read a SU2 mesh file and return tuple of (mesh_data, marker_map).");
 
      /**
       * Write mesh data to a SU2 mesh (.su2) file.
       *
       * @param meshpath Path to the mesh file
       * @param mesh_data Dictionary containing mesh data with keys: coords, elements, boundaries
-      * @param markerpath Path to the map between marker strings and ref IDs (optional)
+      * @param marker_map Dictionary mapping marker IDs to marker names
       * @return Boolean indicating success
       */
      m.def("write_mesh", &limon::su2::write_mesh,
           py::arg("meshpath"),
           py::arg("mesh_data"),
-          py::arg("markerpath") = "",
+          py::arg("marker_map") = py::dict(),
           "Write mesh data to a SU2 mesh file.");
 
     /**
@@ -54,17 +54,17 @@
      * @param solpath Path to the solution file
      * @param num_ver Number of vertices
      * @param dim Mesh dimension
-     * @param labelpath Path to the map between solution strings and ref IDs
-   * @param write_labels Whether to write the labels to the file specified in labelpath
-     * @return Dictionary of solution fields
+     * @param write_labels Whether to write the labels to the file specified in labelpath
+     * @param labelpath Path to write the label reference map file
+     * @return Tuple of (solution dict, label_map dict)
      */
     m.def("load_solution", &limon::su2::load_solution,
         py::arg("solpath"),
         py::arg("num_ver"),
         py::arg("dim"),
-        py::arg("labelpath") = "",
         py::arg("write_labels") = false,
-        "Read a SU2 solution file and return solution fields as a dictionary");
+        py::arg("labelpath") = "",
+        "Read a SU2 solution file and return tuple of (solution, label_map)");
 
   /**
    * Write solution data to a SU2 solution (.dat) file.
@@ -73,7 +73,6 @@
    * @param sol Dictionary of solution fields
    * @param num_ver Number of vertices
    * @param dim Mesh dimension
-   * @param labelpath Path to the map between solution strings and ref IDs
    * @return Boolean indicating success
    */
   m.def("write_solution", &limon::su2::write_solution,
@@ -81,6 +80,5 @@
         py::arg("sol"),
         py::arg("num_ver"),
         py::arg("dim"),
-        py::arg("labelpath") = "",
         "Write solution fields to a SU2 solution file");
  }

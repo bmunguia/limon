@@ -6,6 +6,7 @@ extern "C" {
 #include <libmeshb7.h>
 }
 
+#include "../../ref_map.hpp"
 #include "../../util.hpp"
 #include "../include/element.hpp"
 #include "../include/mesh.hpp"
@@ -13,9 +14,21 @@ extern "C" {
 namespace limon {
 namespace gmf {
 
-py::dict load_mesh(const std::string& meshpath) {
+py::tuple load_mesh(const std::string& meshpath, py::dict marker_map,
+                    bool read_markers, const std::string& markerpath) {
     int version;
     int dim;
+
+    // Load or initialize marker map
+    if (read_markers || marker_map.empty()) {
+        marker_map.clear();
+        if (!markerpath.empty()) {
+            auto cpp_map = RefMap::loadRefMap(markerpath);
+            for (const auto& pair : cpp_map) {
+                marker_map[py::int_(pair.first)] = py::str(pair.second);
+            }
+        }
+    }
 
     // Open the mesh
     int64_t mesh_id = GmfOpenMesh(meshpath.c_str(), GmfRead, &version, &dim);
@@ -72,7 +85,7 @@ py::dict load_mesh(const std::string& meshpath) {
     mesh_data["dim"] = dim;
     mesh_data["num_point"] = static_cast<int>(num_ver);
 
-    return mesh_data;
+    return py::make_tuple(mesh_data, marker_map);
 }
 
 bool write_mesh(const std::string& meshpath, const py::dict& mesh_data) {

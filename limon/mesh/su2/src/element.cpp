@@ -231,27 +231,22 @@ void read_boundary_element_type(std::ifstream& file_stream, int marker_idx, int 
 }
 
 void read_boundary_elements_2D(std::ifstream& file_stream, int marker_idx, int marker_elements,
-                              py::dict& boundaries) {
+                               py::dict& boundaries) {
     // In 2D, boundaries are primarily edges (type 3)
     read_boundary_element_type(file_stream, marker_idx, marker_elements, 3, boundaries, "Edges");
 }
 
 void read_boundary_elements_3D(std::ifstream& file_stream, int marker_idx, int marker_elements,
-                              py::dict& boundaries) {
+                               py::dict& boundaries) {
     // In 3D, boundaries can be triangles (type 5) or quadrilaterals (type 9)
     read_boundary_element_type(file_stream, marker_idx, marker_elements, 5, boundaries, "Triangles");
     read_boundary_element_type(file_stream, marker_idx, marker_elements, 9, boundaries, "Quadrilaterals");
 }
 
-bool read_boundary_elements(std::ifstream& file_stream, int boundary_count, py::dict& boundaries,
-                            const std::string& markerpath, bool write_markers) {
-    if (boundary_count <= 0) {
-        return true;
-    }
-
-    std::string line;
-
+std::map<int, std::string> read_boundary_elements(std::ifstream& file_stream, int boundary_count, py::dict& boundaries,
+                                                  bool write_markers, const std::string& markerpath) {
     // Process each boundary marker
+    std::string line;
     std::map<int, std::string> ref_map;
     for (int marker_idx = 0; marker_idx < boundary_count; marker_idx++) {
         // Find marker tag
@@ -315,7 +310,7 @@ bool read_boundary_elements(std::ifstream& file_stream, int boundary_count, py::
         RefMap::writeRefMap(ref_map, markerpath, RefMapKind::Marker);
     }
 
-    return true;
+    return ref_map;
 }
 
 void write_element_type(std::ofstream& mesh_file, int elem_type, py::array_t<unsigned int>& element_array) {
@@ -516,16 +511,13 @@ void write_boundary_elements_3D(std::ofstream& mesh_file, const py::dict& bounda
 }
 
 int write_boundary_elements(std::ofstream& mesh_file, const py::dict& boundaries,
-                            const std::string& markerpath) {
+                            const std::map<int, std::string>& marker_map) {
     if (boundaries.empty()) {
         return 0;
     }
 
-    // Load marker map from file if provided
-    std::map<int, std::string> ref_map;
-    if (!markerpath.empty()) {
-        ref_map = RefMap::loadRefMap(markerpath);
-    }
+    // Use provided marker map
+    std::map<int, std::string> ref_map = marker_map;
 
     // Write both 2D and 3D boundaries
     write_boundary_elements_2D(mesh_file, boundaries, ref_map);

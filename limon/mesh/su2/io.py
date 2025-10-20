@@ -7,41 +7,38 @@ from . import libsu2
 
 def load_mesh(
     meshpath: PathLike | str,
-    markerpath: PathLike | str | None = None,
     write_markers: bool = False,
-) -> dict:
+    markerpath: PathLike | str | None = None,
+) -> tuple[dict, dict[int, str]]:
     r"""Read a SU2 mesh file and return nodes and element as numpy arrays.
 
     Args:
         meshpath: Path to the mesh file.
-        markerpath: Path to the map between marker strings and
-                    ref IDs. Defaults to None.
         write_markers: Whether to write the marker reference map.
                        Defaults to False.
+        markerpath: Path to write the marker reference map file.
+                    Defaults to None.
 
     Returns:
-        Dictionary containing mesh data with keys:
-        - coords: NDArray of node coordinates
-        - elements: Dictionary mapping element types to arrays of elements
-        - boundaries: Dictionary mapping boundary element types to arrays
-        - dim: Mesh dimension
-        - num_point: Number of points
+        Tuple of (mesh_data, marker_map) where:
+        - mesh_data: Dictionary with keys: coords, elements, boundaries, dim, num_point
+        - marker_map: Dictionary mapping marker IDs to names
     """
     try:
         meshpath = str(meshpath)
         markerpath = str(markerpath) if markerpath is not None else ''
-        mesh_data = libsu2.load_mesh(meshpath, markerpath, write_markers)
-        return mesh_data
+        mesh_data, marker_map = libsu2.load_mesh(meshpath, write_markers, markerpath)
+        return mesh_data, marker_map
 
     except Exception as e:
         print(f'Error reading mesh: {e}')
-        return {}
+        return {}, {}
 
 
 def write_mesh(
     meshpath: PathLike | str,
     mesh_data: dict,
-    markerpath: PathLike | str | None = None,
+    marker_map: dict[int, str] | None = None,
 ) -> bool:
     r"""Write mesh data to a SU2 mesh (.su2) file.
 
@@ -49,16 +46,16 @@ def write_mesh(
         meshpath: Path to the mesh file.
         mesh_data: Dictionary containing mesh data with keys:
                    coords, elements, boundaries
-        markerpath: Path to the map between marker strings and
-                    ref IDs. Defaults to None.
+        marker_map: Dictionary mapping marker IDs to names. Defaults to None.
 
     Returns:
         bool: True if successful, False otherwise
     """
     try:
         meshpath = str(meshpath)
-        markerpath = str(markerpath) if markerpath is not None else ''
-        success = libsu2.write_mesh(meshpath, mesh_data, markerpath)
+        if marker_map is None:
+            marker_map = {}
+        success = libsu2.write_mesh(meshpath, mesh_data, marker_map)
         return success
 
     except Exception as e:
@@ -70,30 +67,33 @@ def load_solution(
     solpath: PathLike | str,
     num_point: int,
     dim: int,
-    labelpath: PathLike | str | None = None,
     write_labels: bool = False,
-) -> dict[str, NDArray]:
+    labelpath: PathLike | str | None = None,
+) -> tuple[dict[str, NDArray], dict[int, str]]:
     r"""Read solution data from a SU2 solution file.
 
     Args:
         solpath: Path to the solution file.
         num_point: Number of points.
         dim: Mesh dimension.
-        labelpath: Path to the map between solution strings and
-                   ref IDs. Defaults to None.
         write_labels: Whether to write the solution label reference map.
                       Defaults to False.
+        labelpath: Path to write the label reference map file.
+                   Defaults to None.
 
     Returns:
-        dict[str, NDArray]: Dictionary of solution fields.
+        Tuple of (solution, label_map) where:
+        - solution: Dictionary of solution fields
+        - label_map: Dictionary mapping label IDs to names
     """
     try:
         solpath = str(solpath)
         labelpath = str(labelpath) if labelpath is not None else ''
-        return libsu2.load_solution(solpath, num_point, dim, labelpath, write_labels)
+        solution, label_map = libsu2.load_solution(solpath, num_point, dim, write_labels, labelpath)
+        return solution, label_map
     except Exception as e:
         print(f'Error reading solution: {e}')
-        return {}
+        return {}, {}
 
 
 def write_solution(
@@ -101,7 +101,6 @@ def write_solution(
     solution: dict[str, NDArray],
     num_point: int,
     dim: int,
-    labelpath: PathLike | str | None = None,
 ) -> bool:
     r"""Write solution data to a SU2 solution (.dat) file.
 
@@ -110,16 +109,13 @@ def write_solution(
         solution: Dictionary of solution fields.
         num_point: Number of points.
         dim: Mesh dimension.
-        labelpath: Path to the map between solution strings and
-                   ref IDs. Defaults to None.
 
     Returns:
         bool: True if successful, False otherwise.
     """
     try:
         solpath = str(solpath)
-        labelpath = str(labelpath) if labelpath is not None else ''
-        return libsu2.write_solution(solpath, solution, num_point, dim, labelpath)
+        return libsu2.write_solution(solpath, solution, num_point, dim)
     except Exception as e:
         print(f'Error writing solution: {e}')
         return False

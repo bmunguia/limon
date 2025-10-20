@@ -10,7 +10,7 @@
 namespace limon {
 namespace su2 {
 
-py::dict load_mesh(const std::string& meshpath, const std::string& markerpath, bool write_markers) {
+py::tuple load_mesh(const std::string& meshpath, bool write_markers, const std::string& markerpath) {
     // Check if file exists
     std::ifstream mesh_file(meshpath);
     if (!mesh_file.is_open()) {
@@ -104,7 +104,13 @@ py::dict load_mesh(const std::string& meshpath, const std::string& markerpath, b
     }
 
     py::dict boundaries;
-    read_boundary_elements(mesh_file, boundary_count, boundaries, markerpath, write_markers);
+    std::map<int, std::string> ref_map = read_boundary_elements(mesh_file, boundary_count, boundaries, write_markers, markerpath);
+
+    // Convert C++ map to Python dict
+    py::dict marker_map;
+    for (const auto& pair : ref_map) {
+        marker_map[py::int_(pair.first)] = py::str(pair.second);
+    }
 
     // Return mesh data as a dictionary
     py::dict mesh_data;
@@ -114,11 +120,11 @@ py::dict load_mesh(const std::string& meshpath, const std::string& markerpath, b
     mesh_data["dim"] = dim;
     mesh_data["num_point"] = num_point;
 
-    return mesh_data;
+    return py::make_tuple(mesh_data, marker_map);
 }
 
 bool write_mesh(const std::string& meshpath, const py::dict& mesh_data,
-                const std::string& markerpath) {
+                const py::dict& marker_map) {
     // Validate required keys
     if (!mesh_data.contains("coords")) {
         throw std::runtime_error("mesh_data must contain 'coords' key");
@@ -134,6 +140,14 @@ bool write_mesh(const std::string& meshpath, const py::dict& mesh_data,
     py::array_t<double> coords = mesh_data["coords"].cast<py::array_t<double>>();
     py::dict elements = mesh_data["elements"].cast<py::dict>();
     py::dict boundaries = mesh_data["boundaries"].cast<py::dict>();
+
+    // Convert Python marker_map to C++ map
+    std::map<int, std::string> ref_map;
+    for (auto item : marker_map) {
+        int key = item.first.cast<int>();
+        std::string value = item.second.cast<std::string>();
+        ref_map[key] = value;
+    }
 
     // Get dimensions
     int dim = coords.shape(1);
@@ -216,7 +230,7 @@ bool write_mesh(const std::string& meshpath, const py::dict& mesh_data,
     mesh_file << "% Boundary elements" << std::endl;
     mesh_file << "%" << std::endl;
     mesh_file << "NMARK= " << marker_count << std::endl;
-    write_boundary_elements(mesh_file, boundaries, markerpath);
+    write_boundary_elements(mesh_file, boundaries, ref_map);
 
     mesh_file.close();
 

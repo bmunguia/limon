@@ -7,28 +7,34 @@ from . import libgmf
 
 def load_mesh(
     meshpath: PathLike | str,
-) -> dict:
+    marker_map: dict[int, str] | None = None,
+    read_markers: bool = False,
+    markerpath: PathLike | str | None = None,
+) -> tuple[dict, dict[int, str]]:
     r"""Read mesh data from a GMF mesh (.meshb) file.
 
     Args:
         meshpath: Path to the mesh file.
+        marker_map: Dictionary mapping marker IDs to names. Defaults to None.
+        read_markers: Whether to read markers from markerpath file. Defaults to False.
+        markerpath: Path to the marker reference map file. Defaults to None.
 
     Returns:
-        Dictionary containing mesh data with keys:
-        - coords: NDArray of node coordinates
-        - elements: Dictionary mapping element types to arrays of elements
-        - boundaries: Dictionary mapping boundary element types to arrays
-        - dim: Mesh dimension
-        - num_point: Number of points
+        Tuple of (mesh_data, marker_map) where:
+        - mesh_data: Dictionary with keys: coords, elements, boundaries, dim, num_point
+        - marker_map: Dictionary mapping marker IDs to names
     """
     try:
         meshpath = str(meshpath)
-        mesh_data = libgmf.load_mesh(meshpath)
-        return mesh_data
+        markerpath = str(markerpath) if markerpath is not None else ''
+        if marker_map is None:
+            marker_map = {}
+        mesh_data, marker_map = libgmf.load_mesh(meshpath, marker_map, read_markers, markerpath)
+        return mesh_data, marker_map
 
     except Exception as e:
         print(f'Error reading mesh: {e}')
-        return {}
+        return {}, {}
 
 
 def write_mesh(
@@ -59,27 +65,35 @@ def load_solution(
     solpath: PathLike | str,
     num_ver: int,
     dim: int,
+    label_map: dict[int, str] | None = None,
+    read_labels: bool = False,
     labelpath: PathLike | str | None = None,
-) -> dict[str, NDArray]:
+) -> tuple[dict[str, NDArray], dict[int, str]]:
     r"""Read solution data from a GMF solution (.solb) file.
 
     Args:
         solpath: Path to the solution file.
         num_ver: Number of vertices.
         dim: Mesh dimension.
-        labelpath: Path to the map between solution strings and
-                   ref IDs. Defaults to None.
+        label_map: Dictionary mapping label IDs to names. Defaults to None.
+        read_labels: Whether to read labels from labelpath file. Defaults to False.
+        labelpath: Path to the label reference map file. Defaults to None.
 
     Returns:
-        dict[str, NDArray]: Dictionary of solution fields.
+        Tuple of (solution, label_map) where:
+        - solution: Dictionary of solution fields
+        - label_map: Dictionary mapping label IDs to names
     """
     try:
         solpath = str(solpath)
         labelpath = str(labelpath) if labelpath is not None else ''
-        return libgmf.load_solution(solpath, num_ver, dim, labelpath)
+        if label_map is None:
+            label_map = {}
+        solution, label_map = libgmf.load_solution(solpath, num_ver, dim, label_map, read_labels, labelpath)
+        return solution, label_map
     except Exception as e:
         print(f'Error reading solution: {e}')
-        return {}
+        return {}, {}
 
 
 def write_solution(

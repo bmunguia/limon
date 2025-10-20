@@ -114,7 +114,6 @@ def test_su2_binary_to_binary(mesh_data_binary, output_dir, markerpath, labelpat
         meshpath_out,
         solpath_out,
         mesh_data_binary,
-        markerpath=markerpath,
     )
 
     # Assert that the files were created
@@ -138,7 +137,6 @@ def test_su2_binary_to_ascii(mesh_data_binary, output_dir, markerpath, labelpath
         meshpath_out,
         solpath_out,
         mesh_data_binary,
-        markerpath=markerpath,
     )
 
     # Assert that the files were created
@@ -162,7 +160,6 @@ def test_su2_ascii_to_ascii(mesh_data_ascii, output_dir, markerpath, labelpath, 
         meshpath_out,
         solpath_out,
         mesh_data_ascii,
-        markerpath=markerpath,
     )
 
     # Assert that the files were created
@@ -186,7 +183,6 @@ def test_su2_ascii_to_binary(mesh_data_ascii, output_dir, markerpath, labelpath,
         meshpath_out,
         solpath_out,
         mesh_data_ascii,
-        markerpath=markerpath,
     )
 
     # Assert that the files were created
