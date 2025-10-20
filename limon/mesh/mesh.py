@@ -111,9 +111,6 @@ def write_mesh_and_solution(
         if 'num_points' not in mesh_data:
             raise ValueError("mesh_data must contain 'num_points' key")
 
-        if marker_map is None:
-            marker_map = {}
-
         # Write mesh
         suffix = Path(meshpath).suffix.lower()
         if suffix in ['.mesh', '.meshb']:
@@ -204,9 +201,6 @@ def write_mesh(
         bool: True if successful, False otherwise
     """
     try:
-        if marker_map is None:
-            marker_map = {}
-
         suffix = Path(meshpath).suffix.lower()
         if suffix in ['.mesh', '.meshb']:
             success = gmf.write_mesh(meshpath, mesh_data)

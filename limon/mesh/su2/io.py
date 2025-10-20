@@ -47,6 +47,7 @@ def write_mesh(
         mesh_data: Dictionary containing mesh data with keys:
                    coords, elements, boundaries
         marker_map: Dictionary mapping marker IDs to names. Defaults to None.
+                    If None, will use mesh_data['markers'] if available.
 
     Returns:
         bool: True if successful, False otherwise
@@ -54,7 +55,8 @@ def write_mesh(
     try:
         meshpath = str(meshpath)
         if marker_map is None:
-            marker_map = {}
+            # Fallback to mesh_data['markers'] if available
+            marker_map = mesh_data.get('markers', {})
         success = libsu2.write_mesh(meshpath, mesh_data, marker_map)
         return success
 

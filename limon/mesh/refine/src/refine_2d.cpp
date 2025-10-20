@@ -1,4 +1,3 @@
-#include "include/refine_2d.hpp"
 #include <iostream>
 #include <vector>
 #include <map>
@@ -6,6 +5,8 @@
 #include <algorithm>
 #include <stdexcept>
 #include <tuple>
+
+#include "../include/refine_2d.hpp"
 
 namespace limon {
 namespace mesh {
