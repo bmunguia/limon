@@ -1,4 +1,4 @@
-from .refine import _refine
+from . import _refine
 
 
 def refine_mesh(mesh_data: dict) -> dict:

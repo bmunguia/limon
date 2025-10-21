@@ -6,7 +6,7 @@
  */
 
 #include <pybind11/pybind11.h>
-#include "include/refine_2d.hpp"
+#include "../include/refine_2d.hpp"
 // #include "include/refine_3d.hpp"
 
 namespace py = pybind11;

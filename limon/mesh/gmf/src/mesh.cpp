@@ -6,8 +6,8 @@ extern "C" {
 #include <libmeshb7.h>
 }
 
-#include "../../ref_map.hpp"
-#include "../../util.hpp"
+#include "../../common/include/ref_map.hpp"
+#include "../../common/include/util.hpp"
 #include "../include/element.hpp"
 #include "../include/mesh.hpp"
 

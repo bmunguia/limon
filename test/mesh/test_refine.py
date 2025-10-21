@@ -1,7 +1,8 @@
 from pathlib import Path
 
 import pytest
-from limon.mesh import load_mesh, write_mesh, refine_mesh
+from limon.mesh import load_mesh, write_mesh
+from limon.operations import refine_mesh
 
 
 @pytest.fixture

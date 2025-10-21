@@ -1,7 +1,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "ref_map.hpp"
+#include "../include/ref_map.hpp"
 
 namespace py = pybind11;
 

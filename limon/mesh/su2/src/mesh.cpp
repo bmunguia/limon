@@ -3,7 +3,7 @@
 #include <regex>
 #include <sstream>
 
-#include "../../util.hpp"
+#include "../../common/include/util.hpp"
 #include "../include/element.hpp"
 #include "../include/mesh.hpp"
 

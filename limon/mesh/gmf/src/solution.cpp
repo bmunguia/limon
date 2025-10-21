@@ -7,9 +7,9 @@ extern "C" {
 #include <libmeshb7.h>
 }
 
+#include "../../common/include/ref_map.hpp"
+#include "../../common/include/util.hpp"
 #include "../include/solution.hpp"
-#include "../../ref_map.hpp"
-#include "../../util.hpp"
 
 namespace limon {
 namespace gmf {

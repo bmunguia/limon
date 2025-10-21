@@ -6,9 +6,9 @@
 #include <string>
 #include <vector>
 
+#include "../../common/include/ref_map.hpp"
+#include "../../common/include/util.hpp"
 #include "../include/solution.hpp"
-#include "../../ref_map.hpp"
-#include "../../util.hpp"
 
 namespace limon {
 namespace su2 {

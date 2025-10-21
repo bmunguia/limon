@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from limon.metric import decompose, recompose
+from limon.numerics import decompose, recompose
 
 
 @pytest.mark.parametrize(

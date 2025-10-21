@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 from limon.mesh import load_mesh, write_mesh_and_solution
-from limon.metric import (
+from limon.numerics import (
     perturb_metric_field,
     metric_edge_length,
     metric_edge_length_at_endpoints,

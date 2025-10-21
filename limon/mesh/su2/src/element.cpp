@@ -2,9 +2,9 @@
 #include <sstream>
 #include <stdexcept>
 
+#include "../../common/include/ref_map.hpp"
+#include "../../common/include/util.hpp"
 #include "../include/element.hpp"
-#include "../../ref_map.hpp"
-#include "../../util.hpp"
 
 namespace limon {
 namespace su2 {
