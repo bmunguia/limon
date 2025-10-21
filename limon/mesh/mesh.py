@@ -108,8 +108,8 @@ def write_mesh_and_solution(
             raise ValueError("mesh_data must contain 'solution' key")
         if 'dim' not in mesh_data:
             raise ValueError("mesh_data must contain 'dim' key")
-        if 'num_points' not in mesh_data:
-            raise ValueError("mesh_data must contain 'num_points' key")
+        if 'num_point' not in mesh_data:
+            raise ValueError("mesh_data must contain 'num_point' key")
 
         # Write mesh
         suffix = Path(meshpath).suffix.lower()
@@ -121,7 +121,7 @@ def write_mesh_and_solution(
             raise ValueError(f'Unsupported mesh file format: {suffix}. Supported formats are .mesh, .meshb, and .su2')
 
         # Write solution
-        num_point = mesh_data['num_points']
+        num_point = mesh_data['num_point']
         dim = mesh_data['dim']
         solution = mesh_data['solution']
 

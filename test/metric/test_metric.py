@@ -87,7 +87,7 @@ def test_write_mesh_with_metric(mesh_data, output_dir):
         'boundaries': boundaries,
         'solution': solution,
         'dim': config['dim'],
-        'num_points': coords.shape[0],
+        'num_point': coords.shape[0],
     }
 
     # Output paths
@@ -149,7 +149,7 @@ def test_perturb_eigenvalues(mesh_data, output_dir):
         'boundaries': boundaries,
         'solution': perturbed_solution,
         'dim': config['dim'],
-        'num_points': coords.shape[0],
+        'num_point': coords.shape[0],
     }
 
     # Output paths
@@ -207,7 +207,7 @@ def test_perturb_orientation(mesh_data, output_dir):
         'boundaries': boundaries,
         'solution': perturbed_solution,
         'dim': config['dim'],
-        'num_points': coords.shape[0],
+        'num_point': coords.shape[0],
     }
 
     # Output paths
@@ -273,7 +273,7 @@ def test_perturb_metric_field(mesh_data, output_dir):
         'boundaries': boundaries,
         'solution': perturbed_solution,
         'dim': config['dim'],
-        'num_points': coords.shape[0],
+        'num_point': coords.shape[0],
     }
 
     # Output paths
@@ -359,7 +359,7 @@ def test_nonuniform_perturb_metric_field(mesh_data_2d, output_dir):
         'boundaries': boundaries,
         'solution': perturbed_solution,
         'dim': num_dim,
-        'num_points': num_point,
+        'num_point': num_point,
     }
 
     # Output paths
