@@ -7,7 +7,7 @@
 
 #include <pybind11/pybind11.h>
 #include "../include/refine_2d.hpp"
-// #include "include/refine_3d.hpp"
+#include "../include/refine_3d.hpp"
 
 namespace py = pybind11;
 
@@ -20,9 +20,9 @@ PYBIND11_MODULE(_refine, m) {
           "Takes a dictionary with keys: coords, elements, boundaries. "
           "Returns a dictionary with keys: coords, elements, boundaries, dim, num_points.");
 
-    // m.def("refine_3d", &limon::mesh::refine_3d,
-    //       py::arg("coords"),
-    //       py::arg("elements"),
-    //       py::arg("boundaries"),
-    //       "Refine a 3D mesh by one level (uniform).");
+    m.def("refine_3d", &limon::mesh::refine_3d,
+          py::arg("mesh_data"),
+          "Refine a 3D mesh by one level (uniform). "
+          "Takes a dictionary with keys: coords, elements, boundaries. "
+          "Returns a dictionary with keys: coords, elements, boundaries, dim, num_points.");
 }

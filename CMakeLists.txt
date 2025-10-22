@@ -71,5 +71,6 @@ install(TARGETS _ref_map DESTINATION limon/mesh)
 # Build refine module
 pybind11_add_module(_refine MODULE
     ${PROJECT_SOURCE_DIR}/limon/operations/src/refine.cpp
-    ${PROJECT_SOURCE_DIR}/limon/operations/src/refine_2d.cpp)
+    ${PROJECT_SOURCE_DIR}/limon/operations/src/refine_2d.cpp
+    ${PROJECT_SOURCE_DIR}/limon/operations/src/refine_3d.cpp)
 install(TARGETS _refine DESTINATION limon/operations)
