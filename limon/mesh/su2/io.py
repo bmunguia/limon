@@ -1,4 +1,4 @@
-from os import PathLike
+from pathlib import Path
 
 from numpy.typing import NDArray
 
@@ -6,9 +6,9 @@ from . import libsu2
 
 
 def load_mesh(
-    meshpath: PathLike | str,
+    meshpath: Path | str,
     write_markers: bool = False,
-    markerpath: PathLike | str | None = None,
+    markerpath: Path | str | None = None,
 ) -> tuple[dict, dict[int, str]]:
     r"""Read a SU2 mesh file and return nodes and element as numpy arrays.
 
@@ -36,7 +36,7 @@ def load_mesh(
 
 
 def write_mesh(
-    meshpath: PathLike | str,
+    meshpath: Path | str,
     mesh_data: dict,
     marker_map: dict[int, str] | None = None,
 ) -> bool:
@@ -66,11 +66,11 @@ def write_mesh(
 
 
 def load_solution(
-    solpath: PathLike | str,
+    solpath: Path | str,
     num_point: int,
     dim: int,
     write_labels: bool = False,
-    labelpath: PathLike | str | None = None,
+    labelpath: Path | str | None = None,
 ) -> tuple[dict[str, NDArray], dict[int, str]]:
     r"""Read solution data from a SU2 solution file.
 
@@ -99,7 +99,7 @@ def load_solution(
 
 
 def write_solution(
-    solpath: PathLike | str,
+    solpath: Path | str,
     solution: dict[str, NDArray],
     num_point: int,
     dim: int,

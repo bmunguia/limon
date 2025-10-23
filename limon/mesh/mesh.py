@@ -1,5 +1,4 @@
 from pathlib import Path
-from os import PathLike
 
 from numpy.typing import NDArray
 
@@ -9,14 +8,14 @@ RefMapKind = _ref_map.RefMapKind
 
 
 def load_mesh_and_solution(
-    meshpath: PathLike | str,
-    solpath: PathLike | str,
+    meshpath: Path | str,
+    solpath: Path | str,
     marker_map: dict[int, str] | None = None,
     label_map: dict[int, str] | None = None,
     read_markers: bool = False,
     read_labels: bool = False,
-    markerpath: PathLike | str | None = None,
-    labelpath: PathLike | str | None = None,
+    markerpath: Path | str | None = None,
+    labelpath: Path | str | None = None,
     write_markers: bool = False,
     write_labels: bool = False,
 ) -> dict:
@@ -79,8 +78,8 @@ def load_mesh_and_solution(
 
 
 def write_mesh_and_solution(
-    meshpath: PathLike | str,
-    solpath: PathLike | str,
+    meshpath: Path | str,
+    solpath: Path | str,
     mesh_data: dict,
     marker_map: dict[int, str] | None = None,
 ) -> bool:
@@ -143,10 +142,10 @@ def write_mesh_and_solution(
 
 
 def load_mesh(
-    meshpath: PathLike | str,
+    meshpath: Path | str,
     marker_map: dict[int, str] | None = None,
     read_markers: bool = False,
-    markerpath: PathLike | str | None = None,
+    markerpath: Path | str | None = None,
     write_markers: bool = False,
 ) -> dict:
     r"""Read a mesh file and return data as a dictionary.
@@ -185,7 +184,7 @@ def load_mesh(
 
 
 def write_mesh(
-    meshpath: PathLike | str,
+    meshpath: Path | str,
     mesh_data: dict,
     marker_map: dict[int, str] | None = None,
 ) -> bool:
@@ -217,12 +216,12 @@ def write_mesh(
 
 
 def load_solution(
-    solpath: PathLike | str,
+    solpath: Path | str,
     num_point: int,
     dim: int,
     label_map: dict[int, str] | None = None,
     read_labels: bool = False,
-    labelpath: PathLike | str | None = None,
+    labelpath: Path | str | None = None,
     write_labels: bool = False,
 ) -> dict:
     r"""Read solution data from a solution file.
@@ -259,7 +258,7 @@ def load_solution(
 
 
 def write_solution(
-    solpath: PathLike | str,
+    solpath: Path | str,
     solution: dict[str, NDArray],
     num_point: int,
     dim: int,
@@ -290,12 +289,12 @@ def write_solution(
         return False
 
 
-def load_ref_map(filename: PathLike | str) -> dict[int, str]:
+def load_ref_map(filename: Path | str) -> dict[int, str]:
     """Load reference map from file."""
     return _ref_map.load_ref_map(str(filename))
 
 
-def write_ref_map(ref_map: dict[int, str], filename: PathLike | str, kind: _ref_map.RefMapKind) -> None:
+def write_ref_map(ref_map: dict[int, str], filename: Path | str, kind: _ref_map.RefMapKind) -> None:
     """Write reference map to file."""
     _ref_map.write_ref_map(ref_map, str(filename), kind)
 

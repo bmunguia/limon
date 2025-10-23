@@ -1,4 +1,4 @@
-from os import PathLike
+from pathlib import Path
 
 from numpy.typing import NDArray
 
@@ -6,10 +6,10 @@ from . import libgmf
 
 
 def load_mesh(
-    meshpath: PathLike | str,
+    meshpath: Path | str,
     marker_map: dict[int, str] | None = None,
     read_markers: bool = False,
-    markerpath: PathLike | str | None = None,
+    markerpath: Path | str | None = None,
 ) -> tuple[dict, dict[int, str]]:
     r"""Read mesh data from a GMF mesh (.meshb) file.
 
@@ -38,7 +38,7 @@ def load_mesh(
 
 
 def write_mesh(
-    meshpath: PathLike | str,
+    meshpath: Path | str,
     mesh_data: dict,
 ) -> bool:
     r"""Write mesh data to a GMF mesh (.meshb) file.
@@ -62,12 +62,12 @@ def write_mesh(
 
 
 def load_solution(
-    solpath: PathLike | str,
+    solpath: Path | str,
     num_ver: int,
     dim: int,
     label_map: dict[int, str] | None = None,
     read_labels: bool = False,
-    labelpath: PathLike | str | None = None,
+    labelpath: Path | str | None = None,
 ) -> tuple[dict[str, NDArray], dict[int, str]]:
     r"""Read solution data from a GMF solution (.solb) file.
 
@@ -97,7 +97,7 @@ def load_solution(
 
 
 def write_solution(
-    solpath: PathLike | str,
+    solpath: Path | str,
     solution: dict[str, NDArray],
     num_ver: int,
     dim: int,
