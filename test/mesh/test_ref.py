@@ -19,7 +19,7 @@ def expected_labels():
 @pytest.mark.parametrize('file_format', ['csv', 'dat', 'json'])
 def test_load_markers_ref_map(file_format, expected_markers):
     """Test loading marker reference maps from different formats."""
-    filename = f'example/square/markers.{file_format}'
+    filename = f'data/square/markers.{file_format}'
     ref_map = load_ref_map(filename)
 
     assert ref_map == expected_markers
@@ -29,7 +29,7 @@ def test_load_markers_ref_map(file_format, expected_markers):
 @pytest.mark.parametrize('file_format', ['csv', 'dat', 'json'])
 def test_load_labels_ref_map(file_format, expected_labels):
     """Test loading solution label reference maps from different formats."""
-    filename = f'example/square/labels.{file_format}'
+    filename = f'data/square/labels.{file_format}'
     ref_map = load_ref_map(filename)
 
     assert ref_map == expected_labels

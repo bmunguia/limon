@@ -8,7 +8,7 @@ from limon.operations import refine_mesh
 @pytest.fixture
 def meshpath_in_2d():
     """Path to example 2D SU2 (.su2) mesh."""
-    return Path('example/square/square.su2')
+    return Path('data/square/square.su2')
 
 
 @pytest.fixture

@@ -20,7 +20,7 @@ def meshpath_in_3d():
 @pytest.fixture
 def meshpath_in_2d():
     """Path to example 2D GMF (.meshb) mesh."""
-    return Path('example/square/square.meshb')
+    return Path('data/square/square.meshb')
 
 
 @pytest.fixture

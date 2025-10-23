@@ -8,19 +8,19 @@ from limon.mesh import load_mesh_and_solution, write_mesh_and_solution
 @pytest.fixture
 def meshpath_in():
     """Path to example SU2 (.su2) mesh."""
-    return Path('example/naca0012/NACA0012_inv.su2')
+    return Path('data/naca0012/NACA0012_inv.su2')
 
 
 @pytest.fixture
 def solpath_in_binary():
     """Path to example SU2 binary (.dat) solution."""
-    return Path('example/naca0012/restart_flow.dat')
+    return Path('data/naca0012/restart_flow.dat')
 
 
 @pytest.fixture
 def solpath_in_ascii():
     """Path to example SU2 ASCII (.csv) solution."""
-    return Path('example/naca0012/restart_flow.csv')
+    return Path('data/naca0012/restart_flow.csv')
 
 
 @pytest.fixture

@@ -7,37 +7,37 @@ from limon.mesh import load_mesh_and_solution, write_mesh_and_solution
 @pytest.fixture
 def su2_meshpath_in():
     """Path to example SU2 (.su2) mesh."""
-    return Path('example/naca0012/NACA0012_inv.su2')
+    return Path('data/naca0012/NACA0012_inv.su2')
 
 
 @pytest.fixture
 def su2_solpath_in():
     """Path to example SU2 (.dat) solution."""
-    return Path('example/naca0012/restart_flow.dat')
+    return Path('data/naca0012/restart_flow.dat')
 
 
 @pytest.fixture
 def gmf_meshpath_in():
     """Path to example GMF (.meshb) mesh."""
-    return Path('example/square/square.mesh')
+    return Path('data/square/square.mesh')
 
 
 @pytest.fixture
 def gmf_solpath_in():
     """Path to example GMF (.solb) solution."""
-    return Path('example/square/square.solb')
+    return Path('data/square/square.solb')
 
 
 @pytest.fixture
 def markerpath_in():
     """Path to input marker map file."""
-    return Path('example/square/markers.dat')
+    return Path('data/square/markers.dat')
 
 
 @pytest.fixture
 def labelpath_in():
     """Path to input solution label map file."""
-    return Path('example/square/labels.dat')
+    return Path('data/square/labels.dat')
 
 
 @pytest.fixture

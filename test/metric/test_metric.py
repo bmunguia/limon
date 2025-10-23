@@ -39,13 +39,13 @@ def output_dir(request):
     params=[
         {
             'dim': 2,
-            'meshpath': 'example/square/square.mesh',
+            'meshpath': 'data/square/square.mesh',
             'file_prefix': 'square',
             'metric_values': {'diag_indices': [0, 2], 'values': [1e3, 1e4]},
         },
         {
             'dim': 3,
-            'meshpath': 'example/cube/cube.mesh',
+            'meshpath': 'data/cube/cube.mesh',
             'file_prefix': 'cube',
             'metric_values': {'diag_indices': [0, 2, 5], 'values': [1e1, 1e2, 1e3]},
         },
@@ -295,7 +295,7 @@ def test_perturb_metric_field(mesh_data, output_dir):
 @pytest.fixture
 def mesh_data_2d():
     """Load the 2D mesh and create a sample solution - specific for nonuniform test."""
-    meshpath_in = 'example/square/square.mesh'
+    meshpath_in = 'data/square/square.mesh'
     mesh_dict = load_mesh(meshpath_in)
     coords = mesh_dict['coords']
     elements = mesh_dict['elements']
