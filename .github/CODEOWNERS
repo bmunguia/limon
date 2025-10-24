@@ -2,5 +2,7 @@
 * @bmunguia
 
 # Owners of specific parts of repo
-/tests/ @bmunguia
+/limon/ @bmunguia
+/data/ @bmunguia
+/test/ @bmunguia
 /.github/CODEOWNERS @bmunguia
