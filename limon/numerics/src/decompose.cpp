@@ -86,6 +86,31 @@ py::tuple decompose(py::array_t<double> lower_tri) {
                   return a.first > b.first;
               });
 
+    // Ensure eigenvector matrix has determinant = +1 (proper rotation)
+    // This eliminates the ambiguity in the rotation angle representation
+    // TODO: check the 3D fix
+    if (dim == 2) {
+        // For 2D, check if the two eigenvectors form a right-handed system
+        // det = v1_x * v2_y - v1_y * v2_x
+        double det = eigen_pairs[0].second(0) * eigen_pairs[1].second(1) -
+                     eigen_pairs[0].second(1) * eigen_pairs[1].second(0);
+        if (det < 0) {
+            // Flip the second eigenvector to make det = +1
+            eigen_pairs[1].second *= -1;
+        }
+    } else if (dim == 3) {
+        // For 3D, reconstruct the matrix and check determinant
+        Eigen::Matrix3d V;
+        V.col(0) = eigen_pairs[0].second;
+        V.col(1) = eigen_pairs[1].second;
+        V.col(2) = eigen_pairs[2].second;
+
+        if (V.determinant() < 0) {
+            // Flip the last eigenvector to make det = +1
+            eigen_pairs[2].second *= -1;
+        }
+    }
+
     // Populate the pybind arrays
     for (int i = 0; i < dim; ++i) {
         eig_vals_ptr(i) = eigen_pairs[i].first;
