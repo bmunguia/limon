@@ -2,9 +2,19 @@ from pathlib import Path
 
 from numpy.typing import NDArray
 
-from . import _ref_map, gmf, su2
+from . import gmf, su2
 
-RefMapKind = _ref_map.RefMapKind
+
+def _get_ref_map():
+    from . import _ref_map
+    return _ref_map
+
+
+# Make RefMapKind available at module level
+def __getattr__(name):
+    if name == 'RefMapKind':
+        return _get_ref_map().RefMapKind
+    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
 
 
 def load_mesh_and_solution(
@@ -291,14 +301,17 @@ def write_solution(
 
 def load_ref_map(filename: Path | str) -> dict[int, str]:
     """Load reference map from file."""
+    _ref_map = _get_ref_map()
     return _ref_map.load_ref_map(str(filename))
 
 
-def write_ref_map(ref_map: dict[int, str], filename: Path | str, kind: _ref_map.RefMapKind) -> None:
+def write_ref_map(ref_map: dict[int, str], filename: Path | str, kind) -> None:
     """Write reference map to file."""
-    _ref_map.write_ref_map(ref_map, str(filename), kind)
+    _ref_map_mod = _get_ref_map()
+    _ref_map_mod.write_ref_map(ref_map, str(filename), kind)
 
 
 def get_ref_name(ref_map: dict[int, str], ref_id: int) -> str:
     """Get reference name from map."""
+    _ref_map = _get_ref_map()
     return _ref_map.get_ref_name(ref_map, ref_id)

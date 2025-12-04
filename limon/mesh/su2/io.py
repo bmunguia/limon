@@ -2,7 +2,10 @@ from pathlib import Path
 
 from numpy.typing import NDArray
 
-from . import libsu2
+
+def _get_libsu2():
+    from . import libsu2
+    return libsu2
 
 
 def load_mesh(
@@ -25,6 +28,7 @@ def load_mesh(
         - marker_map: Dictionary mapping marker IDs to names
     """
     try:
+        libsu2 = _get_libsu2()
         meshpath = str(meshpath)
         markerpath = str(markerpath) if markerpath is not None else ''
         mesh_data, marker_map = libsu2.load_mesh(meshpath, write_markers, markerpath)
@@ -53,6 +57,7 @@ def write_mesh(
         bool: True if successful, False otherwise
     """
     try:
+        libsu2 = _get_libsu2()
         meshpath = str(meshpath)
         if marker_map is None:
             # Fallback to mesh_data['markers'] if available
@@ -89,6 +94,7 @@ def load_solution(
         - label_map: Dictionary mapping label IDs to names
     """
     try:
+        libsu2 = _get_libsu2()
         solpath = str(solpath)
         labelpath = str(labelpath) if labelpath is not None else ''
         solution, label_map = libsu2.load_solution(solpath, num_point, dim, write_labels, labelpath)
@@ -116,6 +122,7 @@ def write_solution(
         bool: True if successful, False otherwise.
     """
     try:
+        libsu2 = _get_libsu2()
         solpath = str(solpath)
         return libsu2.write_solution(solpath, solution, num_point, dim)
     except Exception as e:

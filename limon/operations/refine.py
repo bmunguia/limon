@@ -1,4 +1,6 @@
-from . import _refine
+def _get_refine():
+    from . import _refine
+    return _refine
 
 
 def refine_mesh(mesh_data: dict) -> dict:
@@ -20,6 +22,7 @@ def refine_mesh(mesh_data: dict) -> dict:
 
     dim = mesh_data['dim']
 
+    _refine = _get_refine()
     if dim == 2:
         return _refine.refine_2d(mesh_data)
     elif dim == 3:
