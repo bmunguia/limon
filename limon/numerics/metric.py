@@ -34,7 +34,7 @@ def decompose(lower_tri: NDArray) -> tuple[NDArray, NDArray]:
         >>> eigenvalues, eigenvectors = decompose(lower_tri)
     """
     _metric = _get_metric()
-    return _metric.decompose(np.asarray(lower_tri, dtype=np.float64))
+    return _metric.decompose(np.ascontiguousarray(lower_tri, dtype=np.float64))
 
 
 def recompose(eigenvalues: NDArray, eigenvectors: NDArray) -> NDArray:
@@ -65,7 +65,7 @@ def recompose(eigenvalues: NDArray, eigenvectors: NDArray) -> NDArray:
         >>> tensor = recompose(eigenvalues, eigenvectors)
     """
     _metric = _get_metric()
-    return _metric.recompose(np.asarray(eigenvalues, dtype=np.float64), np.asarray(eigenvectors, dtype=np.float64))
+    return _metric.recompose(np.ascontiguousarray(eigenvalues, dtype=np.float64), np.ascontiguousarray(eigenvectors, dtype=np.float64))
 
 
 def perturb(
@@ -100,10 +100,10 @@ def perturb(
     """
     _metric = _get_metric()
     return _metric.perturb(
-        np.asarray(eigenvalues, dtype=np.float64),
-        np.asarray(eigenvectors, dtype=np.float64),
-        np.asarray(delta_eigenvals, dtype=np.float64),
-        np.asarray(rotation_angles, dtype=np.float64),
+        np.ascontiguousarray(eigenvalues, dtype=np.float64),
+        np.ascontiguousarray(eigenvectors, dtype=np.float64),
+        np.ascontiguousarray(delta_eigenvals, dtype=np.float64),
+        np.ascontiguousarray(rotation_angles, dtype=np.float64),
     )
 
 
@@ -152,9 +152,9 @@ def perturb_metric_field(metrics: NDArray, delta_eigenvals: NDArray, rotation_an
     """
     _metric = _get_metric()
     return _metric.perturb_metric_field(
-        np.asarray(metrics, dtype=np.float64),
-        np.asarray(delta_eigenvals, dtype=np.float64),
-        np.asarray(rotation_angles, dtype=np.float64),
+        np.ascontiguousarray(metrics, dtype=np.float64),
+        np.ascontiguousarray(delta_eigenvals, dtype=np.float64),
+        np.ascontiguousarray(rotation_angles, dtype=np.float64),
     )
 
 
@@ -206,8 +206,8 @@ def integrate_metric_field(
     """
     _metric = _get_metric()
     return _metric.integrate_metric_field(
-        np.asarray(metrics, dtype=np.float64),
-        np.asarray(volumes, dtype=np.float64),
+        np.ascontiguousarray(metrics, dtype=np.float64),
+        np.ascontiguousarray(volumes, dtype=np.float64),
         norm,
     )
 
@@ -275,7 +275,7 @@ def normalize_metric_field(
         hmin = -1.0
     _metric = _get_metric()
     return _metric.normalize_metric_field(
-        np.asarray(metrics, dtype=np.float64),
+        np.ascontiguousarray(metrics, dtype=np.float64),
         metric_integral,
         complexity,
         norm,
@@ -326,7 +326,7 @@ def decompose_metric_field(metrics: NDArray) -> tuple[NDArray, NDArray]:
         >>> print(eigenvecs_3d.shape)  # (2, 3, 3)
     """
     _metric = _get_metric()
-    return _metric.decompose_metric_field(np.asarray(metrics, dtype=np.float64))
+    return _metric.decompose_metric_field(np.ascontiguousarray(metrics, dtype=np.float64))
 
 
 def recompose_metric_field(eigenvalues: NDArray, eigenvectors: NDArray) -> NDArray:
@@ -371,7 +371,7 @@ def recompose_metric_field(eigenvalues: NDArray, eigenvectors: NDArray) -> NDArr
     """
     _metric = _get_metric()
     return _metric.recompose_metric_field(
-        np.asarray(eigenvalues, dtype=np.float64), np.asarray(eigenvectors, dtype=np.float64)
+        np.ascontiguousarray(eigenvalues, dtype=np.float64), np.ascontiguousarray(eigenvectors, dtype=np.float64)
     )
 
 
@@ -434,7 +434,7 @@ def metric_edge_length_at_endpoints(edges: NDArray, coords: NDArray, metrics: ND
     """
     _metric = _get_metric()
     return _metric.metric_edge_length_at_endpoints(
-        np.asarray(edges, dtype=np.int32), np.asarray(coords, dtype=np.float64), np.asarray(metrics, dtype=np.float64)
+        np.ascontiguousarray(edges, dtype=np.int32), np.ascontiguousarray(coords, dtype=np.float64), np.ascontiguousarray(metrics, dtype=np.float64)
     )
 
 
@@ -497,9 +497,9 @@ def metric_edge_length(edges: NDArray, coords: NDArray, metrics: NDArray, eps: f
     """
     _metric = _get_metric()
     return _metric.metric_edge_length(
-        np.asarray(edges, dtype=np.int32),
-        np.asarray(coords, dtype=np.float64),
-        np.asarray(metrics, dtype=np.float64),
+        np.ascontiguousarray(edges, dtype=np.int32),
+        np.ascontiguousarray(coords, dtype=np.float64),
+        np.ascontiguousarray(metrics, dtype=np.float64),
         eps,
     )
 
@@ -525,7 +525,7 @@ def rotation_angles(eigenvectors: NDArray) -> NDArray:
         >>> print(angles_3d.shape)  # (3,)
     """
     _metric = _get_metric()
-    return _metric.rotation_angles(np.asarray(eigenvectors, dtype=np.float64))
+    return _metric.rotation_angles(np.ascontiguousarray(eigenvectors, dtype=np.float64))
 
 
 def rotation_angles_field(eigenvectors: NDArray) -> NDArray:
@@ -555,4 +555,4 @@ def rotation_angles_field(eigenvectors: NDArray) -> NDArray:
         >>> print(angles_3d.shape)  # (2, 3)
     """
     _metric = _get_metric()
-    return _metric.rotation_angles_field(np.asarray(eigenvectors, dtype=np.float64))
+    return _metric.rotation_angles_field(np.ascontiguousarray(eigenvectors, dtype=np.float64))
