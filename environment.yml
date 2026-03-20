@@ -2,10 +2,14 @@ name: limon
 channels:
   - conda-forge
 dependencies:
+  - binutils_linux-64
   - cmake=4.0.1
   - docopt
   - Eigen=3.4.*
+  - gcc_linux-64
+  - gfortran_linux-64
   - hatchling=1.27.0
+  - gxx_linux-64
   - matplotlib=3.9.2
   - numpy=2.0.*
   - pip
@@ -14,3 +18,4 @@ dependencies:
   - python=3.12.*
   - pyyaml=6.0.2
   - scikit-build-core>=0.11
+  - sysroot_linux-64
