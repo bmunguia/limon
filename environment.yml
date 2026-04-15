@@ -3,7 +3,7 @@ channels:
   - conda-forge
 dependencies:
   - binutils_linux-64
-  - cmake=4.0.1
+  - cmake>=3.15
   - docopt
   - Eigen=3.4.*
   - gcc_linux-64
