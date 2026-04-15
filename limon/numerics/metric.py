@@ -1,7 +1,10 @@
 import numpy as np
 from numpy.typing import NDArray
 
-from . import _metric
+
+def _get_metric():
+    from . import _metric
+    return _metric
 
 
 def decompose(lower_tri: NDArray) -> tuple[NDArray, NDArray]:
@@ -30,7 +33,8 @@ def decompose(lower_tri: NDArray) -> tuple[NDArray, NDArray]:
         >>> lower_tri = np.array([3.0, 1.0, 2.0])  # [a00, a10, a11]
         >>> eigenvalues, eigenvectors = decompose(lower_tri)
     """
-    return _metric.decompose(np.asarray(lower_tri, dtype=np.float64))
+    _metric = _get_metric()
+    return _metric.decompose(np.ascontiguousarray(lower_tri, dtype=np.float64))
 
 
 def recompose(eigenvalues: NDArray, eigenvectors: NDArray) -> NDArray:
@@ -60,7 +64,8 @@ def recompose(eigenvalues: NDArray, eigenvectors: NDArray) -> NDArray:
         >>> eigenvectors = np.array([[0.8944, -0.4472], [0.4472, 0.8944]])
         >>> tensor = recompose(eigenvalues, eigenvectors)
     """
-    return _metric.recompose(np.asarray(eigenvalues, dtype=np.float64), np.asarray(eigenvectors, dtype=np.float64))
+    _metric = _get_metric()
+    return _metric.recompose(np.ascontiguousarray(eigenvalues, dtype=np.float64), np.ascontiguousarray(eigenvectors, dtype=np.float64))
 
 
 def perturb(
@@ -93,11 +98,12 @@ def perturb(
         >>> rot_angles = np.array([0.05, 0.02, 0.03])  # xy, yz, xz rotations
         >>> pert_vals, pert_vecs = perturb(eigenvalues, eigenvectors, delta_vals, rot_angles)
     """
+    _metric = _get_metric()
     return _metric.perturb(
-        np.asarray(eigenvalues, dtype=np.float64),
-        np.asarray(eigenvectors, dtype=np.float64),
-        np.asarray(delta_eigenvals, dtype=np.float64),
-        np.asarray(rotation_angles, dtype=np.float64),
+        np.ascontiguousarray(eigenvalues, dtype=np.float64),
+        np.ascontiguousarray(eigenvectors, dtype=np.float64),
+        np.ascontiguousarray(delta_eigenvals, dtype=np.float64),
+        np.ascontiguousarray(rotation_angles, dtype=np.float64),
     )
 
 
@@ -144,10 +150,11 @@ def perturb_metric_field(metrics: NDArray, delta_eigenvals: NDArray, rotation_an
         ... ])
         >>> perturbed_metrics = perturb_metric_field(metrics, val_pert, rot_angles)
     """
+    _metric = _get_metric()
     return _metric.perturb_metric_field(
-        np.asarray(metrics, dtype=np.float64),
-        np.asarray(delta_eigenvals, dtype=np.float64),
-        np.asarray(rotation_angles, dtype=np.float64),
+        np.ascontiguousarray(metrics, dtype=np.float64),
+        np.ascontiguousarray(delta_eigenvals, dtype=np.float64),
+        np.ascontiguousarray(rotation_angles, dtype=np.float64),
     )
 
 
@@ -197,9 +204,10 @@ def integrate_metric_field(
         >>> volumes_3d = np.array([0.05, 0.08])
         >>> integral_3d = integrate_metric_field(metrics_3d, volumes_3d, norm=2)
     """
+    _metric = _get_metric()
     return _metric.integrate_metric_field(
-        np.asarray(metrics, dtype=np.float64),
-        np.asarray(volumes, dtype=np.float64),
+        np.ascontiguousarray(metrics, dtype=np.float64),
+        np.ascontiguousarray(volumes, dtype=np.float64),
         norm,
     )
 
@@ -265,8 +273,9 @@ def normalize_metric_field(
         hmax = -1.0
     if hmin is None:
         hmin = -1.0
+    _metric = _get_metric()
     return _metric.normalize_metric_field(
-        np.asarray(metrics, dtype=np.float64),
+        np.ascontiguousarray(metrics, dtype=np.float64),
         metric_integral,
         complexity,
         norm,
@@ -316,7 +325,8 @@ def decompose_metric_field(metrics: NDArray) -> tuple[NDArray, NDArray]:
         >>> print(eigenvals_3d.shape)  # (2, 3)
         >>> print(eigenvecs_3d.shape)  # (2, 3, 3)
     """
-    return _metric.decompose_metric_field(np.asarray(metrics, dtype=np.float64))
+    _metric = _get_metric()
+    return _metric.decompose_metric_field(np.ascontiguousarray(metrics, dtype=np.float64))
 
 
 def recompose_metric_field(eigenvalues: NDArray, eigenvectors: NDArray) -> NDArray:
@@ -359,8 +369,9 @@ def recompose_metric_field(eigenvalues: NDArray, eigenvectors: NDArray) -> NDArr
         >>> reconstructed = recompose_metric_field(eigenvals, eigenvecs)
         >>> np.allclose(metrics, reconstructed)  # Should be True
     """
+    _metric = _get_metric()
     return _metric.recompose_metric_field(
-        np.asarray(eigenvalues, dtype=np.float64), np.asarray(eigenvectors, dtype=np.float64)
+        np.ascontiguousarray(eigenvalues, dtype=np.float64), np.ascontiguousarray(eigenvectors, dtype=np.float64)
     )
 
 
@@ -421,8 +432,9 @@ def metric_edge_length_at_endpoints(edges: NDArray, coords: NDArray, metrics: ND
         ... ])
         >>> lengths_3d = metric_edge_length_at_endpoints(edges, coords_3d, metrics_3d)
     """
+    _metric = _get_metric()
     return _metric.metric_edge_length_at_endpoints(
-        np.asarray(edges, dtype=np.int32), np.asarray(coords, dtype=np.float64), np.asarray(metrics, dtype=np.float64)
+        np.ascontiguousarray(edges, dtype=np.int32), np.ascontiguousarray(coords, dtype=np.float64), np.ascontiguousarray(metrics, dtype=np.float64)
     )
 
 
@@ -483,10 +495,11 @@ def metric_edge_length(edges: NDArray, coords: NDArray, metrics: NDArray, eps: f
         >>> print("Euclidean lengths:", euclidean_lengths)
         >>> print("Metric lengths:", integrated_lengths)
     """
+    _metric = _get_metric()
     return _metric.metric_edge_length(
-        np.asarray(edges, dtype=np.int32),
-        np.asarray(coords, dtype=np.float64),
-        np.asarray(metrics, dtype=np.float64),
+        np.ascontiguousarray(edges, dtype=np.int32),
+        np.ascontiguousarray(coords, dtype=np.float64),
+        np.ascontiguousarray(metrics, dtype=np.float64),
         eps,
     )
 
@@ -511,7 +524,8 @@ def rotation_angles(eigenvectors: NDArray) -> NDArray:
         >>> angles_3d = rotation_angles(eigenvectors_3d)
         >>> print(angles_3d.shape)  # (3,)
     """
-    return _metric.rotation_angles(np.asarray(eigenvectors, dtype=np.float64))
+    _metric = _get_metric()
+    return _metric.rotation_angles(np.ascontiguousarray(eigenvectors, dtype=np.float64))
 
 
 def rotation_angles_field(eigenvectors: NDArray) -> NDArray:
@@ -540,4 +554,5 @@ def rotation_angles_field(eigenvectors: NDArray) -> NDArray:
         >>> angles_3d = rotation_angles_field(eigenvectors_3d)
         >>> print(angles_3d.shape)  # (2, 3)
     """
-    return _metric.rotation_angles_field(np.asarray(eigenvectors, dtype=np.float64))
+    _metric = _get_metric()
+    return _metric.rotation_angles_field(np.ascontiguousarray(eigenvectors, dtype=np.float64))

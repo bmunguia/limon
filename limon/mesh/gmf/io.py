@@ -2,7 +2,10 @@ from pathlib import Path
 
 from numpy.typing import NDArray
 
-from . import libgmf
+
+def _get_libgmf():
+    from . import libgmf
+    return libgmf
 
 
 def load_mesh(
@@ -25,6 +28,7 @@ def load_mesh(
         - marker_map: Dictionary mapping marker IDs to names
     """
     try:
+        libgmf = _get_libgmf()
         meshpath = str(meshpath)
         markerpath = str(markerpath) if markerpath is not None else ''
         if marker_map is None:
@@ -52,6 +56,7 @@ def write_mesh(
         bool: True if successful, False otherwise
     """
     try:
+        libgmf = _get_libgmf()
         meshpath = str(meshpath)
         success = libgmf.write_mesh(meshpath, mesh_data)
         return success
@@ -85,6 +90,7 @@ def load_solution(
         - label_map: Dictionary mapping label IDs to names
     """
     try:
+        libgmf = _get_libgmf()
         solpath = str(solpath)
         labelpath = str(labelpath) if labelpath is not None else ''
         if label_map is None:
@@ -114,6 +120,7 @@ def write_solution(
         bool: True if successful, False otherwise.
     """
     try:
+        libgmf = _get_libgmf()
         solpath = str(solpath)
         return libgmf.write_solution(solpath, solution, num_ver, dim)
     except Exception as e:

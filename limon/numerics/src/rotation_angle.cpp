@@ -38,10 +38,12 @@ py::array_t<double> rotation_angles(py::array_t<double> eigenvectors) {
         throw std::invalid_argument("Only 2D and 3D eigenvectors are supported.");
     }
 
-    Eigen::Map<Eigen::MatrixXd> eigen_mat(static_cast<double *>(eigenvecs_info.ptr), eigenvecs_info.shape[0], eigenvecs_info.shape[1]);
+    // Use row-major storage to match numpy's default layout
+    Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>> eigen_mat(
+        static_cast<double *>(eigenvecs_info.ptr), eigenvecs_info.shape[0], eigenvecs_info.shape[1]);
 
     if (dim == 2) {
-        // 2D case: Extract angle from first eigenvector
+        // 2D case: Extract angle from first eigenvector (first column)
         // The angle is atan2(y, x) where (x, y) is the first eigenvector
         Eigen::Vector2d first_eigenvec = eigen_mat.col(0);
         double angle = std::atan2(first_eigenvec(1), first_eigenvec(0));

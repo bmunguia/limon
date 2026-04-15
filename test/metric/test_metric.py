@@ -533,13 +533,18 @@ def test_metric_edge_length(dim, coords, edges, metric, expected_scale_factor):
 @pytest.mark.parametrize(
     'eigenvectors, expected_angles',
     [
-        (np.array([[0.8660254, 0.5], [-0.5, 0.8660254]]), np.array([np.pi / 6])),  # 2D: 30-degree rotation
-        (np.eye(3), np.array([0.0, 0.0, 0.0])),  # 3D: No rotation
+        # 2D: 30-degree rotation
+        (np.array([[0.8660254, -0.5], [0.5, 0.8660254]]), np.array([np.pi / 6])),
+        # 3D: Identity matrix - no rotation
+        (np.eye(3), np.array([0.0, 0.0, 0.0])),
     ],
     ids=['2D', '3D'],
 )
 def test_rotation_angles(eigenvectors, expected_angles):
-    """Test the rotation_angles function for 2D and 3D cases."""
+    """Test the rotation_angles function for 2D and 3D cases.
+
+    Note: Eigenvectors should be stored as columns of the matrix.
+    """
     angles = rotation_angles(eigenvectors)
     assert np.allclose(angles, expected_angles, atol=1e-6), f'Expected {expected_angles}, got {angles}'
 
@@ -550,8 +555,8 @@ def test_rotation_angles(eigenvectors, expected_angles):
         (
             np.array(
                 [
-                    [[0.8660254, 0.5], [-0.5, 0.8660254]],  # 30-degree rotation
-                    [[0.707107, 0.707107], [-0.707107, 0.707107]],  # 45-degree rotation
+                    [[0.8660254, -0.5], [0.5, 0.8660254]],  # 30-degree rotation
+                    [[0.707107, -0.707107], [0.707107, 0.707107]],  # 45-degree rotation
                 ]
             ),
             np.array([[np.pi / 6], [np.pi / 4]]),  # 30 and 45 degrees in radians
@@ -559,8 +564,8 @@ def test_rotation_angles(eigenvectors, expected_angles):
         (
             np.array(
                 [
-                    np.eye(3),  # Identity matrix (no rotation)
-                    np.eye(3),  # Identity matrix (no rotation)
+                    np.eye(3),  # Identity matrix (eigenvectors as columns - no rotation)
+                    np.eye(3),  # Identity matrix (eigenvectors as columns - no rotation)
                 ]
             ),
             np.array(
@@ -574,7 +579,10 @@ def test_rotation_angles(eigenvectors, expected_angles):
     ids=['2D', '3D'],
 )
 def test_rotation_angles_field(eigenvectors_field, expected_angles_field):
-    """Test the rotation_angles_field function for 2D and 3D cases."""
+    """Test the rotation_angles_field function for 2D and 3D cases.
+
+    Note: Eigenvectors should be stored as columns of the matrix.
+    """
     angles_field = rotation_angles_field(eigenvectors_field)
     assert np.allclose(angles_field, expected_angles_field, atol=1e-6), (
         f'Expected {expected_angles_field}, got {angles_field}'
