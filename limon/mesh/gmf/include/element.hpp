@@ -19,6 +19,9 @@ void write_element_type(int64_t mesh_id, int kwd, py::array_t<unsigned int>& ele
 void write_elements_2D(int64_t mesh_id, const py::dict& elements, const py::dict& boundaries);
 void write_elements_3D(int64_t mesh_id, const py::dict& elements, const py::dict& boundaries);
 
+void read_corners(int64_t mesh_id, py::dict& boundaries);
+void write_corners(int64_t mesh_id, const py::dict& boundaries);
+
 } // namespace gmf
 } // namespace limon
 

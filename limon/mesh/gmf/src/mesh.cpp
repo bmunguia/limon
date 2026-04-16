@@ -73,6 +73,7 @@ py::tuple load_mesh(const std::string& meshpath, py::dict marker_map,
     } else {
         read_elements_3D(mesh_id, elements, boundaries);
     }
+    read_corners(mesh_id, boundaries);
 
     // Close the mesh
     GmfCloseMesh(mesh_id);
@@ -147,6 +148,7 @@ bool write_mesh(const std::string& meshpath, const py::dict& mesh_data) {
     } else {
         write_elements_3D(mesh_id, elements, boundaries);
     }
+    write_corners(mesh_id, boundaries);
 
     // Close the mesh
     GmfCloseMesh(mesh_id);

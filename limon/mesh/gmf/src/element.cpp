@@ -190,5 +190,39 @@ void write_elements_3D(int64_t mesh_id, const py::dict& elements, const py::dict
     }
 }
 
+void read_corners(int64_t mesh_id, py::dict& boundaries) {
+    int64_t num_cor = GmfStatKwd(mesh_id, GmfCorners);
+    if (num_cor > 0) {
+        py::array_t<unsigned int> corner_array(std::vector<py::ssize_t>{num_cor});
+        auto cor_ptr = corner_array.mutable_data();
+        if (GmfGotoKwd(mesh_id, GmfCorners)) {
+            for (auto i = 0; i < num_cor; i++) {
+                int idx;
+                GmfGetLin(mesh_id, GmfCorners, &idx);
+                // GMF uses 1-indexing, subtract 1
+                cor_ptr[i] = idx - 1;
+            }
+        }
+        boundaries["Corners"] = corner_array;
+    }
+}
+
+void write_corners(int64_t mesh_id, const py::dict& boundaries) {
+    if (!boundaries.contains("Corners")) {
+        return;
+    }
+    py::array_t<unsigned int> corner_array = boundaries["Corners"].cast<py::array_t<unsigned int>>();
+    int64_t num_cor = corner_array.shape(0);
+    if (num_cor == 0) {
+        return;
+    }
+    auto cor_ptr = corner_array.data();
+    GmfSetKwd(mesh_id, GmfCorners, num_cor);
+    for (auto i = 0; i < num_cor; i++) {
+        // GMF uses 1-indexing, add 1
+        GmfSetLin(mesh_id, GmfCorners, static_cast<int>(cor_ptr[i] + 1));
+    }
+}
+
 } // namespace gmf
 } // namespace limon

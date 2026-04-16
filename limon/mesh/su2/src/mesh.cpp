@@ -106,6 +106,34 @@ py::tuple load_mesh(const std::string& meshpath, bool write_markers, const std::
     py::dict boundaries;
     std::map<int, std::string> ref_map = read_boundary_elements(mesh_file, boundary_count, boundaries, write_markers, markerpath);
 
+    // Corners (optional section after boundary markers)
+    while (std::getline(mesh_file, line)) {
+        if (line.empty() || line[0] == '%') {
+            continue;
+        }
+        if (line.find("NCORNER=") != std::string::npos) {
+            int num_cor = 0;
+            std::istringstream iss(line.substr(line.find("=") + 1));
+            iss >> num_cor;
+            if (num_cor > 0) {
+                py::array_t<unsigned int> corner_array(std::vector<py::ssize_t>{num_cor});
+                auto cor_ptr = corner_array.mutable_data();
+                int read_count = 0;
+                while (read_count < num_cor && std::getline(mesh_file, line)) {
+                    if (line.empty() || line[0] == '%') {
+                        continue;
+                    }
+                    std::istringstream ciss(line);
+                    int vtk_type, node_idx;
+                    ciss >> vtk_type >> node_idx;
+                    cor_ptr[read_count++] = static_cast<unsigned int>(node_idx);
+                }
+                boundaries["Corners"] = corner_array;
+            }
+            break;
+        }
+    }
+
     // Convert C++ map to Python dict
     py::dict marker_map;
     for (const auto& pair : ref_map) {
@@ -231,6 +259,22 @@ bool write_mesh(const std::string& meshpath, const py::dict& mesh_data,
     mesh_file << "%" << std::endl;
     mesh_file << "NMARK= " << marker_count << std::endl;
     write_boundary_elements(mesh_file, boundaries, ref_map);
+
+    // Write corners if present
+    if (boundaries.contains("Corners")) {
+        py::array_t<unsigned int> corner_array = boundaries["Corners"].cast<py::array_t<unsigned int>>();
+        int num_cor = corner_array.shape(0);
+        if (num_cor > 0) {
+            auto cor_ptr = corner_array.data();
+            mesh_file << "%" << std::endl;
+            mesh_file << "% Corner points" << std::endl;
+            mesh_file << "%" << std::endl;
+            mesh_file << "NCORNER= " << num_cor << std::endl;
+            for (int i = 0; i < num_cor; i++) {
+                mesh_file << "1\t" << cor_ptr[i] << std::endl;
+            }
+        }
+    }
 
     mesh_file.close();
 
