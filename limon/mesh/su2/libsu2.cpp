@@ -24,14 +24,10 @@
       * Read mesh data from a SU2 mesh (.su2) file.
       *
       * @param meshpath Path to the mesh file
-      * @param write_markers Whether to write the markers to the file specified in markerpath
-      * @param markerpath Path to write the marker reference map file
       * @return Tuple of (mesh_data dict, marker_map dict)
       */
      m.def("load_mesh", &limon::su2::load_mesh,
           py::arg("meshpath"),
-          py::arg("write_markers") = false,
-          py::arg("markerpath") = "",
           "Read a SU2 mesh file and return tuple of (mesh_data, marker_map).");
 
      /**
@@ -54,16 +50,12 @@
      * @param solpath Path to the solution file
      * @param num_ver Number of vertices
      * @param dim Mesh dimension
-     * @param write_labels Whether to write the labels to the file specified in labelpath
-     * @param labelpath Path to write the label reference map file
      * @return Tuple of (solution dict, label_map dict)
      */
     m.def("load_solution", &limon::su2::load_solution,
         py::arg("solpath"),
         py::arg("num_ver"),
         py::arg("dim"),
-        py::arg("write_labels") = false,
-        py::arg("labelpath") = "",
         "Read a SU2 solution file and return tuple of (solution, label_map)");
 
   /**

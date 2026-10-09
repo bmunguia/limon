@@ -1,3 +1,3 @@
-from . import mesh, numerics, operations
+from . import geometry, mesh, numerics, operations
 
-__all__ = ['mesh', 'numerics', 'operations']
+__all__ = ['geometry', 'mesh', 'numerics', 'operations']

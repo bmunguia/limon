@@ -15,28 +15,16 @@ namespace limon {
 namespace gmf {
 
 py::tuple load_solution(const std::string& solpath, int64_t num_ver, int dim,
-                        py::dict label_map, bool read_labels, const std::string& labelpath) {
+                        const std::vector<std::string>& names) {
     py::dict sol;
+    py::dict label_map;
     int version;
     int dim_sol;
 
-    // Load or initialize label map
+    // Field i is named names[i], or REF_<i+1> when no name was given
     std::map<int, std::string> ref_map;
-    if (read_labels || label_map.empty()) {
-        label_map.clear();
-        if (!labelpath.empty()) {
-            ref_map = RefMap::loadRefMap(labelpath);
-            for (const auto& pair : ref_map) {
-                label_map[py::int_(pair.first)] = py::str(pair.second);
-            }
-        }
-    } else {
-        // Convert Python dict to C++ map
-        for (auto item : label_map) {
-            int key = item.first.cast<int>();
-            std::string value = item.second.cast<std::string>();
-            ref_map[key] = value;
-        }
+    for (size_t i = 0; i < names.size(); i++) {
+        ref_map[static_cast<int>(i) + 1] = names[i];
     }
 
     // Open the solution
@@ -60,6 +48,7 @@ py::tuple load_solution(const std::string& solpath, int64_t num_ver, int dim,
             for (auto i = 0; i < num_types; i++) {
                 // Load label name or fallback to REF_<marker_id>
                 std::string field_name = RefMap::getRefName(ref_map, i + 1);
+                label_map[py::int_(i + 1)] = py::str(field_name);
 
                 if (types[i] == GmfSca) {
                     py::array_t<double> scalar_field(num_ver);
@@ -100,18 +89,6 @@ py::tuple load_solution(const std::string& solpath, int64_t num_ver, int dim,
         }
     }
 
-    // Update the label_map with discovered fields
-    for (auto item : sol) {
-        std::string field_name = item.first.cast<std::string>();
-        // Find the ref_id for this field name
-        for (const auto& pair : ref_map) {
-            if (pair.second == field_name) {
-                label_map[py::int_(pair.first)] = py::str(pair.second);
-                break;
-            }
-        }
-    }
-
     // Close the solution
     GmfCloseMesh(sol_id);
 
@@ -138,7 +115,7 @@ bool write_solution(const std::string& solpath, py::dict sol_data, int64_t num_v
     int ref_id = 1;
     for (auto item : sol_data) {
         auto key = item.first.cast<std::string>();
-        auto field_array = item.second.cast<py::array_t<double>>();
+        auto field_array = limon::contiguous<double>(item.second);
 
         // Determine field type from array shape
         if (field_array.ndim() == 1) {

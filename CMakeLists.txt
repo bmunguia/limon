@@ -60,13 +60,13 @@ pybind11_add_module(_metric MODULE
 target_link_libraries(_metric PRIVATE Eigen3::Eigen)
 install(TARGETS _metric DESTINATION limon/numerics)
 
-# Build ref_map module
-pybind11_add_module(_ref_map MODULE
-    ${PROJECT_SOURCE_DIR}/limon/mesh/common/src/ref_map_bindings.cpp
-    ${LIMON_UTIL_SOURCES})
-target_include_directories(_ref_map PRIVATE
+# Build geometry module
+pybind11_add_module(_geometry MODULE
+    ${PROJECT_SOURCE_DIR}/limon/geometry/geometry.cpp
+    ${PROJECT_SOURCE_DIR}/limon/geometry/src/surface_metric.cpp)
+target_include_directories(_geometry PRIVATE
     ${PROJECT_SOURCE_DIR}/limon/mesh/common/include)
-install(TARGETS _ref_map DESTINATION limon/mesh)
+install(TARGETS _geometry DESTINATION limon/geometry)
 
 # Build refine module
 pybind11_add_module(_refine MODULE

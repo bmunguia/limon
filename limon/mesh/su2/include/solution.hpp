@@ -17,11 +17,9 @@ namespace su2 {
  * @param solpath Path to the solution file
  * @param num_point Number of vertices
  * @param dim Mesh dimension
- * @param write_labels Whether to write the labels to the file specified in labelpath
- * @param labelpath Path to write the label reference map file
  * @return Tuple of (solution dict, label_map dict)
  */
-py::tuple load_solution(const std::string& solpath, int num_point, int dim, bool write_labels = false, const std::string& labelpath = "");
+py::tuple load_solution(const std::string& solpath, int num_point, int dim);
 
 py::dict load_solution_ascii(const std::string& solpath, int num_point, int dim);
 

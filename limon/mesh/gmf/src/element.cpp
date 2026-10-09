@@ -4,6 +4,7 @@
 extern "C" {
 #include <libmeshb7.h>
 }
+#include "../../common/include/util.hpp"
 #include "../include/element.hpp"
 
 namespace limon {
@@ -149,17 +150,17 @@ void write_element_type(int64_t mesh_id, int kwd, py::array_t<unsigned int>& elm
 void write_elements_2D(int64_t mesh_id, const py::dict& elements, const py::dict& boundaries) {
     // Boundary elements
     if (boundaries.contains("Edges")) {
-        py::array_t<unsigned int> element_array = boundaries["Edges"].cast<py::array_t<unsigned int>>();
+        py::array_t<unsigned int> element_array = limon::contiguous<unsigned int>(boundaries["Edges"]);
         write_element_type(mesh_id, GmfEdges, element_array);
     }
 
     // Volume elements
     if (elements.contains("Triangles")) {
-        py::array_t<unsigned int> element_array = elements["Triangles"].cast<py::array_t<unsigned int>>();
+        py::array_t<unsigned int> element_array = limon::contiguous<unsigned int>(elements["Triangles"]);
         write_element_type(mesh_id, GmfTriangles, element_array);
     }
     if (elements.contains("Quadrilaterals")) {
-        py::array_t<unsigned int> element_array = elements["Quadrilaterals"].cast<py::array_t<unsigned int>>();
+        py::array_t<unsigned int> element_array = limon::contiguous<unsigned int>(elements["Quadrilaterals"]);
         write_element_type(mesh_id, GmfQuadrilaterals, element_array);
     }
 }
@@ -167,25 +168,25 @@ void write_elements_2D(int64_t mesh_id, const py::dict& elements, const py::dict
 void write_elements_3D(int64_t mesh_id, const py::dict& elements, const py::dict& boundaries) {
     // Boundary elements
     if (boundaries.contains("Triangles")) {
-        py::array_t<unsigned int> element_array = boundaries["Triangles"].cast<py::array_t<unsigned int>>();
+        py::array_t<unsigned int> element_array = limon::contiguous<unsigned int>(boundaries["Triangles"]);
         write_element_type(mesh_id, GmfTriangles, element_array);
     }
     if (boundaries.contains("Quadrilaterals")) {
-        py::array_t<unsigned int> element_array = boundaries["Quadrilaterals"].cast<py::array_t<unsigned int>>();
+        py::array_t<unsigned int> element_array = limon::contiguous<unsigned int>(boundaries["Quadrilaterals"]);
         write_element_type(mesh_id, GmfQuadrilaterals, element_array);
     }
 
     // Volume elements
     if (elements.contains("Tetrahedra")) {
-        py::array_t<unsigned int> element_array = elements["Tetrahedra"].cast<py::array_t<unsigned int>>();
+        py::array_t<unsigned int> element_array = limon::contiguous<unsigned int>(elements["Tetrahedra"]);
         write_element_type(mesh_id, GmfTetrahedra, element_array);
     }
     if (elements.contains("Prisms")) {
-        py::array_t<unsigned int> element_array = elements["Prisms"].cast<py::array_t<unsigned int>>();
+        py::array_t<unsigned int> element_array = limon::contiguous<unsigned int>(elements["Prisms"]);
         write_element_type(mesh_id, GmfPrisms, element_array);
     }
     if (elements.contains("Hexahedra")) {
-        py::array_t<unsigned int> element_array = elements["Hexahedra"].cast<py::array_t<unsigned int>>();
+        py::array_t<unsigned int> element_array = limon::contiguous<unsigned int>(elements["Hexahedra"]);
         write_element_type(mesh_id, GmfHexahedra, element_array);
     }
 }
@@ -211,7 +212,7 @@ void write_corners(int64_t mesh_id, const py::dict& boundaries) {
     if (!boundaries.contains("Corners")) {
         return;
     }
-    py::array_t<unsigned int> corner_array = boundaries["Corners"].cast<py::array_t<unsigned int>>();
+    py::array_t<unsigned int> corner_array = limon::contiguous<unsigned int>(boundaries["Corners"]);
     int64_t num_cor = corner_array.shape(0);
     if (num_cor == 0) {
         return;

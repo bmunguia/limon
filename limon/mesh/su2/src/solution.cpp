@@ -6,7 +6,6 @@
 #include <string>
 #include <vector>
 
-#include "../../common/include/ref_map.hpp"
 #include "../../common/include/util.hpp"
 #include "../include/solution.hpp"
 
@@ -251,7 +250,7 @@ py::dict process_solution_fields(const std::vector<std::string>& field_names,
     return sol;
 }
 
-py::tuple load_solution(const std::string& solpath, int num_point, int dim, bool write_labels, const std::string& labelpath) {
+py::tuple load_solution(const std::string& solpath, int num_point, int dim) {
     py::dict sol;
 
     std::ifstream file_check(solpath, std::ios::in | std::ios::binary);
@@ -277,17 +276,6 @@ py::tuple load_solution(const std::string& solpath, int num_point, int dim, bool
         std::string field_name = sol_id.cast<std::string>();
         label_map[py::int_(ref_id)] = py::str(field_name);
         ref_id++;
-    }
-
-    // Save updated solution label map back to file if provided
-    if (write_labels && !labelpath.empty()) {
-        std::map<int, std::string> ref_map;
-        for (auto item : label_map) {
-            int key = item.first.cast<int>();
-            std::string value = item.second.cast<std::string>();
-            ref_map[key] = value;
-        }
-        RefMap::writeRefMap(ref_map, labelpath, RefMapKind::Solution);
     }
 
     return py::make_tuple(sol, label_map);
@@ -323,7 +311,7 @@ bool write_solution_ascii(const std::string& solpath, py::dict sol, int num_poin
     // Process each field
     for (auto item : sol) {
         std::string key = item.first.cast<std::string>();
-        py::array_t<double> field = item.second.cast<py::array_t<double>>();
+        py::array_t<double> field = limon::contiguous<double>(item.second);
 
         if (field.ndim() == 1) {
             // Scalar field
@@ -404,7 +392,7 @@ bool write_solution_binary(const std::string& solpath, py::dict sol, int num_poi
     // Process each field
     for (auto item : sol) {
         std::string key = item.first.cast<std::string>();
-        py::array_t<double> field = item.second.cast<py::array_t<double>>();
+        py::array_t<double> field = limon::contiguous<double>(item.second);
 
         if (field.ndim() == 1) {
             // Scalar field

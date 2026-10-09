@@ -24,12 +24,6 @@ def meshpath_in_2d():
 
 
 @pytest.fixture
-def labelpath(output_dir):
-    """Path to solution label map file."""
-    return output_dir / 'labels.dat'
-
-
-@pytest.fixture
 def mesh_data_3d(meshpath_in_3d):
     """Load the 3D mesh and create a sample solution."""
     mesh_data = load_mesh(meshpath_in_3d)

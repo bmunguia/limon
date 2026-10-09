@@ -10,7 +10,7 @@
 namespace limon {
 namespace su2 {
 
-py::tuple load_mesh(const std::string& meshpath, bool write_markers, const std::string& markerpath) {
+py::tuple load_mesh(const std::string& meshpath) {
     // Check if file exists
     std::ifstream mesh_file(meshpath);
     if (!mesh_file.is_open()) {
@@ -104,7 +104,7 @@ py::tuple load_mesh(const std::string& meshpath, bool write_markers, const std::
     }
 
     py::dict boundaries;
-    std::map<int, std::string> ref_map = read_boundary_elements(mesh_file, boundary_count, boundaries, write_markers, markerpath);
+    std::map<int, std::string> ref_map = read_boundary_elements(mesh_file, boundary_count, boundaries);
 
     // Corners (optional section after boundary markers)
     while (std::getline(mesh_file, line)) {
@@ -165,7 +165,7 @@ bool write_mesh(const std::string& meshpath, const py::dict& mesh_data,
     }
 
     // Extract data from dictionary
-    py::array_t<double> coords = mesh_data["coords"].cast<py::array_t<double>>();
+    py::array_t<double> coords = limon::contiguous<double>(mesh_data["coords"]);
     py::dict elements = mesh_data["elements"].cast<py::dict>();
     py::dict boundaries = mesh_data["boundaries"].cast<py::dict>();
 
@@ -204,7 +204,7 @@ bool write_mesh(const std::string& meshpath, const py::dict& mesh_data,
     // Write elements
     int elem_count = 0;
     for (auto item : elements) {
-        auto element_array = item.second.cast<py::array_t<unsigned int>>();
+        auto element_array = limon::contiguous<unsigned int>(item.second);
         elem_count += element_array.shape(0);
     }
     mesh_file << "%" << std::endl;
@@ -236,7 +236,7 @@ bool write_mesh(const std::string& meshpath, const py::dict& mesh_data,
         // Extract unique markers from boundaries
         auto process_boundary_type = [&unique_markers](const py::dict& boundaries, const std::string& key) {
             if (boundaries.contains(key)) {
-                auto element_array = boundaries[key.c_str()].cast<py::array_t<unsigned int>>();
+                auto element_array = limon::contiguous<unsigned int>(boundaries[key.c_str()]);
                 auto elem_ptr = element_array.data();
                 int num_elem = element_array.shape(0);
                 int num_node = element_array.shape(1) - 1;
@@ -262,7 +262,7 @@ bool write_mesh(const std::string& meshpath, const py::dict& mesh_data,
 
     // Write corners if present
     if (boundaries.contains("Corners")) {
-        py::array_t<unsigned int> corner_array = boundaries["Corners"].cast<py::array_t<unsigned int>>();
+        py::array_t<unsigned int> corner_array = limon::contiguous<unsigned int>(boundaries["Corners"]);
         int num_cor = corner_array.shape(0);
         if (num_cor > 0) {
             auto cor_ptr = corner_array.data();

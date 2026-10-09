@@ -25,17 +25,11 @@ PYBIND11_MODULE(libgmf, m) {
      * Read mesh data from a GMF mesh (.meshb) file.
      *
      * @param meshpath Path to the mesh file
-     * @param marker_map Dictionary mapping marker IDs to names (optional)
-     * @param read_markers Whether to read markers from markerpath file
-     * @param markerpath Path to the marker reference map file
-     * @return Tuple of (mesh_data dict, marker_map dict)
+     * @return mesh_data dict
      */
     m.def("load_mesh", &limon::gmf::load_mesh,
           py::arg("meshpath"),
-          py::arg("marker_map") = py::dict(),
-          py::arg("read_markers") = false,
-          py::arg("markerpath") = "",
-          "Read a meshb file and return tuple of (mesh_data, marker_map).");
+          "Read a meshb file and return mesh_data.");
 
     /**
      * Write mesh data to a GMF mesh (.meshb) file.
@@ -55,18 +49,14 @@ PYBIND11_MODULE(libgmf, m) {
      * @param solpath Path to the solution file
      * @param num_ver Number of vertices
      * @param dim Mesh dimension
-     * @param label_map Dictionary mapping label IDs to names (optional)
-     * @param read_labels Whether to read labels from labelpath file
-     * @param labelpath Path to the label reference map file
+     * @param names Field names in file order (optional; missing names become REF_<n>)
      * @return Tuple of (solution dict, label_map dict)
      */
     m.def("load_solution", &limon::gmf::load_solution,
           py::arg("solpath"),
           py::arg("num_ver"),
           py::arg("dim"),
-          py::arg("label_map") = py::dict(),
-          py::arg("read_labels") = false,
-          py::arg("labelpath") = "",
+          py::arg("names") = std::vector<std::string>(),
           "Read a solb solution file and return tuple of (solution, label_map).");
 
     /**

@@ -39,8 +39,7 @@ void read_boundary_elements_2D(std::ifstream& file_stream, int marker_idx, int m
 void read_boundary_elements_3D(std::ifstream& file_stream, int marker_idx, int marker_elements,
                                py::dict& boundaries);
 
-std::map<int, std::string> read_boundary_elements(std::ifstream& file_stream, int boundary_count, py::dict& boundaries,
-                                                  bool write_markers = false, const std::string& markerpath = "");
+std::map<int, std::string> read_boundary_elements(std::ifstream& file_stream, int boundary_count, py::dict& boundaries);
 
 void write_element_type(std::ofstream& mesh_file, int elem_type, py::array_t<unsigned int>& element_array);
 

@@ -24,18 +24,6 @@ def solpath_in_ascii():
 
 
 @pytest.fixture
-def markerpath(output_dir):
-    """Path to marker map file."""
-    return output_dir / 'markers.dat'
-
-
-@pytest.fixture
-def labelpath(output_dir):
-    """Path to solution label map file."""
-    return output_dir / 'labels.dat'
-
-
-@pytest.fixture
 def output_dir(request):
     """Create a persistent output directory for test files."""
     out_dir = Path('output') / request.node.name
@@ -44,34 +32,18 @@ def output_dir(request):
 
 
 @pytest.fixture
-def mesh_data_binary(meshpath_in, solpath_in_binary, markerpath, labelpath):
+def mesh_data_binary(meshpath_in, solpath_in_binary):
     """Load the 2D mesh and binary solution."""
-    mesh_data = load_mesh_and_solution(
-        meshpath_in,
-        solpath_in_binary,
-        markerpath=markerpath,
-        labelpath=labelpath,
-        write_markers=True,
-        write_labels=True,
-    )
-    return mesh_data
+    return load_mesh_and_solution(meshpath_in, solpath_in_binary)
 
 
 @pytest.fixture
-def mesh_data_ascii(meshpath_in, solpath_in_ascii, markerpath, labelpath):
+def mesh_data_ascii(meshpath_in, solpath_in_ascii):
     """Load the 2D mesh and ASCII solution."""
-    mesh_data = load_mesh_and_solution(
-        meshpath_in,
-        solpath_in_ascii,
-        markerpath=markerpath,
-        labelpath=labelpath,
-        write_markers=True,
-        write_labels=True,
-    )
-    return mesh_data
+    return load_mesh_and_solution(meshpath_in, solpath_in_ascii)
 
 
-def test_read_su2_binary(mesh_data_binary, markerpath, labelpath):
+def test_read_su2_binary(mesh_data_binary):
     """Test reading a binary (.dat) SU2 mesh file."""
     coords = mesh_data_binary['coords']
     elements = mesh_data_binary['elements']
@@ -81,12 +53,12 @@ def test_read_su2_binary(mesh_data_binary, markerpath, labelpath):
     # Assert that the mesh data is loaded correctly
     assert coords.shape[0] > 0  # Ensure there are points
     assert len(elements) > 0  # Ensure there are elements
-    assert markerpath.exists()  # Ensure that the marker file exists
-    assert labelpath.exists()  # Ensure that the solution label file exists
+    assert mesh_data_binary['markers']  # Marker names are returned in memory
+    assert list(mesh_data_binary['labels'].values()) == list(solution)  # Field names follow the file order
     assert isinstance(solution, dict)  # Ensure solution is a dictionary
 
 
-def test_read_su2_ascii(mesh_data_ascii, markerpath, labelpath):
+def test_read_su2_ascii(mesh_data_ascii):
     """Test reading an ASCII (.csv) SU2 mesh file."""
     coords = mesh_data_ascii['coords']
     elements = mesh_data_ascii['elements']
@@ -96,12 +68,12 @@ def test_read_su2_ascii(mesh_data_ascii, markerpath, labelpath):
     # Assert that the mesh data is loaded correctly
     assert coords.shape[0] > 0  # Ensure there are points
     assert len(elements) > 0  # Ensure there are elements
-    assert markerpath.exists()  # Ensure that the marker file exists
-    assert labelpath.exists()  # Ensure that the solution label file exists
+    assert mesh_data_ascii['markers']  # Marker names are returned in memory
+    assert list(mesh_data_ascii['labels'].values()) == list(solution)  # Field names follow the file order
     assert isinstance(solution, dict)  # Ensure solution is a dictionary
 
 
-def test_su2_binary_to_binary(mesh_data_binary, output_dir, markerpath, labelpath, solpath_in_binary):
+def test_su2_binary_to_binary(mesh_data_binary, output_dir, solpath_in_binary):
     """Test reading a SU2 mesh file and binary solution, and writing it back
     with a binary solution.
     """
@@ -124,7 +96,7 @@ def test_su2_binary_to_binary(mesh_data_binary, output_dir, markerpath, labelpat
     assert solpath_out.read_bytes() == solpath_in_binary.read_bytes()
 
 
-def test_su2_binary_to_ascii(mesh_data_binary, output_dir, markerpath, labelpath, solpath_in_ascii):
+def test_su2_binary_to_ascii(mesh_data_binary, output_dir, solpath_in_ascii):
     """Test reading a SU2 mesh file and binary solution, and writing it back
     with an ASCII solution.
     """
@@ -147,7 +119,7 @@ def test_su2_binary_to_ascii(mesh_data_binary, output_dir, markerpath, labelpath
     assert solpath_out.read_bytes() == solpath_in_ascii.read_bytes()
 
 
-def test_su2_ascii_to_ascii(mesh_data_ascii, output_dir, markerpath, labelpath, solpath_in_ascii):
+def test_su2_ascii_to_ascii(mesh_data_ascii, output_dir, solpath_in_ascii):
     """Test reading a SU2 mesh file and ASCII solution, and writing it back
     with an ASCII solution.
     """
@@ -170,7 +142,7 @@ def test_su2_ascii_to_ascii(mesh_data_ascii, output_dir, markerpath, labelpath, 
     assert solpath_out.read_bytes() == solpath_in_ascii.read_bytes()
 
 
-def test_su2_ascii_to_binary(mesh_data_ascii, output_dir, markerpath, labelpath, meshpath_in, solpath_in_binary):
+def test_su2_ascii_to_binary(mesh_data_ascii, output_dir, meshpath_in, solpath_in_binary):
     """Test reading a SU2 mesh file and ASCII solution, and writing it back
     with a binary solution.
     """

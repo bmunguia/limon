@@ -1,7 +1,0 @@
-TITLE = "Marker ref map"
-VARIABLES = "ID","Tag"
-ZONE T= "Marker tags"
-1, lower
-2, right
-3, upper
-4, left

@@ -6,7 +6,6 @@ extern "C" {
 #include <libmeshb7.h>
 }
 
-#include "../../common/include/ref_map.hpp"
 #include "../../common/include/util.hpp"
 #include "../include/element.hpp"
 #include "../include/mesh.hpp"
@@ -14,21 +13,9 @@ extern "C" {
 namespace limon {
 namespace gmf {
 
-py::tuple load_mesh(const std::string& meshpath, py::dict marker_map,
-                    bool read_markers, const std::string& markerpath) {
+py::dict load_mesh(const std::string& meshpath) {
     int version;
     int dim;
-
-    // Load or initialize marker map
-    if (read_markers || marker_map.empty()) {
-        marker_map.clear();
-        if (!markerpath.empty()) {
-            auto cpp_map = RefMap::loadRefMap(markerpath);
-            for (const auto& pair : cpp_map) {
-                marker_map[py::int_(pair.first)] = py::str(pair.second);
-            }
-        }
-    }
 
     // Open the mesh
     int64_t mesh_id = GmfOpenMesh(meshpath.c_str(), GmfRead, &version, &dim);
@@ -86,7 +73,7 @@ py::tuple load_mesh(const std::string& meshpath, py::dict marker_map,
     mesh_data["dim"] = dim;
     mesh_data["num_point"] = static_cast<int>(num_ver);
 
-    return py::make_tuple(mesh_data, marker_map);
+    return mesh_data;
 }
 
 bool write_mesh(const std::string& meshpath, const py::dict& mesh_data) {
@@ -102,7 +89,7 @@ bool write_mesh(const std::string& meshpath, const py::dict& mesh_data) {
     }
 
     // Extract data from dictionary
-    py::array_t<double> coords = mesh_data["coords"].cast<py::array_t<double>>();
+    py::array_t<double> coords = limon::contiguous<double>(mesh_data["coords"]);
     py::dict elements = mesh_data["elements"].cast<py::dict>();
     py::dict boundaries = mesh_data["boundaries"].cast<py::dict>();
 

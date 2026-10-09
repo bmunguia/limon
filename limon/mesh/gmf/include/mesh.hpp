@@ -15,13 +15,9 @@ namespace gmf {
  * Read mesh data from a GMF mesh (.meshb) file.
  *
  * @param meshpath Path to the mesh file
- * @param marker_map Dictionary mapping marker IDs to marker names (optional)
- * @param read_markers Whether to read markers from markerpath file
- * @param markerpath Path to the marker reference map file
- * @return Tuple of (mesh_data dict, marker_map dict)
+ * @return mesh_data dict (GMF files hold boundary references, not marker names)
  */
-py::tuple load_mesh(const std::string& meshpath, py::dict marker_map,
-                    bool read_markers, const std::string& markerpath);
+py::dict load_mesh(const std::string& meshpath);
 
 /**
  * Write mesh data to a GMF mesh (.meshb) file.

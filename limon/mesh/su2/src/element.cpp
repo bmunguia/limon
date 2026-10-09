@@ -175,7 +175,7 @@ void read_boundary_element_type(std::ifstream& file_stream, int marker_idx, int 
         int existing_count = 0;
 
         if (boundaries.contains(key_name)) {
-            element_array = boundaries[key_name.c_str()].cast<py::array_t<unsigned int>>();
+            element_array = limon::contiguous<unsigned int>(boundaries[key_name.c_str()]);
             existing_count = element_array.shape(0);
 
             // Create new array with extended size
@@ -243,8 +243,7 @@ void read_boundary_elements_3D(std::ifstream& file_stream, int marker_idx, int m
     read_boundary_element_type(file_stream, marker_idx, marker_elements, 9, boundaries, "Quadrilaterals");
 }
 
-std::map<int, std::string> read_boundary_elements(std::ifstream& file_stream, int boundary_count, py::dict& boundaries,
-                                                  bool write_markers, const std::string& markerpath) {
+std::map<int, std::string> read_boundary_elements(std::ifstream& file_stream, int boundary_count, py::dict& boundaries) {
     // Process each boundary marker
     std::string line;
     std::map<int, std::string> ref_map;
@@ -305,11 +304,6 @@ std::map<int, std::string> read_boundary_elements(std::ifstream& file_stream, in
         }
     }
 
-    // Save updated marker map back to file if provided
-    if (write_markers && !markerpath.empty()) {
-        RefMap::writeRefMap(ref_map, markerpath, RefMapKind::Marker);
-    }
-
     return ref_map;
 }
 
@@ -334,14 +328,14 @@ void write_elements_2D(std::ofstream& mesh_file, const py::dict& elements, int& 
 
     // Write triangles if present
     if (elements.contains("Triangles")) {
-        auto element_array = elements["Triangles"].cast<py::array_t<unsigned int>>();
+        auto element_array = limon::contiguous<unsigned int>(elements["Triangles"]);
         write_element_type(mesh_file, elem_type_map["Triangles"], element_array);
         elem_count += element_array.shape(0);
     }
 
     // Write quadrilaterals if present
     if (elements.contains("Quadrilaterals")) {
-        auto element_array = elements["Quadrilaterals"].cast<py::array_t<unsigned int>>();
+        auto element_array = limon::contiguous<unsigned int>(elements["Quadrilaterals"]);
         write_element_type(mesh_file, elem_type_map["Quadrilaterals"], element_array);
         elem_count += element_array.shape(0);
     }
@@ -352,28 +346,28 @@ void write_elements_3D(std::ofstream& mesh_file, const py::dict& elements, int& 
 
     // Write tetrahedra if present
     if (elements.contains("Tetrahedra")) {
-        auto element_array = elements["Tetrahedra"].cast<py::array_t<unsigned int>>();
+        auto element_array = limon::contiguous<unsigned int>(elements["Tetrahedra"]);
         write_element_type(mesh_file, elem_type_map["Tetrahedra"], element_array);
         elem_count += element_array.shape(0);
     }
 
     // Write prisms if present
     if (elements.contains("Prisms")) {
-        auto element_array = elements["Prisms"].cast<py::array_t<unsigned int>>();
+        auto element_array = limon::contiguous<unsigned int>(elements["Prisms"]);
         write_element_type(mesh_file, elem_type_map["Prisms"], element_array);
         elem_count += element_array.shape(0);
     }
 
     // Write pyramids if present
     if (elements.contains("Pyramids")) {
-        auto element_array = elements["Pyramids"].cast<py::array_t<unsigned int>>();
+        auto element_array = limon::contiguous<unsigned int>(elements["Pyramids"]);
         write_element_type(mesh_file, elem_type_map["Pyramids"], element_array);
         elem_count += element_array.shape(0);
     }
 
     // Write hexahedra if present
     if (elements.contains("Hexahedra")) {
-        auto element_array = elements["Hexahedra"].cast<py::array_t<unsigned int>>();
+        auto element_array = limon::contiguous<unsigned int>(elements["Hexahedra"]);
         write_element_type(mesh_file, elem_type_map["Hexahedra"], element_array);
         elem_count += element_array.shape(0);
     }
@@ -395,7 +389,7 @@ void write_boundary_elements_2D(std::ofstream& mesh_file, const py::dict& bounda
         return;
     }
 
-    auto element_array = boundaries["Edges"].cast<py::array_t<unsigned int>>();
+    auto element_array = limon::contiguous<unsigned int>(boundaries["Edges"]);
     auto elem_ptr = element_array.data();
     int num_elem = element_array.shape(0);
     int num_node = element_array.shape(1) - 1;
@@ -436,7 +430,7 @@ void write_boundary_elements_3D(std::ofstream& mesh_file, const py::dict& bounda
 
     // Process triangles
     if (boundaries.contains("Triangles")) {
-        auto element_array = boundaries["Triangles"].cast<py::array_t<unsigned int>>();
+        auto element_array = limon::contiguous<unsigned int>(boundaries["Triangles"]);
         auto elem_ptr = element_array.data();
         int num_elem = element_array.shape(0);
         int num_node = element_array.shape(1) - 1;
@@ -453,7 +447,7 @@ void write_boundary_elements_3D(std::ofstream& mesh_file, const py::dict& bounda
 
     // Process quadrilaterals
     if (boundaries.contains("Quadrilaterals")) {
-        auto element_array = boundaries["Quadrilaterals"].cast<py::array_t<unsigned int>>();
+        auto element_array = limon::contiguous<unsigned int>(boundaries["Quadrilaterals"]);
         auto elem_ptr = element_array.data();
         int num_elem = element_array.shape(0);
         int num_node = element_array.shape(1) - 1;
