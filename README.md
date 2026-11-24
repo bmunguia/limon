@@ -1,3 +1,5 @@
+<p align="center"><img width="250" src="docs/logo.png" alt="limon"></p>
+
 # limon
 The **LI**brary for **M**esh **O**perations and **N**umerics (limon) is a Python API to handle mesh/solution I/O for SU2 and GMF formats, basic mesh refinement operations, and various operations on metric tensor fields.
 

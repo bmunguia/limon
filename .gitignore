@@ -26,6 +26,7 @@ output
 *.out
 *.pt
 *.png
+!docs/logo.png
 
 # GMF and vizir
 *.mesh
