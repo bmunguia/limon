@@ -3,7 +3,13 @@ from numpy.typing import NDArray
 
 
 def _get_metric():
-    from . import _metric
+    try:
+        from . import _metric
+    except ImportError as err:
+        raise ImportError(
+            'limon.numerics was built without its metric module because Eigen was not found; '
+            'install Eigen (e.g. conda install eigen) and reinstall limon.'
+        ) from err
     return _metric
 
 

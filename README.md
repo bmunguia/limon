@@ -8,13 +8,26 @@ The **LI**brary for **M**esh **O**perations and **N**umerics (limon) is a Python
 > [!IMPORTANT]
 > limon is currently only supported for Linux.
 
-1. Initialize the submodules:
+### With pip
+
+limon is not on PyPI (the `limon` package there is a different project), so install it from GitHub:
+
+```
+pip install git+https://github.com/bmunguia/limon.git
+```
+
+pip fetches the submodules and builds the C++ extensions, so a C/C++ compiler and CMake (3.15 or newer) must be available. The metric operations in `limon.numerics` also need [Eigen](https://eigen.tuxfamily.org) (e.g. `conda install -c conda-forge eigen` or `apt install libeigen3-dev`). Without it, limon builds and installs everything else, and `limon.numerics` raises an `ImportError` when called.
+
+### From source
+
+1. Clone the repo and initialize the submodules:
 
     ```
+    git clone https://github.com/bmunguia/limon.git && cd limon
     git submodule update --init --recursive
     ```
 
-2. Create the `conda` environment from `environment.yml`:
+2. Create the `conda` environment from `environment.yml` (compilers, CMake and Eigen included):
 
     ```
     conda env create -f environment.yml
@@ -98,12 +111,17 @@ data['markers']                       # {1: 'airfoil', 2: 'farfield'}, as from l
 data['labels']                        # {1: 'x', 2: 'y', 3: 'Density', 4: 'Momentum', 5: 'Energy'}
 data['solution']['Density']           # (num_point,)
 data['solution']['Momentum']          # (num_point, 2)
-# With SENSOR_HESSIAN and METRIC in the run's VOLUME_OUTPUT, the restart also holds:
-# data['solution']['Hessian_Mach']    # (num_point, 3), packed [xx, xy, yy]
-# data['solution']['Metric']          # (num_point, 3), packed [xx, xy, yy]
+# With ADAPTIVE_METRIC_SENSOR= MACH and SENSOR_HESSIAN, ADAPTIVE_METRIC in the run's VOLUME_OUTPUT,
+# the restart also holds (one Hessian and one metric per sensor):
+# data['solution']['Hessian_Mach']         # (num_point, 3), packed [xx, xy, yy], signed
+# data['solution']['AdaptiveMetric_Mach']  # (num_point, 3), packed [xx, xy, yy]
 
 # Convert both to GMF: naca.meshb, naca.solb and one naca.names.json with markers and field names
 write_mesh_and_solution('naca.meshb', 'naca.solb', data)
+
+# Only the metric, e.g. to view it in a GMF viewer or pass it to a mesh adapter
+metric_only = {**data, 'solution': {'AdaptiveMetric_Mach': data['solution']['AdaptiveMetric_Mach']}}
+write_mesh_and_solution('naca_metric.meshb', 'naca_metric.solb', metric_only)
 
 # Solution only: needs the point count and dimension of its mesh
 n, dim = data['num_point'], data['dim']
@@ -125,7 +143,7 @@ The solution dictionary contains:
 | `solution` | Field name → `float64` array: scalars `(num_point,)`, vectors `(num_point, dim)`, symmetric tensors `(num_point, 3)` in 2-D and `(num_point, 6)` in 3-D |
 | `labels` | 1-based field index → field name, in file order |
 
-Symmetric tensors (Hessians, metrics) are packed as `[xx, xy, yy]` in 2-D and `[xx, xy, yy, xz, yz, zz]` in 3-D. SU2 restart columns are grouped by name: `Momentum_x`, `Momentum_y` become `Momentum`, and `Metric_xx`, `Metric_xy`, `Metric_yy` become `Metric`.
+Symmetric tensors (Hessians, metrics) are packed as `[xx, xy, yy]` in 2-D and `[xx, xy, yy, xz, yz, zz]` in 3-D. SU2 restart columns are grouped by name: `Momentum_x`, `Momentum_y` become `Momentum`, and `AdaptiveMetric_Mach_xx`, `AdaptiveMetric_Mach_xy`, `AdaptiveMetric_Mach_yy` become `AdaptiveMetric_Mach`.
 
 ### Surface metric
 
@@ -146,5 +164,5 @@ Boundary nodes of the listed markers get a tangent edge length set by the local 
 ### Work in progress
 
 These modules are still being developed; their interfaces may change:
-- `limon.numerics`: operations on fields of symmetric (metric) tensors, such as eigendecomposition and recomposition (`decompose_metric_field`, `recompose_metric_field`, `rotation_angles_field`), perturbation of eigenvalues and eigenvectors (`perturb_metric_field`), normalization to a target complexity (`integrate_metric_field`, `normalize_metric_field`), and edge lengths in the metric (`metric_edge_length`).
+- `limon.numerics` (requires Eigen): operations on fields of symmetric (metric) tensors, such as eigendecomposition and recomposition (`decompose_metric_field`, `recompose_metric_field`, `rotation_angles_field`), perturbation of eigenvalues and eigenvectors (`perturb_metric_field`), normalization to a target complexity (`integrate_metric_field`, `normalize_metric_field`), and edge lengths in the metric (`metric_edge_length`).
 - `limon.operations.refine_mesh`: uniform mesh refinement.

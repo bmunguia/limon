@@ -10,7 +10,17 @@ list(APPEND CMAKE_PREFIX_PATH $ENV{CONDA_PREFIX})
 
 # Required packages
 find_package(pybind11 REQUIRED)
-find_package(Eigen3 REQUIRED)
+
+# Eigen is needed only by the metric module (limon.numerics)
+option(LIMON_WITH_NUMERICS "Build the metric module (limon.numerics); requires Eigen" ON)
+if(LIMON_WITH_NUMERICS)
+    find_package(Eigen3 3.3 QUIET NO_MODULE)
+    if(NOT Eigen3_FOUND)
+        message(WARNING "Eigen3 not found: limon.numerics is not built. Install Eigen (e.g. conda install eigen) "
+                        "or set -DEigen3_DIR to build it.")
+        set(LIMON_WITH_NUMERICS OFF)
+    endif()
+endif()
 
 # libMeshb submodule
 add_subdirectory(${PROJECT_SOURCE_DIR}/libMeshb)
@@ -48,17 +58,19 @@ target_include_directories(libsu2 PRIVATE
 install(TARGETS libsu2 DESTINATION limon/mesh/su2)
 
 # Build metric module
-pybind11_add_module(_metric MODULE
-    ${PROJECT_SOURCE_DIR}/limon/numerics/metric.cpp
-    ${PROJECT_SOURCE_DIR}/limon/numerics/src/decompose.cpp
-    ${PROJECT_SOURCE_DIR}/limon/numerics/src/recompose.cpp
-    ${PROJECT_SOURCE_DIR}/limon/numerics/src/integrate.cpp
-    ${PROJECT_SOURCE_DIR}/limon/numerics/src/normalize.cpp
-    ${PROJECT_SOURCE_DIR}/limon/numerics/src/perturb.cpp
-    ${PROJECT_SOURCE_DIR}/limon/numerics/src/edge_length.cpp
-    ${PROJECT_SOURCE_DIR}/limon/numerics/src/rotation_angle.cpp)
-target_link_libraries(_metric PRIVATE Eigen3::Eigen)
-install(TARGETS _metric DESTINATION limon/numerics)
+if(LIMON_WITH_NUMERICS)
+    pybind11_add_module(_metric MODULE
+        ${PROJECT_SOURCE_DIR}/limon/numerics/metric.cpp
+        ${PROJECT_SOURCE_DIR}/limon/numerics/src/decompose.cpp
+        ${PROJECT_SOURCE_DIR}/limon/numerics/src/recompose.cpp
+        ${PROJECT_SOURCE_DIR}/limon/numerics/src/integrate.cpp
+        ${PROJECT_SOURCE_DIR}/limon/numerics/src/normalize.cpp
+        ${PROJECT_SOURCE_DIR}/limon/numerics/src/perturb.cpp
+        ${PROJECT_SOURCE_DIR}/limon/numerics/src/edge_length.cpp
+        ${PROJECT_SOURCE_DIR}/limon/numerics/src/rotation_angle.cpp)
+    target_link_libraries(_metric PRIVATE Eigen3::Eigen)
+    install(TARGETS _metric DESTINATION limon/numerics)
+endif()
 
 # Build geometry module
 pybind11_add_module(_geometry MODULE
