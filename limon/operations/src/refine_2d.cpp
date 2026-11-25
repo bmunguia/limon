@@ -62,7 +62,7 @@ py::dict refine_2d(const py::dict& mesh_data) {
     }
     for (auto item : boundaries) {
         std::string key = item.first.cast<std::string>();
-        if (key != "Edges") {
+        if (key != "Corners" && key != "Edges") {
             throw std::runtime_error("Invalid boundary type in 2D refinement: " + key);
         }
     }
@@ -80,6 +80,11 @@ py::dict refine_2d(const py::dict& mesh_data) {
     auto process_elements = [&](const py::dict& element_dict, bool is_boundary) {
         for (auto item : element_dict) {
             std::string key = item.first.cast<std::string>();
+            // Corners are original node indices, which refinement keeps
+            if (is_boundary && key == "Corners") {
+                new_boundaries["Corners"] = item.second;
+                continue;
+            }
             py::array_t<unsigned int> element_array = item.second.cast<py::array_t<unsigned int>>();
             auto elem_buf = element_array.request();
             auto* elem_ptr = static_cast<unsigned int*>(elem_buf.ptr);

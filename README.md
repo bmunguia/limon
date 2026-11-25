@@ -8,17 +8,24 @@ The **LI**brary for **M**esh **O**perations and **N**umerics (limon) is a Python
 > [!IMPORTANT]
 > limon is currently only supported for Linux.
 
+Installing limon compiles its C++ extensions, so it needs a C/C++ compiler and the Python development headers (`python3-dev` or `python3-devel` for a system Python; conda and python.org builds include them). The optional metric operations in `limon.numerics` also need [Eigen](https://eigen.tuxfamily.org); without it, everything else is built and `limon.numerics` raises an `ImportError` when called.
+
 ### With pip
 
-limon is not on PyPI (the `limon` package there is a different project), so install it from GitHub:
+In any Python environment (venv, conda, etc.), pip clones the repo and builds limon in one step, fetching CMake itself if none is installed:
 
 ```
 pip install git+https://github.com/bmunguia/limon.git
 ```
 
-pip fetches the submodules and builds the C++ extensions, so a C/C++ compiler and CMake (3.15 or newer) must be available. The metric operations in `limon.numerics` also need [Eigen](https://eigen.tuxfamily.org) (e.g. `conda install -c conda-forge eigen` or `apt install libeigen3-dev`). Without it, limon builds and installs everything else, and `limon.numerics` raises an `ImportError` when called.
+For `limon.numerics`, install Eigen first, e.g. `apt install libeigen3-dev` (Ubuntu), `dnf install eigen3-devel` (Fedora), or `conda install -c conda-forge eigen` (conda).
 
-### From source
+> [!NOTE]
+> In a conda environment, if reading a mesh fails with `GLIBCXX_... not found`, the system compiler is newer than the environment's C++ runtime. Install the compilers from conda as well (`conda install -c conda-forge cxx-compiler`) and rerun the `pip install` with `--force-reinstall` in the activated environment.
+
+### From source, in a new conda environment
+
+`environment.yml` provides the compilers, CMake and Eigen:
 
 1. Clone the repo and initialize the submodules:
 
@@ -27,19 +34,14 @@ pip fetches the submodules and builds the C++ extensions, so a C/C++ compiler an
     git submodule update --init --recursive
     ```
 
-2. Create the `conda` environment from `environment.yml` (compilers, CMake and Eigen included):
+2. Create and load the `conda` environment:
 
     ```
     conda env create -f environment.yml
-    ```
-
-3. Load the environment:
-
-    ```
     conda activate limon
     ```
 
-4. From the top-level directory of the repo, install the package:
+3. From the top-level directory of the repo, install the package:
 
     ```
     pip install .

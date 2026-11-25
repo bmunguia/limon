@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import numpy as np
 import pytest
 from limon.mesh import load_mesh, write_mesh
 from limon.operations import refine_mesh
@@ -43,7 +44,8 @@ def test_refine_2d(mesh_data_2d, output_dir):
     # Count original boundary elements
     original_num_boundary = 0
     for bound_type, bound_array in original_boundaries.items():
-        original_num_boundary += bound_array.shape[0]
+        if bound_type != 'Corners':
+            original_num_boundary += bound_array.shape[0]
 
     print(
         f'Original mesh: {original_num_points} points, {original_num_elements} elements, {original_num_boundary} boundary elements'
@@ -67,7 +69,8 @@ def test_refine_2d(mesh_data_2d, output_dir):
     # Count refined boundary elements
     refined_num_boundary = 0
     for bound_type, bound_array in refined_boundaries.items():
-        refined_num_boundary += bound_array.shape[0]
+        if bound_type != 'Corners':
+            refined_num_boundary += bound_array.shape[0]
 
     print(
         f'Refined mesh: {refined_num_points} points, {refined_num_elements} elements, {refined_num_boundary} boundary elements'
@@ -93,6 +96,11 @@ def test_refine_2d(mesh_data_2d, output_dir):
     assert refined_num_points > original_num_points, (
         f'Expected more points than {original_num_points}, got {refined_num_points}'
     )
+
+    # Corners keep their node indices and coordinates
+    corners = original_boundaries['Corners']
+    np.testing.assert_array_equal(refined_boundaries['Corners'], corners)
+    np.testing.assert_array_equal(refined_coords[corners], original_coords[corners])
 
     # Write the refined mesh to output directory for inspection
     meshpath_out = output_dir / 'square_refined.mesh'
